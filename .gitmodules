@@ -1,3 +1,0 @@
-[submodule "libraries"]
-	path = libraries
-	url = git://github.com/saasrobotics/libraries.git
