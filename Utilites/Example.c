@@ -1,6 +1,8 @@
-// example.c
+// Example.c
 
 /*
+
+	(C) Copyright 2014 John Doe
 
 	This file is part of the FTC team 2856 application code.
 
