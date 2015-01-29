@@ -1,4 +1,5 @@
 #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTMotor,  HTServo)
+#pragma config(Sensor, S2,     Gyro,           sensorI2CCustom)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S1_C1_1,     motorD,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C1_2,     motorE,        tmotorTetrix, openLoop)
@@ -18,8 +19,10 @@
 #include "Motors.h"
 #include "Servos.h"
 #include "Menu.c"
+#include "Gyro.c"
 
 bool WaitForStartBool = false;
+int ArmPosition = 0;
 
 void MoveLeft(int Power)
 {
@@ -30,18 +33,19 @@ void MoveLeft(int Power)
 
 void Shoot()
 {
-	//Motors_SetSpeed(S1, 2, 2, 100);
 	motor[motorG] = 100;
+	motor[motorH] = 100;
 }
 
 void StopShoot()
 {
 	motor[motorG] = 0;
+	motor[motorH] = 0;
 }
 
 void RaiseServos()
 {
-	servo[servo1] = 240;
+	servo[servo1] = 120;
 	// Servos_SetPosition(S1, 4, 1, 240);
 }
 
@@ -61,7 +65,7 @@ void MoveArm(int Power)
 
 void LowerServos()
 {
-	servo[servo1] = 70;
+	servo[servo1] = 0;
 	//Servos_SetPosition(S1, 4, 1, 70);
 }
 
@@ -102,15 +106,23 @@ void MainProgram()
 
 	sleep(500);
 
-	MoveArm(60);
+	MoveLeft(-5);
+	MoveRight(-10);
 
-	sleep(2100);
+	MoveArm(50);
+
+	sleep(2000);
 
 	servo[servo2] = 240;
 
 	MoveArm(0);
 
-	while(nMotorEncoder[motorE] < StartEncoder + 1440 * 4.0)
+	ArmPosition = nMotorEncoder[motorF];
+
+	MoveLeft(-25);
+	MoveRight(-30);
+
+	while(nMotorEncoder[motorE] < StartEncoder + 1440 * 4.2)
 	{
 		writeDebugStreamLine("%i", nMotorEncoder[motorE]);
 	}
@@ -125,55 +137,55 @@ void MainProgram()
 	LowerServos();
 	sleep(200);
 
-	//SECOND TRY
+	////SECOND TRY
 
-	//turn right
-	MoveRight(-40);
-	MoveLeft(40);
+	////turn right
+	//MoveRight(-40);
+	//MoveLeft(40);
 
-	sleep(600);
+	//sleep(600);
 
-	RaiseServos();
-	sleep(200);
+	//RaiseServos();
+	//sleep(200);
 
-	//move back
-	MoveRight(-40);
-	MoveLeft(-40);
+	////move back
+	//MoveRight(-40);
+	//MoveLeft(-40);
 
-	sleep(400);
+	//sleep(400);
 
-	//stop
-	MoveRight(0);
-	MoveLeft(0);
+	////stop
+	//MoveRight(0);
+	//MoveLeft(0);
 
-	//lower servos
-	LowerServos();
-	sleep(200);
+	////lower servos
+	//LowerServos();
+	//sleep(200);
 
-	//THIRD TRY
+	////THIRD TRY
 
-	//turn right
-	MoveRight(-40);
-	MoveLeft(40);
+	////turn right
+	//MoveRight(-40);
+	//MoveLeft(40);
 
-	sleep(600);
+	//sleep(600);
 
-	//raise servos
-	RaiseServos();
+	////raise servos
+	//RaiseServos();
 
-	//move back
-	MoveRight(-40);
-	MoveLeft(-40);
+	////move back
+	//MoveRight(-40);
+	//MoveLeft(-40);
 
-	sleep(400);
+	//sleep(400);
 
-	//stop
-	MoveRight(0);
-	MoveLeft(0);
+	////stop
+	//MoveRight(0);
+	//MoveLeft(0);
 
-	//lower servos
-	LowerServos();
-	sleep(500);
+	////lower servos
+	//LowerServos();
+	//sleep(500);
 
 	//TRY TO SCORE NOW
 	//go Straight
@@ -198,13 +210,47 @@ void MainProgram()
 
 	Shoot();
 
-	sleep(5000);
+	for(int i = 0; i < 500; i++)
+	{
+		sleep(10);
+
+		if(nMotorEncoder[motorF] > ArmPosition)
+		{
+			MoveArm(5);
+		}
+		else
+		{
+			MoveArm(-5);
+		}
+	}
 
 	StopShoot();
+	PickupBlocks(0);
+
+	//turn slightly right
+	MoveRight(0);
+	MoveLeft(60);
+	sleep(1000);
+	MoveRight(0);
+	MoveLeft(0);
+
+	int StartEndEncoder = nMotorEncoder[motorE];
+
+	MoveLeft(30);
+	MoveRight(30);
+
+	while(nMotorEncoder[motorE] > StartEndEncoder - 1440 * 4.5)
+	{
+		writeDebugStreamLine("%i", nMotorEncoder[motorE]);
+	}
+
+	MoveLeft(0);
+	MoveRight(0);
 }
 
 task main()
 {
+	Gyro_Start();
 	//turn off joystick debug
 	bDisplayDiagnostics = false;
 
@@ -223,5 +269,22 @@ task main()
 
 	nxtDisplayString(3, "Running...");
 
+	MoveLeft(-20);
+	MoveRight(-20);
+
+	sleep(1000);
+
+	while(true)
+	{
+		eraseDisplay();
+		nxtDisplayString(1, "%i", 20 - Gyro_Heading());
+		MoveLeft(10 + Gyro_Heading());
+		MoveRight(10);
+
+		sleep(10);
+	}
+
 	MainProgram();
+
+
 }
