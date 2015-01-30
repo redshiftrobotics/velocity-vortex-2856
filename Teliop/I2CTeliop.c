@@ -19,7 +19,7 @@
 #include "Servos.h"
 
 bool ServosDown = false;
-bool Constant = 1.5;
+float Constant = 2;
 long ArmPosition = 0;
 
 void MoveLeft(int Power)
@@ -103,7 +103,7 @@ task main()
 		//moves left side
 		if(abs(joystick.joy1_y1) > 10)
 		{
-			MoveLeft(joystick.joy1_y1 / 1.26 * Constant);
+			MoveLeft(joystick.joy1_y1 / (1.26 * Constant));
 		}
 		else
 		{
@@ -113,7 +113,7 @@ task main()
 		//moves right side
 		if(abs(joystick.joy1_y2) > 10)
 		{
-			MoveRight((joystick.joy1_y2 / 1.26 * Constant));
+			MoveRight(joystick.joy1_y2 / (1.26 * Constant));
 		}
 		else
 		{

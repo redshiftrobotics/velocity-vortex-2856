@@ -95,47 +95,47 @@ void WaitForStartMenu()
 
 void MainProgram()
 {
-	//raise the servos
-	RaiseServos();
+	////raise the servos
+	//RaiseServos();
 
-	int StartEncoder = nMotorEncoder[motorE];
+	//int StartEncoder = nMotorEncoder[motorE];
 
-	//go backward
-	MoveLeft(-25);
-	MoveRight(-30);
+	////go backward
+	//MoveLeft(-25);
+	//MoveRight(-30);
 
-	sleep(500);
+	//sleep(500);
 
-	MoveLeft(-5);
-	MoveRight(-10);
+	//MoveLeft(-5);
+	//MoveRight(-10);
 
-	MoveArm(50);
+	//MoveArm(50);
 
-	sleep(2000);
+	//sleep(2000);
 
-	servo[servo2] = 240;
+	//servo[servo2] = 240;
 
-	MoveArm(0);
+	//MoveArm(0);
 
-	ArmPosition = nMotorEncoder[motorF];
+	//ArmPosition = nMotorEncoder[motorF];
 
-	MoveLeft(-25);
-	MoveRight(-30);
+	//MoveLeft(-25);
+	//MoveRight(-30);
 
-	while(nMotorEncoder[motorE] < StartEncoder + 1440 * 4.2)
-	{
-		writeDebugStreamLine("%i", nMotorEncoder[motorE]);
-	}
+	//while(nMotorEncoder[motorE] < StartEncoder + 1440 * 4.2)
+	//{
+	//	writeDebugStreamLine("%i", nMotorEncoder[motorE]);
+	//}
 
-	//stop
-	MoveLeft(0);
-	MoveRight(0);
+	////stop
+	//MoveLeft(0);
+	//MoveRight(0);
 
 	//FIRST TRY
 
 	//grab the tube
 	LowerServos();
-	sleep(200);
+	sleep(500);
 
 	////SECOND TRY
 
@@ -206,10 +206,13 @@ void MainProgram()
 	MoveRight(0);
 	MoveLeft(0);
 
+	servo[servo2] = 240;
+
 	PickupBlocks(100);
 
 	Shoot();
 
+	//do this for five seconds
 	for(int i = 0; i < 500; i++)
 	{
 		sleep(10);
@@ -228,9 +231,15 @@ void MainProgram()
 	PickupBlocks(0);
 
 	//turn slightly right
-	MoveRight(0);
-	MoveLeft(60);
-	sleep(1000);
+	Gyro_Reset();
+	while(Gyro_Heading() < 30)
+	{
+		MoveRight(0);
+		MoveLeft(60);
+		LowerServos();
+		sleep(10);
+	}
+
 	MoveRight(0);
 	MoveLeft(0);
 
@@ -241,6 +250,7 @@ void MainProgram()
 
 	while(nMotorEncoder[motorE] > StartEndEncoder - 1440 * 4.5)
 	{
+		LowerServos();
 		writeDebugStreamLine("%i", nMotorEncoder[motorE]);
 	}
 
@@ -265,26 +275,59 @@ task main()
 		waitForStart();
 	}
 
+	Gyro_Reset();
+
 	eraseDisplay();
 
 	nxtDisplayString(3, "Running...");
 
-	MoveLeft(-20);
-	MoveRight(-20);
+	int InitialPosition = nMotorEncoder[motorE];
 
-	sleep(1000);
+	while(nMotorEncoder[motorE] < InitialPosition + 1440 * .3)
+	{
+		MoveLeft(-20);
+		MoveRight(-20);
+	}
 
-	while(true)
+	while(nMotorEncoder[motorE] < InitialPosition + 1440 * 1.7)
 	{
 		eraseDisplay();
-		nxtDisplayString(1, "%i", 20 - Gyro_Heading());
-		MoveLeft(10 + Gyro_Heading());
-		MoveRight(10);
+
+		if(Gyro_Heading() < 0)
+		{
+			MoveRight(-1);
+			MoveLeft(0);
+		}
+		else
+		{
+			MoveLeft(-1);
+			MoveRight(0);
+		}
 
 		sleep(10);
 	}
+	int TimePassed = 0;
+	MoveArm(50);
+
+	RaiseServos();
+
+	while(nMotorEncoder[motorE] < InitialPosition + 1440 * 4.2)
+	{
+		MoveLeft(-30 - Gyro_Heading());
+		MoveRight(-30 + Gyro_Heading());
+		TimePassed += 10;
+		sleep(10);
+
+		if(TimePassed > 2000)
+		{
+			MoveArm(0);
+			ArmPosition = nMotorEncoder[motorF];
+		}
+	}
+
+	MoveRight(0);
+	MoveLeft(0);
+	sleep(1000);
 
 	MainProgram();
-
-
 }
