@@ -208,6 +208,9 @@ void MainProgram()
 
 	servo[servo2] = 240;
 
+	sleep(500);
+
+
 	PickupBlocks(100);
 
 	Shoot();
@@ -232,7 +235,7 @@ void MainProgram()
 
 	//turn slightly right
 	Gyro_Reset();
-	while(Gyro_Heading() < 30)
+	while(Gyro_Heading() < 25)
 	{
 		MoveRight(0);
 		MoveLeft(60);
@@ -245,10 +248,10 @@ void MainProgram()
 
 	int StartEndEncoder = nMotorEncoder[motorE];
 
-	MoveLeft(30);
-	MoveRight(30);
+	MoveLeft(50);
+	MoveRight(50);
 
-	while(nMotorEncoder[motorE] > StartEndEncoder - 1440 * 4.5)
+	while(nMotorEncoder[motorE] > StartEndEncoder - 1440 * 4.7)
 	{
 		LowerServos();
 		writeDebugStreamLine("%i", nMotorEncoder[motorE]);
@@ -260,7 +263,6 @@ void MainProgram()
 
 task main()
 {
-	Gyro_Start();
 	//turn off joystick debug
 	bDisplayDiagnostics = false;
 
@@ -275,6 +277,8 @@ task main()
 		waitForStart();
 	}
 
+	Gyro_Start();
+	sleep(3000);
 	Gyro_Reset();
 
 	eraseDisplay();
@@ -307,7 +311,7 @@ task main()
 		sleep(10);
 	}
 	int TimePassed = 0;
-	MoveArm(50);
+	MoveArm(60);
 
 	RaiseServos();
 
@@ -317,8 +321,9 @@ task main()
 		MoveRight(-30 + Gyro_Heading());
 		TimePassed += 10;
 		sleep(10);
+		servo[servo2] = 240;
 
-		if(TimePassed > 2000)
+		if(TimePassed > 2200)
 		{
 			MoveArm(0);
 			ArmPosition = nMotorEncoder[motorF];

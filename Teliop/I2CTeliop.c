@@ -19,7 +19,7 @@
 #include "Servos.h"
 
 bool ServosDown = false;
-float Constant = 2;
+float Constant = 1.5;
 long ArmPosition = 0;
 
 void MoveLeft(int Power)
@@ -160,7 +160,7 @@ task main()
 			}
 			else
 			{
-				Motors_SetSpeed(S1, 2, 1, 5);
+				Motors_SetSpeed(S1, 2, 1, 0);
 			}
 		}
 
@@ -176,8 +176,6 @@ task main()
 			LowerServos();
 			nxtDisplayString(5, "Lower");
 		}
-
-
 
 		//if the left trigger is pressed, start shooting
 		if(joy2Btn(7) == 1 || joy2Btn(8) == 1)
@@ -201,9 +199,19 @@ task main()
 		//lock the robot if both people press a
 		if(joy1Btn(2) == 1 && joy2Btn(2) == 1)
 		{
-			Motors_SetPosition(S1, 1, 1, Motors_GetPosition(S1, 1, 1), 100);
-			Motors_SetPosition(S1, 1, 2, Motors_GetPosition(S1, 1, 2), 100);
-			break;
+
+				Servos_SetPosition(S1, 4, 1, 50);
+				MoveArm(0);
+				Motors_SetSpeed(S1, 1, 1, 0);
+				Motors_SetSpeed(S1, 1, 2, 0);
+
+				sleep(1000);
+
+				Motors_SetPosition(S1, 1, 1, (int)Motors_GetPosition(S1, 1, 1), 10);
+				Motors_SetPosition(S1, 1, 2, (int)Motors_GetPosition(S1, 1, 2), 10);
+				while(true)
+				{
+				}
 		}
 	}
 }
