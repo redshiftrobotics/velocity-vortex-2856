@@ -30,6 +30,12 @@ void MoveLeft(int Power)
 	writeDebugStreamLine("Left %i", Power);
 }
 
+void MoveCorraller(int Power)
+{
+	nxtDisplayString(5, "Corraller: %i", Power);
+	Motors_SetSpeed(S1, 3, 2, Power);
+}
+
 void RaiseServos()
 {
 	ServosDown = false;
@@ -135,7 +141,6 @@ task main()
 		}
 
 
-
 		//moves arm
 		if(joystick.joy2_y2 > 10)
 		{
@@ -175,6 +180,26 @@ task main()
 		{
 			LowerServos();
 			nxtDisplayString(5, "Lower");
+		}
+
+
+		if(!joy2Btn(4))
+		{
+			MoveCorraller(100);
+		}
+		else
+		{
+			MoveCorraller(0);
+		}
+
+		//if the y button is clicked, move the block corallers
+		if(!joy2Btn(3))
+		{
+			Servos_SetPosition(S1, 4, 3, 200);
+		}
+		else
+		{
+			Servos_SetPosition(S1, 4, 3, 120);
 		}
 
 		//if the left trigger is pressed, start shooting
