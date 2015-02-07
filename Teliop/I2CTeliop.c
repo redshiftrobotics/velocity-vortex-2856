@@ -171,11 +171,11 @@ task main()
 			}
 			if(Motors_GetPosition(S1, 2, 1) > ArmPosition)
 			{
-				MoveArm(5);
+				MoveArm(-5);
 			}
 			else
 			{
-				MoveArm(0);
+				MoveArm(5);
 			}
 		}
 
