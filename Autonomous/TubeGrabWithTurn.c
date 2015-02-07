@@ -233,12 +233,54 @@ task main()
 
 	int StartEndEncoder = Motors_GetPosition(S1, 1, 2);
 
-	//get to the parking
+	//get to near the parking zone
 	Gyro_Reset();
-	while(Motors_GetPosition(S1, 1, 2) > StartEndEncoder - 1440 * 4.7)
+	while(Motors_GetPosition(S1, 1, 2) > StartEndEncoder - 1440 * 3.5)
 	{
 		MoveLeft(40 - Gyro_Heading());
 		MoveRight(40 + Gyro_Heading());
+	}
+
+	//turn around
+	Gyro_Reset();
+	while(Gyro_Heading() < 170)
+	{
+		MoveRight(-65);
+		MoveLeft(65);
+		sleep(10);
+		LowerServos();
+	}
+
+	//back up and let go of the tube
+	StartEndEncoder = Motors_GetPosition(S1, 1, 2);
+	Gyro_Reset();
+	while(Motors_GetPosition(S1, 1, 2) < StartEndEncoder + 1440 * .7)
+	{
+		LowerServos();
+		MoveLeft(-40 - Gyro_Heading());
+		MoveRight(-40 + Gyro_Heading());
+	}
+
+	RaiseServos();
+
+	StartEndEncoder = Motors_GetPosition(S1, 1, 2);
+
+	//get to near the parking zone
+	Gyro_Reset();
+	while(Motors_GetPosition(S1, 1, 2) > StartEndEncoder - 1440 * 3.5)
+	{
+		MoveLeft(40 - Gyro_Heading());
+		MoveRight(40 + Gyro_Heading());
+	}
+
+	//turn around
+	Gyro_Reset();
+	while(Gyro_Heading() < 170)
+	{
+		MoveRight(-65);
+		MoveLeft(65);
+		sleep(10);
+		LowerServos();
 	}
 
 	MoveLeft(0);
