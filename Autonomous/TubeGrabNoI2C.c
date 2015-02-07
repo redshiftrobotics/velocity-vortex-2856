@@ -199,7 +199,7 @@ task main()
 
 	MoveRight(0);
 	MoveLeft(0);
-	sleep(1000);
+	sleep(500);
 
 	//grab the tube
 	LowerServos();
@@ -234,7 +234,7 @@ task main()
 	PickupBlocks(100);
 
 	Shoot(100);
-	sleep(5000);
+	sleep(2000);
 
 	Shoot(0);
 	PickupBlocks(0);
@@ -262,8 +262,8 @@ task main()
 	Gyro_Reset();
 	while(Motors_GetPosition(S1, 1, 2) > StartEndEncoder - 1440 * 4.7)
 	{
-		MoveLeft(40 - Gyro_Heading());
-		MoveRight(40 + Gyro_Heading());
+		MoveLeft(50 - Gyro_Heading());
+		MoveRight(50 + Gyro_Heading());
 	}
 
 	MoveLeft(0);
