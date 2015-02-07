@@ -160,7 +160,7 @@ task main()
 		else if(joystick.joy2_y2 < -10)
 		{
 			ArmPosition = 0;
-			MoveArm(-10);
+			MoveArm(-15);
 		}
 		else
 		{
@@ -171,7 +171,7 @@ task main()
 			}
 			if(Motors_GetPosition(S1, 2, 1) > ArmPosition)
 			{
-				MoveArm(-5);
+				MoveArm(5);
 			}
 			else
 			{

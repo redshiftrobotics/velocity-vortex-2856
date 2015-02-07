@@ -11,6 +11,8 @@
 #include "Menu.c"
 #include "Gyro.c"
 
+task CheckTime;
+task main;
 bool WaitForStartBool = false;
 int ArmPosition = 0;
 
@@ -92,6 +94,26 @@ void WaitForStartMenu()
 	}
 }
 
+task CheckTime()
+{
+	while(true)
+	{
+		sleep(50);
+		if(time1[T2] > 28000)
+		{
+			while(true)
+			{
+				MoveLeft(0);
+				MoveRight(0);
+				MoveArm(0);
+				Shoot(0);
+				MoveCorraller(0);
+				PickupBlocks(0);
+				stoptask(main);
+			}
+		}
+	}
+}
 
 task main()
 {
@@ -108,6 +130,9 @@ task main()
 	{
 		waitForStart();
 	}
+
+	ClearTimer(T2);
+	StartTask(CheckTime);
 
 	Gyro_Start();
 	sleep(3000);
