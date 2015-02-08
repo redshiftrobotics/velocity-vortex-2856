@@ -243,7 +243,7 @@ task main()
 	PickupBlocks(0);
 
 	//wait for our bros
-	sleep(2000);
+	sleep(0);
 
 	writeDebugStreamLine("Shot Ball");
 
