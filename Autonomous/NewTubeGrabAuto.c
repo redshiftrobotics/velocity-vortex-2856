@@ -242,11 +242,14 @@ task main()
 	Shoot(0);
 	PickupBlocks(0);
 
+	//wait for our bros
+	sleep(2000);
+
 	writeDebugStreamLine("Shot Ball");
 
 	//turn slightly right
 	Gyro_Reset();
-	while(Gyro_Heading() < 25)
+	while(Gyro_Heading() < 20)
 	{
 		MoveRight(0);
 		MoveLeft(65);
@@ -265,16 +268,16 @@ task main()
 	Gyro_Reset();
 	while(Motors_GetPosition(S1, 1, 2) > StartEndEncoder - 1440 * 3.5)
 	{
-		MoveLeft(40 - Gyro_Heading());
-		MoveRight(40 + Gyro_Heading());
+		MoveLeft(50 - Gyro_Heading());
+		MoveRight(50 + Gyro_Heading());
 	}
 
 	//turn around
 	Gyro_Reset();
 	while(Gyro_Heading() < 170)
 	{
-		MoveRight(-65);
-		MoveLeft(65);
+		MoveRight(-75);
+		MoveLeft(75);
 		sleep(10);
 		LowerServos();
 	}

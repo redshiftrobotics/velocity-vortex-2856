@@ -197,10 +197,10 @@ task main()
 
 		if(!joy2Btn(4))
 		{
-						//CorrallerLeftPosition(125);
+			//CorrallerLeftPosition(125);
 			//CorrallerRightPosition(135);
-			CorrallerLeftPosition(145);
-			CorrallerRightPosition(115);
+			CorrallerLeftPosition(140);
+			CorrallerRightPosition(120);
 		}
 		else
 		{
