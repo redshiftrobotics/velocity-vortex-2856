@@ -99,6 +99,8 @@ task main()
 	//stop the debugger from printing
 	bDisplayDiagnostics = false;
 
+	ClearTimer(T1);
+
 	while(true)
 	{
 		//set the servo to the right position every cycle
@@ -171,11 +173,11 @@ task main()
 			}
 			if(Motors_GetPosition(S1, 2, 1) > ArmPosition)
 			{
-				MoveArm(-5);
+				MoveArm(0);
 			}
 			else
 			{
-				MoveArm(5);
+				MoveArm(3);
 			}
 		}
 
@@ -236,7 +238,7 @@ task main()
 		}
 
 		//lock the robot if both people press a
-		if(joy1Btn(2) == 1 && joy2Btn(2) == 1)
+		if((joy1Btn(2) == 1 && joy2Btn(2) == 1) || time1[T1] > 119000)
 		{
 
 				Servos_SetPosition(S1, 3, 1, 50);
