@@ -12,8 +12,8 @@
 float Constant = 1.5;
 long ArmPosition = 0;
 bool EndgameMode = false;
-int TopChanellerPosition = 100;
-int BottomChanellerPosition = 100;
+int TopChanellerPosition = 165;
+int BottomChanellerPosition = 110;
 
 void MoveLeft(int Power)
 {
@@ -29,11 +29,11 @@ void MoveCorraller(int Power)
 
 	if(Power == 0)
 	{
-		Servos_SetPosition(S1, 3, 3, 90);
+		Servos_SetPosition(S1, 3, 3, 0);
 	}
 	else
 	{
-		Servos_SetPosition(S1, 3, 3, 0);
+		Servos_SetPosition(S1, 3, 3, 90);
 	}
 	//also move the servo here: add later
 }
@@ -94,8 +94,8 @@ task main()
 	long UpPosition = DownPosition + 230;
 
 	//move the servos in the wait for start
-	TopChaneller(100);
-	BottomChaneller(100);
+	TopChaneller(0);
+	BottomChaneller(0);
 
 	waitForStart();
 	//stop the debugger from printing
@@ -114,6 +114,10 @@ task main()
 		//updates each loop
 		getJoystickSettings(joystick);
 
+		if(joy2Btn(4) == 1)
+		{
+			EndgameMode = true;
+		}
 
 		if(EndgameMode)
 		{
@@ -159,8 +163,8 @@ task main()
 		else
 		{
 			//set the servo to the right position every cycle
-			TopChaneller(100);
-			BottomChaneller(100);
+			TopChaneller(165);
+			BottomChaneller(110);
 
 			//moves block picker-upper
 			if(joystick.joy2_y1 > 10)
@@ -180,12 +184,12 @@ task main()
 			if(joystick.joy2_y2 > 10)
 			{
 				ArmPosition = 0;
-				MoveArm(50);
+				MoveArm(-15);
 			}
 			else if(joystick.joy2_y2 < -10)
 			{
 				ArmPosition = 0;
-				MoveArm(-15);
+				MoveArm(50);
 			}
 			else
 			{
