@@ -1,5 +1,5 @@
 #pragma config(Hubs,  S3, HTMotor,  none,     none,     none)
-#pragma config(Sensor, S1,     ,               sensorI2CCustom)
+#pragma config(Sensor, S4,     ,               sensorI2CCustom)
 #pragma config(Sensor, S2,     Gyro,           sensorI2CCustom)
 #pragma config(Sensor, S3,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S3_C1_1,     motorD,        tmotorTetrix, openLoop)
@@ -10,15 +10,14 @@
 #include "Servos.h"
 
 float Constant = 1.5;
-long ArmPosition = 0;
 bool EndgameMode = false;
-int TopChanellerPosition = 165;
-int BottomChanellerPosition = 110;
+int TopChanellerPosition = 133;
+int BottomChanellerPosition = 250;
+int LoadBalls = false;
 
 void MoveLeft(int Power)
 {
-	Motors_SetSpeed(S1, 1, 1, Power);
-	nxtDisplayString(1, "LeftPower: %i", Power);
+	Motors_SetSpeed(S4, 1, 1, Power);
 	writeDebugStreamLine("Left %i", Power);
 }
 
@@ -29,49 +28,43 @@ void MoveCorraller(int Power)
 
 	if(Power == 0)
 	{
-		Servos_SetPosition(S1, 3, 3, 0);
+		Servos_SetPosition(S4, 3, 3, 128);
 	}
 	else
 	{
-		Servos_SetPosition(S1, 3, 3, 90);
+		Servos_SetPosition(S4, 3, 3, 0);
 	}
 	//also move the servo here: add later
 }
 
 void TopChaneller(int Position)
 {
-	Servos_SetPosition(S1, 3, 1, Position);
+	Servos_SetPosition(S4, 3, 1, Position);
 }
 
 void BottomChaneller(int Position)
 {
-	Servos_SetPosition(S1, 3, 2, Position);
-}
-
-void BallContainer(int Position)
-{
-	Servos_SetPosition(S1, 3, 2, Position);
+	Servos_SetPosition(S4, 3, 2, Position);
 }
 
 void Shoot(int Power)
 {
-	Motors_SetSpeed(S1, 2, 2, Power);
+	Motors_SetSpeed(S4, 2, 2, Power);
 }
 
 void CorrallerLeftPosition(int Position)
 {
-	Servos_SetPosition(S1, 3, 4, Position);
+	Servos_SetPosition(S4, 3, 4, Position);
 }
 
 void CorrallerRightPosition(int Position)
 {
-	Servos_SetPosition(S1, 3, 5, Position);
+	Servos_SetPosition(S4, 3, 5, Position);
 }
 
 void MoveRight(int Power)
 {
-	Motors_SetSpeed(S1, 1, 2, -Power);
-	nxtDisplayString(2, "RightPower: %i", -Power);
+	Motors_SetSpeed(S4, 1, 2, -Power);
 	writeDebugStreamLine("Right %i", -Power);
 }
 
@@ -83,21 +76,25 @@ void PickupBlocks(int Power)
 
 void MoveArm(int Power)
 {
-	Motors_SetSpeed(S1, 2, 1, Power);
+	Motors_SetSpeed(S4, 2, 1, Power);
 	nxtDisplayString(4, "ArmPower: %i", Power);
 }
 
 task main()
 {
 	//gets the start position
-	long DownPosition = Motors_GetPosition(S1, 4, 2);
+	long DownPosition = Motors_GetPosition(S4, 4, 2);
 	long UpPosition = DownPosition + 230;
 
 	//move the servos in the wait for start
-	TopChaneller(0);
-	BottomChaneller(0);
+	TopChaneller(181);
+	BottomChaneller(214);
 
 	waitForStart();
+
+	//sets up the tube grabber
+	Motors_SetPosition(S4, 4, 2, UpPosition, 50);
+
 	//stop the debugger from printing
 	bDisplayDiagnostics = false;
 
@@ -114,41 +111,70 @@ task main()
 		//updates each loop
 		getJoystickSettings(joystick);
 
-		if(joy2Btn(4) == 1)
+		//looks at the endgame mode butotn
+		if(joy2Btn(4) == 1 && joy1Btn(4) == 1)
 		{
 			EndgameMode = true;
+			BottomChanellerPosition = 50;
 		}
 
 		if(EndgameMode)
 		{
-			//controls the top servo controls
-			if(joystick.joy2_y1 > 10 && TopChanellerPosition < 255)
+			if(joy2Btn(3) == 1)
 			{
-				TopChanellerPosition += 5;
+				PickupBlocks(100);
 			}
-			else if(joystick.joy2_y1 < -10 && TopChanellerPosition > 0)
+			else if(joy2Btn(1) == 1)
 			{
-				TopChanellerPosition -= 5;
+				PickupBlocks(-100);
+			}
+			else
+			{
+				PickupBlocks(0);
+			}
+
+			if(joy2Btn(2) == 1)
+			{
+				Shoot(100);
+			}
+			else
+			{
+				Shoot(0);
+			}
+
+			//eraseDisplay();
+
+			nxtDisplayString(1, "Top: %i", TopChanellerPosition);
+			nxtDisplayString(2, "Bottom: %i", BottomChanellerPosition);
+
+			//controls the top servo controls
+			if(joystick.joy2_y1 > 10 && TopChanellerPosition < 181)
+			{
+				TopChanellerPosition += 4;
+			}
+			else if(joystick.joy2_y1 < -10 && TopChanellerPosition > 113)
+			{
+				TopChanellerPosition -= 4;
 			}
 
 			//controls the bottom servo controls
-			if(joystick.joy2_y2 > 10 && BottomChanellerPosition < 255)
+			if(joystick.joy2_y2 > 10 && BottomChanellerPosition < 250)
 			{
-				BottomChanellerPosition += 1;
+				BottomChanellerPosition += 4;
 			}
-			else if(joystick.joy2_y2 < -10 && BottomChanellerPosition > 0)
+			else if(joystick.joy2_y2 < -10 && BottomChanellerPosition > 54)
 			{
-			  BottomChanellerPosition -= 1;
+			  BottomChanellerPosition -= 4;
 			}
 
 			//actually moves the servos
-			Servos_SetPosition(S1, 3, 1, TopChanellerPosition);
-			Servos_SetPosition(S1, 3, 2, BottomChanellerPosition);
+			Servos_SetPosition(S4, 3, 1, TopChanellerPosition);
+			Servos_SetPosition(S4, 3, 2, BottomChanellerPosition);
 
 			//controls the arm with the triggers
 			if(joy2Btn(7) == 1)
 			{
-				MoveArm(100);
+				MoveArm(50);
 			}
 			else if(joy2Btn(8) == 1)
 			{
@@ -162,9 +188,25 @@ task main()
 		}
 		else
 		{
+			if(joy2Btn(5) == 1)
+			{
+				LoadBalls = true;
+			}
+			if(joy2Btn(6) == 1)
+			{
+				LoadBalls = false;
+			}
 			//set the servo to the right position every cycle
-			TopChaneller(165);
-			BottomChaneller(110);
+			if(LoadBalls)
+			{
+				TopChaneller(TopChanellerPosition);
+				BottomChaneller(50);
+			}
+			else
+			{
+				TopChaneller(TopChanellerPosition);
+				BottomChaneller(BottomChanellerPosition);
+			}
 
 			//moves block picker-upper
 			if(joystick.joy2_y1 > 10)
@@ -183,13 +225,11 @@ task main()
 			//moves arm
 			if(joystick.joy2_y2 > 10)
 			{
-				ArmPosition = 0;
-				MoveArm(-15);
+				MoveArm(-100);
 			}
 			else if(joystick.joy2_y2 < -10)
 			{
-				ArmPosition = 0;
-				MoveArm(50);
+				MoveArm(100);
 			}
 			else
 			{
@@ -246,13 +286,13 @@ task main()
 		//controls the tube grabber
 		if(joy1Btn(7) == 1)
 		{
-			Motors_SetPosition(S1, 4, 2, DownPosition, 50);
+			Motors_SetPosition(S4, 4, 2, DownPosition, 50);
 
 			nxtDisplayString(5, "Raise");
 		}
 		else if(joy1Btn(8) == 1)
 		{
-			Motors_SetPosition(S1, 4, 2, UpPosition, 50);
+			Motors_SetPosition(S4, 4, 2, UpPosition, 50);
 			//lower the motor for the tube grabber
 			nxtDisplayString(5, "Lower");
 		}
@@ -270,18 +310,18 @@ task main()
 
 
 		//lock the robot if both people press a
-		if((joy1Btn(2) == 1 && joy2Btn(2) == 1) || time1[T1] > 119000)
+		if((joy1Btn(2) == 1 && joy2Btn(2) == 1) || time1[T1] > 1190000)
 		{
 
-				Servos_SetPosition(S1, 3, 1, 50);
+				Servos_SetPosition(S4, 3, 1, 50);
 				MoveArm(0);
 				MoveLeft(0);
 				MoveRight(0);
 
 				sleep(1000);
 
-				Motors_SetPosition(S1, 1, 1, (int)Motors_GetPosition(S1, 1, 1), 10);
-				Motors_SetPosition(S1, 1, 2, (int)Motors_GetPosition(S1, 1, 2), 10);
+				Motors_SetPosition(S4, 1, 1, (int)Motors_GetPosition(S4, 1, 1), 10);
+				Motors_SetPosition(S4, 1, 2, (int)Motors_GetPosition(S4, 1, 2), 10);
 				while(true)
 				{
 				}
