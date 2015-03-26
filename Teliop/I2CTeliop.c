@@ -199,13 +199,11 @@ task main()
 			//set the servo to the right position every cycle
 			if(LoadBalls)
 			{
-				TopChaneller(TopChanellerPosition);
-				BottomChaneller(50);
+				TopChaneller(161);
 			}
 			else
 			{
 				TopChaneller(TopChanellerPosition);
-				BottomChaneller(BottomChanellerPosition);
 			}
 
 			//moves block picker-upper
