@@ -42,7 +42,7 @@ public class IMU extends SynchronousOpMode {
     //can be "Straight" or "Turn"
     String Motion = "Straight";
     //from 0 to 1
-    float Power = .2f;
+    float Power = .3f;
 
     //motor setup
     DcMotorController DriveController;
