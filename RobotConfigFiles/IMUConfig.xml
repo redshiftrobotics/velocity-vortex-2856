@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot>
+	<DeviceInterfaceModule name="device_interface" serialNumber="AL00VEZD">
+	    <I2cDevice name="imu" port="0" />
+	</DeviceInterfaceModule>
+</Robot>
