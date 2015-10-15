@@ -2,59 +2,71 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
-
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
-
-@TeleOp(name="IMU")
-public class IMU extends SynchronousOpMode {
+public class IMU
+{
     // Our sensors, motors, and other devices go here, along with other long term state
-    IBNO055IMU imu;
-    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
+    static IBNO055IMU imu;
+    static IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
 
     //heading data
-    float Heading;
-    float PreviousHeading;
-    int Rotations = 0;
-    boolean FirstUpdate = true;
-    ElapsedTime ProgramTime;
+    static float Heading;
+    static float PreviousHeading;
+    static int Rotations = 0;
+    static boolean FirstUpdate = true;
+    static ElapsedTime ProgramTime;
 
     //time data
-    float PreviousTime = 0;
-    float CurrentTime = 0;
-    float UpdateTime = 0;
+    static float PreviousTime = 0;
+    static float CurrentTime = 0;
+    static float UpdateTime = 0;
 
     //PID data
-    float ComputedRotation;
-    float PreviousComputedRotation;
-    float Target = 20;
-    ArrayList HistoricData = new ArrayList();
-    float D;
-    float I;
-    float P;
-    float DConstant;
-    float IConstant;
-    float PConstant;
+    static float ComputedRotation;
+    static float PreviousComputedRotation;
+    static float Target = 20;
+    static float TargetRateOfChange = 10;
+    static ArrayList HistoricData = new ArrayList();
+    static ArrayList DerivativeData = new ArrayList();
+    static float D;
+    static float I;
+    static float P;
+    static float DConstant;
+    static float IConstant;
+    static float PConstant;
     //can be "Straight" or "Turn"
-    String Motion = "Straight";
+    static String Motion = "Turn";
     //from 0 to 1
-    float Power = .3f;
+    static float Power = .5f;
 
     //motor setup
-    DcMotorController DriveController;
-    DcMotor LeftMotor;
-    DcMotor RightMotor;
+    static DcMotorController DriveController;
+    static DcMotor LeftMotor;
+    static DcMotor RightMotor;
+    static HardwareMap hardwareMap;
+    static TelemetryDashboardAndLog telemetry;
 
-    @Override
-    public void main() throws InterruptedException {
+
+    public static void Initialize(HardwareMap map, TelemetryDashboardAndLog tel)
+    {
+        //set the hardware map
+        hardwareMap = map;
+        telemetry = tel;
+
         //setup the motors
         DriveController = hardwareMap.dcMotorController.get("drive_controller");
         LeftMotor = hardwareMap.dcMotor.get ("left_drive");
         RightMotor = hardwareMap.dcMotor.get ("right_drive");
+
+        //gets the current encoder position
+
         LeftMotor.setDirection(DcMotor.Direction.REVERSE); //left motor is reversed
 
         // setup the IMU
@@ -75,62 +87,106 @@ public class IMU extends SynchronousOpMode {
         //setup the program timer
         ProgramTime = new ElapsedTime();
 
-        // Wait until the game starts
-        waitForStart();
-
         //sets the current time
         CurrentTime = (float) ProgramTime.time() * 1000;
+    }
 
-        // Loop and update the dashboard
-        while (opModeIsActive())
-        {
-            //update telemetry
-            telemetry.update();
+    //this is the update loop
+    public static void Forward(float Rotations)
+    {
+        Motion = "Straight";
 
+        //start position
+        long StartPosition = RightMotor.getCurrentPosition();
+
+        //this is the first update
+        FirstUpdate = true;
+
+        //update the angles
+        UpdateAngles();
+
+        //set the target to the current position
+        Target = ComputedRotation;
+
+        telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
+
+        while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Rotations * 1400) {
+            //this is the update loop
             UpdateTime();
             UpdateAngles();
             PreformCalculations();
 
-            idle();
+            telemetry.update();
+            //idle!!!
         }
     }
 
-    void PreformCalculations()
+    static void PreformCalculations()
     {
         //add the rotation to the historic data
-        HistoricData.add(ComputedRotation);
+        HistoricData.add(ComputedRotation - Target);
 
-        //make sure the list never gets longer than four
-        if(HistoricData.size() > 10)
+        DerivativeData.add(ComputedRotation);
+
+        //make sure the list never gets longer than a certain length
+        if(HistoricData.size() > 20)
         {
             HistoricData.remove(0);
         }
 
-        //find the average of the list
-        float Sum = 0;
-        for(int i = 0; i < HistoricData.size(); i++)
+        //make sure the list never gets longer than a certain length
+        if(DerivativeData.size() > 5)
         {
-            Sum += (float) HistoricData.get(i);
+            DerivativeData.remove(0);
         }
 
-        float Average = Sum / HistoricData.size();
+        //find the average of the historic data list for the I value
+        float IntegralAverage = 0;
+        for(int i = 0; i < HistoricData.size(); i++)
+        {
+            IntegralAverage += (float) HistoricData.get(i);
+        }
+        IntegralAverage /= HistoricData.size();
 
-        //compute all of the values
-        I += (ComputedRotation - Target) * (UpdateTime / 1000f);
+
+        //gets the derivative
+        float DerivativeAverage = 0;
+        for (int i = 0; i < DerivativeData.size(); i++) {
+            DerivativeAverage += (float) DerivativeData.get(i);
+        }
+
+        DerivativeAverage /= DerivativeData.size();
+
+        // compute all of the values
+        I += (IntegralAverage) * (UpdateTime / 1000f);
         P = ComputedRotation - Target;
-        D = (ComputedRotation - Average) / ((UpdateTime / 1000f) * (1 + HistoricData.size() / 2));
 
+        //constants
+        if(Motion == "Straight")
+        {
+            D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-        //DConstant = .1f;
-        IConstant = .4f;
-        PConstant = 1;
+            IConstant = 2.5f;
+            PConstant = 3.2f;
+            DConstant = 0;
+        }
+        else if (Motion == "Turn")
+        {
+            //compute the d with the rate of change
+            D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 
-        float Direction = D * DConstant + I * IConstant + P * PConstant;
+            DConstant = 3f;
+            IConstant = .1f;
+            PConstant = 4f;
+        }
+
+        float Direction = I * IConstant + P * PConstant + D * DConstant;
 
         //logs data
         telemetry.addData("00", "P: " + P);
         telemetry.addData("01", "I: " + I);
-        telemetry.addData("02", "D: " + D);
+        telemetry.addData("8", "D: " + D);
+        telemetry.addData("6", "Derivative Average: " + DerivativeAverage);
         telemetry.addData("03", "Weight: " + Direction);
 
         //constrain the direction so that abs(Direction) < 50
@@ -158,7 +214,7 @@ public class IMU extends SynchronousOpMode {
         }
     }
 
-    void UpdateTime()
+    static void UpdateTime()
     {
         PreviousTime = CurrentTime;
         CurrentTime = (float) ProgramTime.time() * 1000;
@@ -167,7 +223,7 @@ public class IMU extends SynchronousOpMode {
         UpdateTime = CurrentTime - PreviousTime;
     }
 
-    void UpdateAngles() {
+    static void UpdateAngles() {
         //sets the previous heading
         PreviousHeading = Heading;
 
@@ -196,9 +252,6 @@ public class IMU extends SynchronousOpMode {
 
         if(FirstUpdate)
         {
-            //on the first update set the target rotation
-            Target = ComputedRotation;
-
             FirstUpdate = false;
         }
     }

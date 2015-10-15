@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <Robot>
-	<DeviceInterfaceModule name="device_interface" serialNumber="AL00VEZD">
-	    <I2cDevice name="imu" port="0" />
-	</DeviceInterfaceModule>
+    <DeviceInterfaceModule name="device_interface" serialNumber="AL00VEZD">
+        <I2cDevice name="imu" port="0" />
+    </DeviceInterfaceModule>
+    <MotorController name="drive_controller" serialNumber="AH00QIKC">
+        <Motor name="left_drive" port="1" />
+        <Motor name="righ_drive" port="2" />
+    </MotorController>
 </Robot>
