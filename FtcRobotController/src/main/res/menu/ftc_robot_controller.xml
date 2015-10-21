@@ -1,5 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+	<item
+		android:id="@+id/action_custom_settings"
+		android:orderInCategory="98"
+		android:icon="@android:drawable/ic_menu_info_details"
+		android:title="Custom Settings"/>
+
   <item
     android:id="@+id/action_settings"
     android:orderInCategory="99"
@@ -28,5 +34,7 @@
     android:orderInCategory="1000"
     android:icon="@android:drawable/ic_menu_info_details"
     android:title="@string/action_exit_app"/>
+
+
 
 </menu>

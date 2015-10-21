@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FtcRobotControllerActivity"
+    android:focusable="true"
+    android:id="@+id/entire_screen"
+    android:orientation="vertical">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="P"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentStart="true" />
+
+		<EditText
+			android:layout_alignRight="@+id/P"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/P"
+			android:minHeight="50dp"
+			android:minWidth="75dp"
+			android:inputType="numberDecimal" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="I"
+			android:id="@+id/textView2" />
+
+		<EditText
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/I"
+			android:minWidth="75dp"
+			android:inputType="numberDecimal" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="D"
+			android:id="@+id/textView3" />
+
+		<EditText
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/D"
+			android:minWidth="75dp"
+			android:inputType="numberDecimal" />
+		<Button
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="Send"
+			android:id="@+id/Send"></Button>
+</LinearLayout>

@@ -52,6 +52,11 @@
         android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
         android:resource="@xml/device_filter" />
     </activity>
+
+  <activity
+	  android:name=".CustomSettingsActivity">
+  </activity>
+
     <service
       android:name="com.qualcomm.ftccommon.FtcRobotControllerService"
       android:enabled="true" />

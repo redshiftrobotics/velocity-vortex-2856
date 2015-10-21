@@ -43,11 +43,14 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -168,13 +171,15 @@ public class FtcRobotControllerActivity extends Activity {
     updateUI = new UpdateUIHook(this, dimmer);
     updateUI.setRestarter(restarter);
     updateUI.setTextViews(textWifiDirectStatus, textRobotStatus,
-            textGamepad, textOpMode, textErrorMessage, textDeviceName);
+			textGamepad, textOpMode, textErrorMessage, textDeviceName);
     callback = updateUI.new CallbackHook();
 
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
     hittingMenuButtonBrightensScreen();
+
+
 
     if (USE_DEVICE_EMULATION) { ModernRoboticsHardwareFactory.enableDeviceEmulation(); }
   }
@@ -254,6 +259,12 @@ public class FtcRobotControllerActivity extends Activity {
         requestRobotRestart();
         return true;
     }
+  if (id==R.id.action_custom_settings) {
+	  Intent settingsIntent = new Intent(this, CustomSettingsActivity.class);
+	  //the 0 is for the constants list, but we dont give a fuck
+	  startActivityForResult(settingsIntent, LaunchActivityConstantsList.FTC_ROBOT_CONTROLLER_ACTIVITY_CONFIGURE_ROBOT);
+	  return true;
+  }
     if (id==R.id.action_settings) {
         // The string to launch this activity must match what's in AndroidManifest of FtcCommon for this activity.
         Intent settingsIntent = new Intent("com.qualcomm.ftccommon.FtcRobotControllerSettingsActivity.intent.action.Launch");

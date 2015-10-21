@@ -1,5 +1,13 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
+import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -13,61 +21,72 @@ import java.util.concurrent.Callable;
 public class IMU
 {
     // Our sensors, motors, and other devices go here, along with other long term state
-    static IBNO055IMU imu;
-    static IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
+    IBNO055IMU imu;
+    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
 
     //heading data
-    static float Heading;
-    static float PreviousHeading;
-    static int Rotations = 0;
-    static boolean FirstUpdate = true;
-    static ElapsedTime ProgramTime;
+    float Heading;
+    float PreviousHeading;
+    int Rotations = 0;
+    boolean FirstUpdate = true;
+    ElapsedTime ProgramTime;
 
     //time data
-    static float PreviousTime = 0;
-    static float CurrentTime = 0;
-    static float UpdateTime = 0;
+    float PreviousTime = 0;
+    float CurrentTime = 0;
+    float UpdateTime = 0;
 
     //PID data
-    static float ComputedRotation;
-    static float PreviousComputedRotation;
-    static float Target = 20;
-    static float TargetRateOfChange = 10;
-    static ArrayList HistoricData = new ArrayList();
-    static ArrayList DerivativeData = new ArrayList();
-    static float D;
-    static float I;
-    static float P;
-    static float DConstant;
-    static float IConstant;
-    static float PConstant;
+    float ComputedRotation;
+    float PreviousComputedRotation;
+    float Target = 20;
+    float TargetRateOfChange = 10;
+    ArrayList HistoricData = new ArrayList();
+    ArrayList DerivativeData = new ArrayList();
+    float D;
+    float I;
+    float P;
+    float DConstant;
+    float IConstant;
+    float PConstant;
     //can be "Straight" or "Turn"
-    static String Motion = "Turn";
+    String Motion = "Turn";
+	//can be 'Right' or 'Left'
+	String StationaryWheel = "Right";
     //from 0 to 1
-    static float Power = .5f;
+    float Power = .6f;
 
     //motor setup
-    static DcMotorController DriveController;
-    static DcMotor LeftMotor;
-    static DcMotor RightMotor;
-    static HardwareMap hardwareMap;
-    static TelemetryDashboardAndLog telemetry;
+    DcMotorController DriveController;
+    DcMotor LeftMotor;
+    DcMotor RightMotor;
+    HardwareMap hardwareMap;
+    TelemetryDashboardAndLog telemetry;
+	Test MainOpMode;
+	// Button btn;
 
+//	@Override
+//	public void onCreate(Bundle savedInstanceState) {
+//		Log.d("test", "test");
+//		super.onCreate(savedInstanceState);
+//		Log.d("test", "test2");
+//		setContentView(R.layout.activity_ftc_controller);
+//		btn = (Button)findViewById(R.id.Send);
+//		btn.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//
+//				//runThread();
+//			}
+//		});
+//	}
 
-    public static void Initialize(HardwareMap map, TelemetryDashboardAndLog tel)
+    public IMU(HardwareMap map, TelemetryDashboardAndLog tel, Test OpMode)
     {
         //set the hardware map
         hardwareMap = map;
         telemetry = tel;
-
-        //setup the motors
-        DriveController = hardwareMap.dcMotorController.get("drive_controller");
-        LeftMotor = hardwareMap.dcMotor.get ("left_drive");
-        RightMotor = hardwareMap.dcMotor.get ("right_drive");
-
-        //gets the current encoder position
-
-        LeftMotor.setDirection(DcMotor.Direction.REVERSE); //left motor is reversed
+		MainOpMode = OpMode;
 
         // setup the IMU
         parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
@@ -78,8 +97,7 @@ public class IMU
         // the I2C device is names IMU
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
-        // Enable reporting of position. Note: this is still buggy
-        imu.startAccelerationIntegration(new Position(), new Velocity());
+		//telemetry.addData("11", imu.);
 
         //setup telemetry
         telemetry.setUpdateIntervalMs(200);
@@ -91,9 +109,25 @@ public class IMU
         CurrentTime = (float) ProgramTime.time() * 1000;
     }
 
+	public void ResetValues()
+	{
+		HistoricData.clear();
+		DerivativeData.clear();
+	}
+
+
+	public void Stop()
+	{
+		LeftMotor.setPower(0);
+		RightMotor.setPower(0);
+	}
+
     //this is the update loop
-    public static void Forward(float Rotations)
+    public void Forward(float Rotations) throws InterruptedException
     {
+		//remove the historic data values
+		ResetValues();
+
         Motion = "Straight";
 
         //start position
@@ -108,20 +142,96 @@ public class IMU
         //set the target to the current position
         Target = ComputedRotation;
 
-        telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
-        while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Rotations * 1400) {
+
+        while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Rotations * 1400)
+		{
             //this is the update loop
             UpdateTime();
             UpdateAngles();
             PreformCalculations();
+			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
+			//update telemetry
             telemetry.update();
-            //idle!!!
+
+			//idle using the reference to the instance of the main opmode
+			MainOpMode.idle();
         }
     }
 
-    static void PreformCalculations()
+	private float ValueStandardDeviation()
+	{
+		//compute the mean
+		float Mean = 0;
+		for (int i = 0; i < DerivativeData.size(); i++)
+		{
+			Mean += (float) DerivativeData.get(i);
+		}
+		Mean /= DerivativeData.size();
+
+		float Summation = 0;
+		for (int i = 0; i < DerivativeData.size(); i++)
+		{
+			Summation += Math.pow((float) DerivativeData.get(i) - Mean, 2);
+		}
+
+		Summation /= DerivativeData.size();
+
+		Summation = (float) Math.sqrt((double)Summation);
+
+		return Summation;
+	}
+
+	//this is the update loop
+	public void Turn(float Degrees) throws InterruptedException
+	{
+		//remove the historic data values
+		ResetValues();
+
+		Motion = "Turn";
+
+		//this is the first update
+		FirstUpdate = true;
+
+		//update the angles, if this is uncommented it gets the values from the UI
+		UpdateAngles();
+
+		//set the target to the current position
+		Target = ComputedRotation + Degrees;
+
+		//degrees that something has to be off
+		float Error = 2;
+
+		//while the distance from the target is greater than 1
+		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
+		{
+			//get the standard deviation
+			ValueStandardDeviation();
+
+			//this is the update loop
+			UpdateTime();
+			UpdateAngles();
+			PreformCalculations();
+			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
+
+			//update telemetry
+			telemetry.update();
+
+			//idle using the reference to the instance of the main opmode
+			MainOpMode.idle();
+		}
+	}
+
+	public void UpdateConstants()
+	{
+		PConstant = CustomSettingsActivity.P;
+		IConstant = CustomSettingsActivity.I;
+		DConstant = CustomSettingsActivity.D;
+	}
+
+
+    void PreformCalculations()
     {
         //add the rotation to the historic data
         HistoricData.add(ComputedRotation - Target);
@@ -129,7 +239,7 @@ public class IMU
         DerivativeData.add(ComputedRotation);
 
         //make sure the list never gets longer than a certain length
-        if(HistoricData.size() > 20)
+        if(HistoricData.size() > 500)
         {
             HistoricData.remove(0);
         }
@@ -158,26 +268,29 @@ public class IMU
         DerivativeAverage /= DerivativeData.size();
 
         // compute all of the values
-        I += (IntegralAverage) * (UpdateTime / 1000f);
+        I = (IntegralAverage);
         P = ComputedRotation - Target;
+
+		//update the constants here from the selection menu
+		UpdateConstants();
 
         //constants
         if(Motion == "Straight")
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            IConstant = 2.5f;
-            PConstant = 3.2f;
-            DConstant = 0;
+            IConstant = 11f;
+            PConstant = 1.3f;
+            DConstant = 2;
         }
         else if (Motion == "Turn")
         {
             //compute the d with the rate of change
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 
-            DConstant = 3f;
-            IConstant = .1f;
-            PConstant = 4f;
+            //DConstant = 0f;
+			//IConstant = .1f;
+			//PConstant = 2.8f;
         }
 
         float Direction = I * IConstant + P * PConstant + D * DConstant;
@@ -185,9 +298,11 @@ public class IMU
         //logs data
         telemetry.addData("00", "P: " + P);
         telemetry.addData("01", "I: " + I);
-        telemetry.addData("8", "D: " + D);
-        telemetry.addData("6", "Derivative Average: " + DerivativeAverage);
-        telemetry.addData("03", "Weight: " + Direction);
+        telemetry.addData("02", "D: " + D);
+
+        telemetry.addData("03", "PConstant: " + PConstant);
+        telemetry.addData("04", "IConstant: " + IConstant);
+        telemetry.addData("05", "DConstant: " + DConstant);
 
         //constrain the direction so that abs(Direction) < 50
         if(Direction > 50)
@@ -207,14 +322,21 @@ public class IMU
         }
         else if (Motion == "Turn")
         {
-            float Multiplier = Power * 2;
+            float Multiplier = Power * 4;
 
-            LeftMotor.setPower((Direction / 200) * Multiplier);
-            RightMotor.setPower(-(Direction / 200) * Multiplier);
+			if(StationaryWheel == "Right")
+			{
+				RightMotor.setPower(0);
+				LeftMotor.setPower((Direction / 200) * Multiplier);
+			}
+			else if(StationaryWheel == "Left") {
+				LeftMotor.setPower(0);
+				RightMotor.setPower(-(Direction / 200) * Multiplier);
+			}
         }
     }
 
-    static void UpdateTime()
+    void UpdateTime()
     {
         PreviousTime = CurrentTime;
         CurrentTime = (float) ProgramTime.time() * 1000;
@@ -223,7 +345,7 @@ public class IMU
         UpdateTime = CurrentTime - PreviousTime;
     }
 
-    static void UpdateAngles() {
+    void UpdateAngles() {
         //sets the previous heading
         PreviousHeading = Heading;
 
