@@ -29,8 +29,7 @@ public class DriveMotor {
 
 
 	//constructor
-	public DriveMotor(HardwareMap map, TelemetryDashboardAndLog tel, String MotorName, DcMotor.Direction MotorDirection)
-	{
+	public DriveMotor(HardwareMap map, TelemetryDashboardAndLog tel, String MotorName, DcMotor.Direction MotorDirection) {
 		//sets the important globals
 		hardwareMap = map;
 		telemetry = tel;
@@ -57,19 +56,18 @@ public class DriveMotor {
 			return;
 		}
 
+
 		Times.add((Double) ProgramTime.time());
 		Positions.add((Double) ((double) Object.getCurrentPosition()));
 
 		//if there are more than 10 values, delete the first ones
-		if(Positions.size() > 5)
-		{
+		if (Positions.size() > 5) {
 			Positions.remove(0);
 			Times.remove(0);
 		}
 
 		//if we can actually create data...
-		if(Positions.size() > 1)
-		{
+		if (Positions.size() > 1) {
 			Double EncodersPerSecond = (((Double) Positions.get(0)) - ((Double) Positions.get(Positions.size() - 1))) / (((Double) Times.get(0)) - ((Double) Times.get(Times.size() - 1)));
 
 			//here we add to the RPS the difference between the desired and target RPS
@@ -84,20 +82,15 @@ public class DriveMotor {
 		}
 	}
 
-	private float Bound(float Number)
-	{
-		if(Number > 1)
-		{
+	private float Bound(float Number) {
+		if (Number > 1) {
 			Number = 1;
-		}
-		else if (Number < -1)
-		{
+		} else if (Number < -1) {
 			Number = -1;
 		}
 
 		return Number;
 	}
-
 
 	public void SetSpeed(double Speed)
 	{
@@ -117,7 +110,6 @@ public class DriveMotor {
 			//the speed should be in RPS
 			TargetRPS = Speed;
 		}
-
 
 
 		//we don't clear the CurrentRPS because we don't want the speed to reset at every SetSpeed call
