@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot>
+    <MotorController name="brace_controller" serialNumber="AL00VV2Y">
+        <Motor name="back_brace" port="1" />
+        <Motor name="front_brace" port="2" />
+    </MotorController>
+    <MotorController name="drive_controller" serialNumber="AL00XT15">
+        <Motor name="right_drive" port="1" />
+        <Motor name="left_drive" port="2" />
+    </MotorController>
+</Robot>

@@ -54,12 +54,12 @@ public class IMU
 	//can be 'Right' or 'Left'
 	String StationaryWheel = "Right";
     //from 0 to 1
-    float Power = .6f;
+    float Power = .4f;
 
-    //motor setup
-    DcMotorController DriveController;
-    DcMotor LeftMotor;
-    DcMotor RightMotor;
+	DcMotor LeftMotor;
+	DcMotor RightMotor;
+	DcMotorController DriveController;
+
     HardwareMap hardwareMap;
     TelemetryDashboardAndLog telemetry;
 	Test MainOpMode;
@@ -98,6 +98,11 @@ public class IMU
         imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
 		//telemetry.addData("11", imu.);
+		//motor setup
+		DriveController = hardwareMap.dcMotorController.get("drive_controller");
+		LeftMotor = hardwareMap.dcMotor.get("left_drive");
+		RightMotor = hardwareMap.dcMotor.get("right_drive");
+		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
         //setup telemetry
         telemetry.setUpdateIntervalMs(200);
@@ -279,8 +284,8 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            IConstant = 11f;
-            PConstant = 1.3f;
+            PConstant = 4f;
+            IConstant = 1.3f;
             DConstant = 2;
         }
         else if (Motion == "Turn")

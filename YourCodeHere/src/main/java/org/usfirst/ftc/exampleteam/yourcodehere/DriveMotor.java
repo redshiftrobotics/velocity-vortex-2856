@@ -19,6 +19,7 @@ public class DriveMotor {
 	DcMotor Object;
 	float CurrentRPS = 0;
 	double TargetRPS = 1;
+	boolean Stop = true;
 
 	int EncorderCountsPerRotation = 1440;
 
@@ -43,8 +44,19 @@ public class DriveMotor {
 		ProgramTime = new ElapsedTime();
 	}
 
+	public long Position()
+	{
+		return Object.getCurrentPosition();
+	}
+
 	public void Update() throws InterruptedException
 	{
+		//break out if we are stopped
+		if(Stop == true)
+		{
+			return;
+		}
+
 		Times.add((Double) ProgramTime.time());
 		Positions.add((Double) ((double) Object.getCurrentPosition()));
 
@@ -63,7 +75,7 @@ public class DriveMotor {
 			//here we add to the RPS the difference between the desired and target RPS
 			CurrentRPS += (TargetRPS - (EncodersPerSecond / EncorderCountsPerRotation));
 
-			float Constant = .02f;
+			float Constant = .01f;
 
 			Object.setPower(Bound(CurrentRPS * Constant));
 
@@ -89,11 +101,24 @@ public class DriveMotor {
 
 	public void SetSpeed(double Speed)
 	{
-		//clear all of the positions
-		//Positions.clear();
+		if(Speed == 0)
+		{
+			Stop = true;
 
-		//the speed should be in RPS
-		TargetRPS = Speed;
+			Times.clear();
+			Positions.clear();
+
+			Object.setPower(0);
+		}
+		else
+		{
+			Stop = false;
+
+			//the speed should be in RPS
+			TargetRPS = Speed;
+		}
+
+
 
 		//we don't clear the CurrentRPS because we don't want the speed to reset at every SetSpeed call
 	}

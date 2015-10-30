@@ -31,39 +31,8 @@ public class Test extends SynchronousOpMode {
 
         waitForStart();
 
-		DriveMotor Left = new DriveMotor(hardwareMap, telemetry, "left_drive", DcMotor.Direction.FORWARD);
-
-		float Speed = 0;
-
-		while(true)
-		{
-			Speed += .001;
-			Left.SetSpeed(Speed);
-
-			Left.Update();
-			telemetry.addData("12", Speed);
-			telemetry.update();
-		}
-
-//		while(true) {
-//
-//			IMU.Forward(2);
-//
-//			//IMU.Stop();
-//
-		//Robot.Forward(5);
-		//Robot.Turn(90);
-		//Robot.Stop();
-//
-//			//IMU.Stop();
-//		}
-//		while (true)
-//		{
-//			IMU.Forward(4);
-//			IMU.Turn(180);
-//			IMU.Forward(4);
-//			IMU.Turn(-180);
-//		}
+		Robot.Forward(5);
+		Robot.Stop();
     }
 
 	public void RunIdle() throws InterruptedException
