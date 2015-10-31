@@ -12,51 +12,41 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-/**
- * A skeletal example of a do-nothing first OpMode. Go ahead and change this code
- * to suit your needs, or create sibling OpModes adjacent to this one in the same
- * Java package.
- */
 @TeleOp(name="ColorPicker")
 public class ColorPicker extends SynchronousOpMode {
-    /* Declare here any fields you might find useful. */
-    // DcMotor motorLeft = null;
-    // DcMotor motorRight = null;
-
 
     @Override
     public void main() throws InterruptedException {
-        /* Initialize our hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names you assigned during the robot configuration
-         * step you did in the FTC Robot Controller app on the phone.
-         */
 
-
-
-
-//
         IMU Robot = new IMU(hardwareMap, telemetry, this);
-//
         waitForStart();
-		Robot.Forward(1);
-		//true for left, false for right
-		//Robot.timedTurn(300, true);
-		Robot.Turn(90);
-		Robot.Forward(2);
 
+		Robot.Straight(1);
+		Robot.Turn(-45);
+		Robot.Straight(3.1f);
+		Robot.Turn(-45);
+		Robot.Turn(180);
+		Robot.Straight(-0.7f);
+		Robot.Stop();
+		Thread.sleep(1000);
 
+		Trigger.takeImage();
+		Thread.sleep(2000);
 
-//		Trigger.takeImage();
-//
-//		String side = Trigger.findAvgSides();
-//
-//		if(side == "left") {
-//			Log.d("right", "Blue is on the left");
-//		} else if (side == "right") {
-//			Log.d("right", "Blue is on the right");
-//		} else {
-//			Log.d("rekt", "Something broke");
-//		}
+		String side = Trigger.findAvgSides();
+		Thread.sleep(4000);
+		Robot.Straight(1.0f);
+		if(side == "left") {
+			Log.d("left", "Blue is on the left");
+			Robot.Turn(-100);
+			Robot.Stop();
+		} else if (side == "right") {
+			Log.d("right", "Blue is on the right");
+			Robot.Turn(100);
+			Robot.Stop();
+		} else {
+			Log.d("FindAVGSides", "Inconclusive Result");
+		}
 
     }
 

@@ -52,6 +52,8 @@ public class IMU
 			float PConstant;
 			//can be "Straight" or "Turn"
 			String Motion = "Turn";
+			//Forward or Backward are the options
+			String MovingDirection = "Forward";
 			//can be 'Right' or 'Left'
 			String StationaryWheel = "Right";
 			//from 0 to 1
@@ -129,12 +131,21 @@ public class IMU
 	}
 
     //this is the update loop
-    public void Forward(float Rotations) throws InterruptedException
+    public void Straight(float Rotations) throws InterruptedException
     {
 		//remove the historic data values
 		ResetValues();
 
         Motion = "Straight";
+
+		if(Rotations > 0)
+		{
+			MovingDirection = "Forward";
+		}
+		else
+		{
+			MovingDirection = "Backward";
+		}
 
         //start position
         long StartPosition = RightMotor.getCurrentPosition();
@@ -150,21 +161,21 @@ public class IMU
 
 
 
+			while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
+			{
+				//this is the update loop
+				UpdateTime();
+				UpdateAngles();
+				PreformCalculations();
+				//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
-        while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Rotations * 1400)
-		{
-            //this is the update loop
-            UpdateTime();
-            UpdateAngles();
-            PreformCalculations();
-			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
+				//update telemetry
+				telemetry.update();
 
-			//update telemetry
-            telemetry.update();
+				//idle using the reference to the instance of the main opmode
+				MainOpMode.idle();
+			}
 
-			//idle using the reference to the instance of the main opmode
-			MainOpMode.idle();
-        }
 
 		Stop();
     }
@@ -193,8 +204,9 @@ public class IMU
 	}
 
 	//this is the update loop
-	public void Turn(float Degrees) throws InterruptedException
+	public void Turn(final float Degrees) throws InterruptedException
 	{
+
 		//remove the historic data values
 		ResetValues();
 
@@ -210,11 +222,19 @@ public class IMU
 		Target = ComputedRotation + Degrees;
 
 		//degrees that something has to be off
-		float Error = 3;
+		float Error = 2;
 
 		//while the distance from the target is greater than 1
 		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
 		{
+
+			Log.d("SD", Float.toString(ValueStandardDeviation()));
+
+			if(ValueStandardDeviation() < .01)
+			{
+				break;
+			}
+
 			//get the standard deviation
 			ValueStandardDeviation();
 
@@ -231,27 +251,6 @@ public class IMU
 			MainOpMode.idle();
 		}
 	}
-
-	public void timedTurn(long millis, boolean dir) throws InterruptedException
-	{
-		if(dir) {
-			LeftMotor.setPower(0.5);
-			RightMotor.setPower(-0.5);
-			Thread.sleep(millis);
-			LeftMotor.setPower(0);
-			RightMotor.setPower(0);
-		} else {
-			LeftMotor.setPower(-0.5);
-			RightMotor.setPower(0.5);
-			Thread.sleep(millis);
-			LeftMotor.setPower(0);
-			RightMotor.setPower(0);
-		}
-
-		Thread.sleep(100);
-	}
-
-
 
 	public void UpdateConstants()
 	{
@@ -317,13 +316,23 @@ public class IMU
         {
             //compute the d with the rate of change
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
+			//functional
+            //DConstant = .5f;
+			DConstant = .4f;
 
-            DConstant = .5f;
 			IConstant = 0f;
 			PConstant = 2.8f;
         }
 
-        float Direction = I * IConstant + P * PConstant + D * DConstant;
+		float Direction = I * IConstant + P * PConstant + D * DConstant;
+
+		if (Motion == "Straight" && MovingDirection == "Backward")
+		{
+			// flip the direction because we're going backwards
+			Direction *= -1;
+		}
+
+;
 
         //logs data
         telemetry.addData("00", "P: " + P);
@@ -346,9 +355,23 @@ public class IMU
 
         if(Motion == "Straight")
         {
-            float Multiplier = Power / 2;
-            LeftMotor.setPower(Multiplier + (Direction / 200));
-            RightMotor.setPower(Multiplier - (Direction / 200));
+			float Multiplier;
+
+			//make sure that the robot is moving the correct direction
+			if(MovingDirection == "Forward") {
+				Multiplier = Power / 2;
+				LeftMotor.setPower(Multiplier + (Direction / 200));
+				RightMotor.setPower(Multiplier - (Direction / 200));
+
+			}
+			else
+			{
+				Multiplier = Power / -2;
+				LeftMotor.setPower(Multiplier - (Direction / 200));
+				RightMotor.setPower(Multiplier + (Direction / 200));
+			}
+
+;
         }
         else if (Motion == "Turn")
         {
