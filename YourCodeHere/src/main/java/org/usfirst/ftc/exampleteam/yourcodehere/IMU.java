@@ -63,7 +63,7 @@ public class IMU
 
 			HardwareMap hardwareMap;
 			TelemetryDashboardAndLog telemetry;
-			ColorPicker MainOpMode;
+			SynchronousOpMode MainOpMode;
 			// Button btn;
 
 //	@Override
@@ -82,7 +82,7 @@ public class IMU
 //		});
 //	}
 
-			public IMU(HardwareMap map, TelemetryDashboardAndLog tel, ColorPicker OpMode)
+			public IMU(HardwareMap map, TelemetryDashboardAndLog tel, SynchronousOpMode OpMode)
 			{
 				//set the hardware map
 				hardwareMap = map;
@@ -210,7 +210,7 @@ public class IMU
 		Target = ComputedRotation + Degrees;
 
 		//degrees that something has to be off
-		float Error = 2;
+		float Error = 3;
 
 		//while the distance from the target is greater than 1
 		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
@@ -318,9 +318,9 @@ public class IMU
             //compute the d with the rate of change
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 
-            //DConstant = 0f;
-			//IConstant = .1f;
-			//PConstant = 2.8f;
+            DConstant = .5f;
+			IConstant = 0f;
+			PConstant = 2.8f;
         }
 
         float Direction = I * IConstant + P * PConstant + D * DConstant;
