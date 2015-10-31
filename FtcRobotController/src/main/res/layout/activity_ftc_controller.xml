@@ -66,7 +66,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-    <TextView
+	  <TextView
       android:id="@+id/textWifiDirectStatus"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
@@ -122,8 +122,15 @@
 		  android:layout_width="match_parent"
 		  android:layout_height="50dp"
 		  android:id="@+id/textGamepad1"
-		  android:layout_above="@+id/textGamepad2"
-		  android:layout_alignLeft="@+id/P"
-		  android:layout_alignStart="@+id/P" />
+		  android:layout_above="@+id/textGamepad2" />
+
+	  <FrameLayout
+		  android:layout_width="10dp"
+		  android:layout_height="10dp"
+		  android:layout_above="@+id/textGamepad1"
+		  android:layout_centerHorizontal="true"
+		  android:id="@+id/camera_preview" />
+
+
   </RelativeLayout>
 </LinearLayout>

@@ -27,12 +27,13 @@ public class Test extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
 
-        IMU Robot = new IMU(hardwareMap, telemetry, this);
 
-        waitForStart();
-
-		Robot.Forward(5);
-		Robot.Stop();
+//        IMU Robot = new IMU(hardwareMap, telemetry, this);
+//
+//        waitForStart();
+//
+//		Robot.Forward(5);
+//		Robot.Stop();
     }
 
 	public void RunIdle() throws InterruptedException

@@ -39,8 +39,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileObserver;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -51,6 +54,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -72,11 +76,133 @@ import com.qualcomm.robotcore.util.ImmersiveMode;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.wifi.WifiDirectAssistant;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class FtcRobotControllerActivity extends Activity {
+
+
+	///////////////////////////////////////////////////////////
+	/////////               MODDED           //////////////////
+	///////////////////////////////////////////////////////////
+
+	FileObserver observer = new FileObserver("/sdcard/Pictures/processing") { // set up a file observer to watch this directory on sd card
+		@Override
+		public void onEvent(int event, String file) {
+			if(event == FileObserver.CREATE && !file.equals(".probe") && !file.equals("proc.jpg")){
+
+				mCamera.takePicture(null, null, mPicture);
+
+			}
+		}
+	};
+
+
+	public void onEvent(int event, String path) {
+
+	}
+
+	private Camera mCamera;
+	private CameraPreview mPreview;
+
+
+	private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+		@Override
+		public void onPictureTaken(byte[] data, Camera camera) {
+			camera.startPreview();
+			File pictureFile = getOutputMediaFile();
+			if (pictureFile == null) {
+//                Log.d(TAG, "Error creating media file, check storage permissions: " +
+//                        e.getMessage());
+				return;
+			}
+
+			try {
+				FileOutputStream fos = new FileOutputStream(pictureFile);
+				fos.write(data);
+				fos.close();
+
+
+			} catch (FileNotFoundException e) {
+				Log.d("FileNotFounc", "File not found: " + e.getMessage());
+			} catch (IOException e) {
+				Log.d("IOException", "Error accessing file: " + e.getMessage());
+			}
+
+
+
+		}
+	};
+
+
+
+	/** Create a File for saving an image or video */
+	private static File getOutputMediaFile(){
+		// To be safe, you should check that the SDCard is mounted
+		// using Environment.getExternalStorageState() before doing this.
+
+		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+				Environment.DIRECTORY_PICTURES), "processing");
+		// This location works best if you want the created images to be shared
+		// between applications and persist after your app has been uninstalled.
+
+		// Create the storage directory if it does not exist
+		if (! mediaStorageDir.exists()){
+			if (! mediaStorageDir.mkdirs()){
+				Log.d("processing", "failed to create directory");
+				return null;
+			}
+		}
+
+
+		// Create a media file name
+		File mediaFile;
+		mediaFile = new File(mediaStorageDir.getPath() + File.separator + "proc.jpg");
+		return mediaFile;
+	}
+
+	/** A safe way to get an instance of the Camera object. */
+	public static Camera getCameraInstance() {
+		Camera c = null;
+		try {
+			c = Camera.open(); // attempt to get a Camera instance
+		} catch (Exception e) {
+			// Camera is not available (in use or does not exist)
+			Log.d("uhhh", "yep couldnt get camera");
+		}
+		return c; // returns null if camera is unavailable
+	}
+
+	private void releaseCamera(){
+		if (mCamera != null){
+			mCamera.release();        // release the camera for other applications
+			mCamera = null; // Create an instance of Camera
+			mCamera = getCameraInstance();
+
+			// Create our Preview view and set it as the content of our activity.
+			mPreview = new CameraPreview(this, mCamera);
+			FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+			preview.addView(mPreview);
+		}
+	}
+
+
+
+	///////////////////////////////////////////////////////////
+	/////////              END MODDED        //////////////////
+	///////////////////////////////////////////////////////////
+
+
+
 
   private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
   private static final boolean USE_DEVICE_EMULATION = false;
@@ -144,7 +270,72 @@ public class FtcRobotControllerActivity extends Activity {
 
     setContentView(R.layout.activity_ftc_controller);
 
-    utility = new Utility(this);
+
+
+	  ///////////////////////////////////////////////////////////
+	  /////////               MODDED           //////////////////
+	  ///////////////////////////////////////////////////////////
+
+
+	  Thread thread = new Thread(new Runnable(){
+		  @Override
+		  public void run() {
+			  ServerSocket soc;
+			  soc = null;
+			  Log.d("thread", "###################################I am running!");
+			  try {
+				  //Inet6Address i6 = new Inet6Address("::1");
+				  soc = new ServerSocket(2856, 50);
+				  soc.accept();
+				  mCamera.takePicture(null, null, mPicture);
+			  } catch (Exception e) {
+				  e.printStackTrace();
+			  }
+		  }
+	  });
+
+	  thread.start();
+
+
+	  // Create an instance of Camera
+	  mCamera = getCameraInstance();
+
+	  // Create our Preview view and set it as the content of our activity.
+	  mPreview = new CameraPreview(this, mCamera);
+	  FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+	  preview.addView(mPreview);
+
+
+//    Button captureButton = (Button) findViewById(R.id.capture);
+//    captureButton.setOnClickListener(
+//            new View.OnClickListener() {
+//              @Override
+//              public void onClick(View v) {
+
+
+	  //mCamera.takePicture(null, null, mPicture)
+
+
+
+//              }
+//            }
+//    );
+
+	  //mCamera.takePicture(null, null, mPicture);
+
+
+
+
+	  ///////////////////////////////////////////////////////////
+	  /////////               END MODDED       //////////////////
+	  ///////////////////////////////////////////////////////////
+
+
+
+
+
+
+	  utility = new Utility(this);
     context = this;
     entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
     buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);

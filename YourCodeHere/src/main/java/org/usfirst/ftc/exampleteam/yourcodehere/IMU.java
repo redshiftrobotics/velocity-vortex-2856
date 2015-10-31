@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
 import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -19,51 +20,51 @@ import java.util.ArrayList;
 import java.util.concurrent.Callable;
 
 public class IMU
-{
-    // Our sensors, motors, and other devices go here, along with other long term state
-    IBNO055IMU imu;
-    IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
+		{
+			// Our sensors, motors, and other devices go here, along with other long term state
+			IBNO055IMU imu;
+			IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
 
-    //heading data
-    float Heading;
-    float PreviousHeading;
-    int Rotations = 0;
-    boolean FirstUpdate = true;
-    ElapsedTime ProgramTime;
+			//heading data
+			float Heading;
+			float PreviousHeading;
+			int Rotations = 0;
+			boolean FirstUpdate = true;
+			ElapsedTime ProgramTime;
 
-    //time data
-    float PreviousTime = 0;
-    float CurrentTime = 0;
-    float UpdateTime = 0;
+			//time data
+			float PreviousTime = 0;
+			float CurrentTime = 0;
+			float UpdateTime = 0;
 
-    //PID data
-    float ComputedRotation;
-    float PreviousComputedRotation;
-    float Target = 20;
-    float TargetRateOfChange = 10;
-    ArrayList HistoricData = new ArrayList();
-    ArrayList DerivativeData = new ArrayList();
-    float D;
-    float I;
-    float P;
-    float DConstant;
-    float IConstant;
-    float PConstant;
-    //can be "Straight" or "Turn"
-    String Motion = "Turn";
-	//can be 'Right' or 'Left'
-	String StationaryWheel = "Right";
-    //from 0 to 1
-    float Power = .4f;
+			//PID data
+			float ComputedRotation;
+			float PreviousComputedRotation;
+			float Target = 20;
+			float TargetRateOfChange = 10;
+			ArrayList HistoricData = new ArrayList();
+			ArrayList DerivativeData = new ArrayList();
+			float D;
+			float I;
+			float P;
+			float DConstant;
+			float IConstant;
+			float PConstant;
+			//can be "Straight" or "Turn"
+			String Motion = "Turn";
+			//can be 'Right' or 'Left'
+			String StationaryWheel = "Right";
+			//from 0 to 1
+			float Power = .4f;
 
-	DcMotor LeftMotor;
-	DcMotor RightMotor;
-	DcMotorController DriveController;
+			DcMotor LeftMotor;
+			DcMotor RightMotor;
+			DcMotorController DriveController;
 
-    HardwareMap hardwareMap;
-    TelemetryDashboardAndLog telemetry;
-	Test MainOpMode;
-	// Button btn;
+			HardwareMap hardwareMap;
+			TelemetryDashboardAndLog telemetry;
+			ColorPicker MainOpMode;
+			// Button btn;
 
 //	@Override
 //	public void onCreate(Bundle savedInstanceState) {
@@ -81,24 +82,24 @@ public class IMU
 //		});
 //	}
 
-    public IMU(HardwareMap map, TelemetryDashboardAndLog tel, Test OpMode)
-    {
-        //set the hardware map
-        hardwareMap = map;
-        telemetry = tel;
-		MainOpMode = OpMode;
+			public IMU(HardwareMap map, TelemetryDashboardAndLog tel, ColorPicker OpMode)
+			{
+				//set the hardware map
+				hardwareMap = map;
+				telemetry = tel;
+				MainOpMode = OpMode;
 
-        // setup the IMU
-        parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = true;
-        parameters.loggingTag = "BNO055";
+				// setup the IMU
+				parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
+				parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+				parameters.loggingEnabled = true;
+				parameters.loggingTag = "BNO055";
 
-        // the I2C device is names IMU
-        imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
+				// the I2C device is names IMU
+				imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
-		//telemetry.addData("11", imu.);
-		//motor setup
+				//telemetry.addData("11", imu.);
+				//motor setup
 		DriveController = hardwareMap.dcMotorController.get("drive_controller");
 		LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		RightMotor = hardwareMap.dcMotor.get("right_drive");
@@ -163,6 +164,8 @@ public class IMU
 			//idle using the reference to the instance of the main opmode
 			MainOpMode.idle();
         }
+
+		Stop();
     }
 
 	private float ValueStandardDeviation()
@@ -227,6 +230,27 @@ public class IMU
 			MainOpMode.idle();
 		}
 	}
+
+	public void timedTurn(long millis, boolean dir) throws InterruptedException
+	{
+		if(dir) {
+			LeftMotor.setPower(0.5);
+			RightMotor.setPower(-0.5);
+			Thread.sleep(millis);
+			LeftMotor.setPower(0);
+			RightMotor.setPower(0);
+		} else {
+			LeftMotor.setPower(-0.5);
+			RightMotor.setPower(0.5);
+			Thread.sleep(millis);
+			LeftMotor.setPower(0);
+			RightMotor.setPower(0);
+		}
+
+		Thread.sleep(100);
+	}
+
+
 
 	public void UpdateConstants()
 	{
