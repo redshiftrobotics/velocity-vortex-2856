@@ -231,13 +231,15 @@ public class IMU
 		//degrees that something has to be off
 		float Error = 2;
 
-		//while the distance from the target is greater than 1
+		//while the distance from the target is greater than the error
 		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
 		{
 
 			Log.d("SD", Float.toString(ValueStandardDeviation()));
 
-			if(ValueStandardDeviation() < .01)
+			telemetry.addData("23", ValueStandardDeviation());
+
+			if(ValueStandardDeviation() < .01 && Math.abs(ComputedRotation - Target) < 10)
 			{
 				break;
 			}
