@@ -151,6 +151,13 @@ public class IMU
         long StartPosition = RightMotor.getCurrentPosition();
 
         //this is the first update
+
+
+
+
+
+
+
         FirstUpdate = true;
 
         //update the angles
