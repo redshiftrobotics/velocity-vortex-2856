@@ -2,45 +2,57 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import com.qualcomm.robotcore.hardware.*;
 
+import org.swerverobotics.library.SynchronousOpMode;
+
 public class FollowLine {
 
 	private static ColorSensor mColorSensor = null;
+	private static DcMotor mRightMotor = null;
+	private static DcMotor mLeftMotor = null;
+	private static Integer threshold = 130;
 
 	private static boolean onLine() {
-		if (mColorSensor.red() < 150
-		    && mColorSensor.green() < 150
-		    && mColorSensor.blue() < 150) {
+		if (mColorSensor.red() < threshold
+		    && mColorSensor.green() < threshold
+		    && mColorSensor.blue() < threshold) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 
-	public static void FollowLine(IMU imu, ColorSensor colorSensor) throws InterruptedException {
-		boolean foundLine = false;
-		int turnModifier = 1;
+	public static void FollowLine(HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
+		// Veer to the right by default
+		float highPower = 0.2f;
+		float lowPower = 0.1f;
+		float lpower, rpower;
 
-		mColorSensor = colorSensor;
+		mColorSensor = hardwareMap.colorSensor.get("color_sensor");
+		mRightMotor = hardwareMap.dcMotor.get("left_motor");
+		mLeftMotor = hardwareMap.dcMotor.get("right_motor");
+
+		mRightMotor.setDirection(DcMotor.Direction.REVERSE);
+		mLeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
 		// TODO: make sure that we've actually found the line
 
 		// We should be just to the left of the line now, so start the loop
 		while (true) {
+			if (onLine()) {
+				lpower = lowPower;
+				rpower = highPower;
 
-			imu.Turn(3 * turnModifier);
-
-			while (onLine()) {
-				// When we're on the line, there's no point in turning more
-				imu.Straight(1);
-				foundLine = true;
+			} else {
+				lpower = highPower;
+				rpower = lowPower;
 			}
 
-			// This is executed conditionally because this runs even when we've been away from the line for a while
-			if (foundLine) {
-				// We just now drove off the line, so reverse the direction
-				turnModifier *= -1;
-				foundLine = false;
-			}
+			mRightMotor.setPower(rpower);
+			mLeftMotor.setPower(lpower);
+
+			// Release control back to the system
+			op.telemetry.update();
+			op.idle();
 		}
 	}
 }
