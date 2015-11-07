@@ -19,12 +19,14 @@ public class ColorPicker extends SynchronousOpMode {
     public void main() throws InterruptedException {
 
         IMU Robot = new IMU(hardwareMap, telemetry, this);
-        waitForStart();
+        FollowLine linefollower = new FollowLine(hardwareMap, this);
+		waitForStart();
 
 		Robot.Straight(1);
-		Robot.Turn(-45);
-		Robot.Straight(3.1f);
-		Robot.Turn(-45);
+		Robot.Turn(-35);
+		//Robot.Straight(3.1f);
+		//linefollower.Straight(3.1f);
+		//Robot.Turn(-45);
 		Robot.Turn(180);
 		Robot.Straight(-0.87f);
 		Robot.Stop();
