@@ -151,13 +151,6 @@ public class IMU
         long StartPosition = RightMotor.getCurrentPosition();
 
         //this is the first update
-
-
-
-
-
-
-
         FirstUpdate = true;
 
         //update the angles
@@ -209,6 +202,12 @@ public class IMU
 
 		return Summation;
 	}
+
+	public float Rotation()
+	{
+		return ComputedRotation;
+	}
+
 
 	//this is the update loop
 	public void Turn(final float Degrees) throws InterruptedException
