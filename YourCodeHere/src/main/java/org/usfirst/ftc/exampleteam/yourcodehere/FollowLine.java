@@ -3,56 +3,63 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 import com.qualcomm.robotcore.hardware.*;
 
 import org.swerverobotics.library.SynchronousOpMode;
+import org.swerverobotics.library.TelemetryDashboardAndLog;
 
 public class FollowLine {
 
 	private static ColorSensor mColorSensor = null;
 	private static DcMotor mRightMotor = null;
 	private static DcMotor mLeftMotor = null;
-	private static Integer threshold = 130;
+	SynchronousOpMode ParentOpMode;
 
-	private static boolean onLine() {
-		if (mColorSensor.red() < threshold
-		    && mColorSensor.green() < threshold
-		    && mColorSensor.blue() < threshold) {
-			return false;
-		} else {
-			return true;
-		}
+	// Veer to the right by default
+	float highPower = 0.3f;
+	float lowPower = .1f;
+
+	private static Integer threshold = 60;
+
+	private boolean onLine() {
+		return (mColorSensor.red() > threshold);
 	}
 
-	public static void FollowLine(HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
-		// Veer to the right by default
-		float highPower = 0.2f;
-		float lowPower = 0.1f;
-		float lpower, rpower;
-
+	public FollowLine(HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
+		ParentOpMode = op;
 		mColorSensor = hardwareMap.colorSensor.get("color_sensor");
-		mRightMotor = hardwareMap.dcMotor.get("left_motor");
-		mLeftMotor = hardwareMap.dcMotor.get("right_motor");
-
-		mRightMotor.setDirection(DcMotor.Direction.REVERSE);
+		mRightMotor = hardwareMap.dcMotor.get("left_drive");
+		mLeftMotor = hardwareMap.dcMotor.get("right_drive");
 		mLeftMotor.setDirection(DcMotor.Direction.REVERSE);
+	}
 
-		// TODO: make sure that we've actually found the line
+	public void Straight(long Encoder) throws InterruptedException
+	{
+
+		long StartPosition = mLeftMotor.getCurrentPosition();
 
 		// We should be just to the left of the line now, so start the loop
-		while (true) {
+		while (Encoder * 1400 > Math.abs((StartPosition) - mLeftMotor.getCurrentPosition())) {
+			ParentOpMode.telemetry.addData("00", "red: " + mColorSensor.red());
+			ParentOpMode.telemetry.addData("01", mColorSensor.blue());
+			ParentOpMode.telemetry.addData("02", mColorSensor.green());
+
+
 			if (onLine()) {
-				lpower = lowPower;
-				rpower = highPower;
+				mRightMotor.setPower(highPower);
+				mLeftMotor.setPower(lowPower);
 
 			} else {
-				lpower = highPower;
-				rpower = lowPower;
+				mRightMotor.setPower(lowPower);
+				mLeftMotor.setPower(highPower);
 			}
 
-			mRightMotor.setPower(rpower);
-			mLeftMotor.setPower(lpower);
+			ParentOpMode.updateGamepads();
 
 			// Release control back to the system
-			op.telemetry.update();
-			op.idle();
+			ParentOpMode.telemetry.update();
+			ParentOpMode.idle();
 		}
+
+		//stop the robot
+		mRightMotor.setPower(0);
+		mLeftMotor.setPower(0);
 	}
 }
