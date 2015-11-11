@@ -25,20 +25,22 @@ public class ColorPicker extends SynchronousOpMode {
         IMU Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
         waitForStart();
 
+
 		Robot.Straight(1);
-		Robot.Turn(-45);
-		Robot.Straight(3.1f);
-		Robot.Turn(-45);
+		Robot.Turn(-35);
+		//Robot.Straight(3.1f);
+		//linefollower.Straight(3.1f);
+		//Robot.Turn(-45);
 		Robot.Turn(180);
-		Robot.Straight(-0.7f);
+		Robot.Straight(-0.87f);
 		Robot.Stop();
-		Thread.sleep(1000);
+		Thread.sleep(300);
 
 		Trigger.takeImage();
-		Thread.sleep(2000);
+		Thread.sleep(300);
 
 		String side = Trigger.findAvgSides();
-		Thread.sleep(4000);
+		Thread.sleep(1000);
 		Robot.Straight(1.0f);
 		if(side == "left") {
 			Log.d("left", "Blue is on the left");

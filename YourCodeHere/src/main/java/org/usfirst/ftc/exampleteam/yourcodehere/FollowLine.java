@@ -29,11 +29,13 @@ public class FollowLine {
 		this.mLeftMotor = LeftMotor;
 
 		mColorSensor = hardwareMap.colorSensor.get("color_sensor");
+		mLeftMotor = hardwareMap.dcMotor.get("left_drive");
+		mRightMotor = hardwareMap.dcMotor.get("right_drive");
+		mLeftMotor.setDirection(DcMotor.Direction.REVERSE);
 	}
 
-	public void Straight(double Encoder) throws InterruptedException
+	public void Straight(float Encoder) throws InterruptedException
 	{
-
 		long StartPosition = mLeftMotor.getCurrentPosition();
 
 		// We should be just to the left of the line now, so start the loop
