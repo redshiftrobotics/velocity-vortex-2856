@@ -1,5 +1,7 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
@@ -27,14 +29,52 @@ public class Test extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
 
-		FollowLine follower = new FollowLine(hardwareMap, this);
-		IMU Robot = new IMU(hardwareMap, telemetry, this);
+
+		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
+		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
+		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
+
+		FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this);
+		IMU Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 
 		waitForStart();
 
-		Float startRotations = Robot.Rotation();
-		follower.Straight(5);
-		Robot.Turn(startRotations - Robot.Rotation());
+		//get set up on the line
+		Robot.Straight(2);
+		Robot.Turn(-45);
+
+		//follow the line
+		follower.Straight(1.2);
+		Robot.Stop();
+
+		//turn
+		Robot.Turn(-45);
+		Robot.Straight(1.5f);
+		Robot.Stop();
+
+		Trigger.takeImage();
+		Thread.sleep(2000);
+
+		String side = Trigger.findAvgSides();
+		Thread.sleep(4000);
+
+		if(side == "left")
+		{
+			telemetry.addData("31", "Left");
+			Robot.Turn(-100);
+			Robot.Stop();
+		} else if (side == "right")
+		{
+			telemetry.addData("31", "Right");
+			Robot.Turn(100);
+			Robot.Stop();
+		} else {
+			Log.d("FindAVGSides", "Inconclusive Result");
+		}
+
+		//Float startRotations = Robot.Rotation();
+		//follower.Straight(5);
+		//Robot.Turn(startRotations - Robot.Rotation());
 
 
 

@@ -5,6 +5,6 @@
     </DeviceInterfaceModule>
     <MotorController name="drive_controller" serialNumber="AH00QIKC">
         <Motor name="left_drive" port="1" />
-        <Motor name="righ_drive" port="2" />
+        <Motor name="right_drive" port="2" />
     </MotorController>
 </Robot>
