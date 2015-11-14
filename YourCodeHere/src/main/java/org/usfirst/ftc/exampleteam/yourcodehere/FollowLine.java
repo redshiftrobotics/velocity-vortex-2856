@@ -19,11 +19,15 @@ public class FollowLine {
 	private static Integer threshold = 60;
 
 	private boolean onLine() {
-		return (mColorSensor.red() > threshold);
+		return (mColorSensor.red() > threshold || mColorSensor.blue() > threshold);
 	}
 
-	public FollowLine(HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
+	public FollowLine(DcMotor LeftMotor, DcMotor RightMotor, HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
 		ParentOpMode = op;
+
+		this.mRightMotor = RightMotor;
+		this.mLeftMotor = LeftMotor;
+
 		mColorSensor = hardwareMap.colorSensor.get("color_sensor");
 		mLeftMotor = hardwareMap.dcMotor.get("left_drive");
 		mRightMotor = hardwareMap.dcMotor.get("right_drive");
@@ -32,7 +36,6 @@ public class FollowLine {
 
 	public void Straight(float Encoder) throws InterruptedException
 	{
-
 		long StartPosition = mLeftMotor.getCurrentPosition();
 
 		// We should be just to the left of the line now, so start the loop

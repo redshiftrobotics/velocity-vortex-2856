@@ -2,6 +2,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 
 import android.util.Log;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.robot.Robot;
 
 import org.swerverobotics.library.SynchronousOpMode;
@@ -17,10 +18,13 @@ public class ColorPicker extends SynchronousOpMode {
 
     @Override
     public void main() throws InterruptedException {
+		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
+		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
+		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
-        IMU Robot = new IMU(hardwareMap, telemetry, this);
-        FollowLine linefollower = new FollowLine(hardwareMap, this);
-		waitForStart();
+        IMU Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
+        waitForStart();
+
 
 		Robot.Straight(1);
 		Robot.Turn(-35);

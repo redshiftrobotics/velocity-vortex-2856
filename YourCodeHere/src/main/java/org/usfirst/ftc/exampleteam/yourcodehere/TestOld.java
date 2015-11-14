@@ -1,5 +1,7 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
@@ -13,8 +15,8 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Test")
-public class Test extends SynchronousOpMode {
+@TeleOp(name="TestOld")
+public class TestOld extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     // DcMotor motorLeft = null;
     // DcMotor motorRight = null;
@@ -39,7 +41,6 @@ public class Test extends SynchronousOpMode {
 //		Float startRotations = Robot.Rotation();
 //		follower.Straight(5);
 //		Robot.Turn(startRotations - Robot.Rotation());
-
 
 
 

@@ -68,44 +68,23 @@ public class IMU
 			SynchronousOpMode MainOpMode;
 			// Button btn;
 
-//	@Override
-//	public void onCreate(Bundle savedInstanceState) {
-//		Log.d("test", "test");
-//		super.onCreate(savedInstanceState);
-//		Log.d("test", "test2");
-//		setContentView(R.layout.activity_ftc_controller);
-//		btn = (Button)findViewById(R.id.Send);
-//		btn.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//
-//				//runThread();
-//			}
-//		});
-//	}
+	public IMU(DcMotor LeftMotor, DcMotor RightMotor, HardwareMap map, TelemetryDashboardAndLog tel, SynchronousOpMode OpMode)
+	{
+		this.LeftMotor = LeftMotor;
+		this.RightMotor = RightMotor;
+		//set the hardware map
+		hardwareMap = map;
+		telemetry = tel;
+		MainOpMode = OpMode;
 
-			public IMU(HardwareMap map, TelemetryDashboardAndLog tel, SynchronousOpMode OpMode)
-			{
-				//set the hardware map
-				hardwareMap = map;
-				telemetry = tel;
-				MainOpMode = OpMode;
+		// setup the IMU
+		parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
+		parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+		parameters.loggingEnabled = true;
+		parameters.loggingTag = "BNO055";
 
-				// setup the IMU
-				parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-				parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
-				parameters.loggingEnabled = true;
-				parameters.loggingTag = "BNO055";
-
-				// the I2C device is names IMU
-				imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
-
-				//telemetry.addData("11", imu.);
-				//motor setup
-		DriveController = hardwareMap.dcMotorController.get("drive_controller");
-		LeftMotor = hardwareMap.dcMotor.get("left_drive");
-		RightMotor = hardwareMap.dcMotor.get("right_drive");
-		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
+		// the I2C device is names IMU
+		imu = ClassFactory.createAdaFruitBNO055IMU(hardwareMap.i2cDevice.get("imu"), parameters);
 
         //setup telemetry
         telemetry.setUpdateIntervalMs(200);
@@ -163,6 +142,8 @@ public class IMU
 
 			while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
 			{
+				telemetry.addData("12", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
+
 				//this is the update loop
 				UpdateTime();
 				UpdateAngles();
@@ -316,9 +297,9 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            PConstant = 4f;
+            PConstant = 3f;
             IConstant = 1.3f;
-            DConstant = 2;
+            DConstant = 0;
         }
         else if (Motion == "Turn")
         {
