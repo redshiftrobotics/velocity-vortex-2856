@@ -20,6 +20,7 @@ public class Teleop extends SynchronousOpMode
 	DcMotor backWheel = null;
 	Servo leftClimberServo = null;
 	Servo rightClimberServo = null;
+	Servo hooker = null;
 
 	float BackTargetEncoder = 0;
 	float ArmStartEncoder = 0;
@@ -34,8 +35,9 @@ public class Teleop extends SynchronousOpMode
 		this.arm = this.hardwareMap.dcMotor.get("arm");
 		this.blockCollector = this.hardwareMap.dcMotor.get("block_collector");
 		this.backWheel = this.hardwareMap.dcMotor.get("back_wheel");
-		this.leftClimberServo = this.hardwareMap.servo.get("left_climber_servo");
-		this.rightClimberServo = this.hardwareMap.servo.get("right_climber_servo");
+		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
+		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
+		this.hooker = this.hardwareMap.servo.get("hooker");
 
 		//run these with encoders
 		backBrace.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -60,9 +62,9 @@ public class Teleop extends SynchronousOpMode
 			this.DriveControl(this.gamepad1);
 			this.BackBraceControl(this.gamepad1);
 			this.ClimberDeploymentControl(this.gamepad1);
-
 			this.ArmControl(this.gamepad2);
 			this.CollectorControl(this.gamepad2);
+			this.HookControl(this.gamepad1);
 
 			// Emit telemetry with the freshest possible values
 			this.telemetry.update();
@@ -108,6 +110,18 @@ public class Teleop extends SynchronousOpMode
 		else
 		{
 			this.rightClimberServo.setPosition(100);
+		}
+	}
+
+	void HookControl(Gamepad pad)
+	{
+		if(pad.a == true)
+		{
+			this.hooker.setPosition(0);
+		}
+		else
+		{
+			this.hooker.setPosition(100);
 		}
 	}
 
