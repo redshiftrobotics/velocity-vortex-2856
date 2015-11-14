@@ -275,8 +275,6 @@ public class FtcRobotControllerActivity extends Activity {
 	  ///////////////////////////////////////////////////////////
 	  /////////               MODDED           //////////////////
 	  ///////////////////////////////////////////////////////////
-
-
 	  Thread thread = new Thread(new Runnable(){
 		  @Override
 		  public void run() {

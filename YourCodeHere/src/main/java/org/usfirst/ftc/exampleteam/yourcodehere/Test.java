@@ -27,14 +27,18 @@ public class Test extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
 
-		FollowLine follower = new FollowLine(hardwareMap, this);
-		IMU Robot = new IMU(hardwareMap, telemetry, this);
+//		FollowLine follower = new FollowLine(hardwareMap, this);
+//		IMU Robot = new IMU(hardwareMap, telemetry, this);
 
 		waitForStart();
 
-		Float startRotations = Robot.Rotation();
-		follower.Straight(5);
-		Robot.Turn(startRotations - Robot.Rotation());
+		Trigger.determineSides();
+		//Trigger.takeImage();
+
+
+//		Float startRotations = Robot.Rotation();
+//		follower.Straight(5);
+//		Robot.Turn(startRotations - Robot.Rotation());
 
 
 
