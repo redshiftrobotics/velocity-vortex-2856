@@ -132,24 +132,36 @@ public class Trigger {
 		return text;
 	}
 
-	public static String determineSides () {
+	public static int determineBlue () {
 
 		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
 		int readArray[];
-		readArray = new int[160];
-		int readArrayR[];
-		readArrayR = new int[160];
+		readArray = new int[bitproc.getWidth()];
 		Log.d("lenght", String.valueOf(readArray.length));
 
 
 		//until it finds a group with a low enough change
 
+
+		Log.d("height", String.valueOf(bitproc.getHeight()));
 		//find change over 20 points
+
 		for(int i = 0; i < readArray.length; i++) {
 
+			int sumsauce = 0;
+			//for int potassium = bananas
+			for(int k = bitproc.getHeight()/3; k < 2*(bitproc.getHeight()/3); k++) {
+				sumsauce += Color.blue(bitproc.getPixel(i, k));
 
-			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight()/2));
-			readArrayR[i]=Color.red(bitproc.getPixel(i, bitproc.getHeight() / 2));
+			}
+			Log.d("sumsauce before av", String.valueOf(sumsauce));
+
+			readArray[i] = sumsauce/(bitproc.getHeight()/3);
+
+			//deprecated line... this samples just one line along the image in the very center
+//			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
+
+
 		}
 
 		//average above threshold and change is under threshold
@@ -157,45 +169,150 @@ public class Trigger {
 		int max = -999;
 		int min = -999;
 		int pointSample = 10;
+		int master = 0;
+		int blueStart = -1;
+		int i = 0;
+		int blueThresh = 240;
+		int changeThresh = 2;
+
+		Log.d("as", Arrays.toString(readArray));
+
 
 		for(int j = 0; j < readArray.length/pointSample; j++) {
-			for (int i = 0; i < pointSample; i++) {
+			master = j*10;
+			for (i = 0; i < pointSample; i++) {
 				if (max == -999) {
-					max = readArray[i];
-					min = readArray[i];
+					max = readArray[i+master];
+					min = readArray[i+master];
 				} else {
-					if (readArray[i] > max) {
-						max = readArray[i];
-					} else if (readArray[i] < min) {
-						min = readArray[i];
+					if (readArray[i+master] > max) {
+						max = readArray[i+master];
+					} else if (readArray[i+master] < min) {
+						min = readArray[i+master];
 					}
 				}
 
 			}
-			Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
-			if (max - min < 2 && min > 240) {
-
-				Log.d("found", "blue");
+			//Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
+			if (max - min < changeThresh && min > blueThresh && blue==false) {
 				blue = true;
+				blueStart = ((j-1)*10)+i;
+				Log.d("found blue", String.valueOf(blueStart));
 			}
 
 			min = -999;
 			max = -999;
 		}
 
+//		Log.d("min", String.valueOf(min));
+//		Log.d("max", String.valueOf(max));
+		return blueStart;
+	}
+
+	public static int determineRed () {
+
+		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
+		int readArray[];
+		readArray = new int[bitproc.getWidth()];
+		Log.d("lenght", String.valueOf(readArray.length));
 
 
+		//until it finds a group with a low enough change
+
+
+		Log.d("height", String.valueOf(bitproc.getHeight()));
+		//find change over 20 points
+
+		for(int i = 0; i < readArray.length; i++) {
+
+			int sumsauce = 0;
+			//for int potassium = bananas
+			for(int k = bitproc.getHeight()/3; k < 2*(bitproc.getHeight()/3); k++) {
+				sumsauce += Color.red(bitproc.getPixel(i, k));
+
+			}
+			Log.d("sumsauce before av", String.valueOf(sumsauce));
+
+			readArray[i] = sumsauce/(bitproc.getHeight()/3);
+
+			//deprecated line... this samples just one line along the image in the very center
+//			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
+
+
+		}
+
+		//average above threshold and change is under threshold
+		boolean blue = false;
+		int max = -999;
+		int min = -999;
+		int pointSample = 10;
+		int master = 0;
+		int redStart = -1;
+		int i = 0;
+
+
+		//TUNE THESE
+
+
+
+		this is where i left off
+
+
+		int redThresh = 240;
+		int changeThresh = 2;
+
+		Log.d("as", Arrays.toString(readArray));
+
+
+		for(int j = 0; j < readArray.length/pointSample; j++) {
+			master = j*10;
+			for (i = 0; i < pointSample; i++) {
+				if (max == -999) {
+					max = readArray[i+master];
+					min = readArray[i+master];
+				} else {
+					if (readArray[i+master] > max) {
+						max = readArray[i+master];
+					} else if (readArray[i+master] < min) {
+						min = readArray[i+master];
+					}
+				}
+
+			}
+			//Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
+			if (max - min < changeThresh && min > redThresh && blue==false) {
+				blue = true;
+				redStart = ((j-1)*10)+i;
+				Log.d("found blue", String.valueOf(redStart));
+			}
+
+			min = -999;
+			max = -999;
+		}
 
 //		Log.d("min", String.valueOf(min));
 //		Log.d("max", String.valueOf(max));
+		return redStart;
+	}
+
+	public static String determineSides() {
+		int blue = determineBlue();
+		int red = determineRed();
+
+		String blueison = "";
+
+		if(blue != -1 && red != -1) {
+			if(blue > red) {
+				blueison = "left";
+			} else {
+				blueison = "right";
+			}
+		} else {
+			blueison = "could not find a color...";
+		}
 
 
-
-
-
-
-
-		return "not finished";
+		return blueison;
 	}
 
 

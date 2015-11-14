@@ -34,9 +34,9 @@ public class TestOld extends SynchronousOpMode {
 
 		waitForStart();
 
-		Trigger.determineSides();
-		//Trigger.takeImage();
-
+		Trigger.takeImage();
+		Thread.sleep(1000);
+		Log.d("##Blue is on the: ###", Trigger.determineSides());
 
 //		Float startRotations = Robot.Rotation();
 //		follower.Straight(5);
