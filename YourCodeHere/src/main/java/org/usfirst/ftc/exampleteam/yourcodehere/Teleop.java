@@ -96,20 +96,20 @@ public class Teleop extends SynchronousOpMode
 	{
 		if(pad.left_bumper == true)
 		{
-			this.leftClimberServo.setPosition(0);
+			this.leftClimberServo.setPosition(.3);
 		}
 		else
 		{
-			this.leftClimberServo.setPosition(100);
+			this.leftClimberServo.setPosition(.6);
 		}
 
 		if(pad.right_bumper == true)
 		{
-			this.rightClimberServo.setPosition(0);
+			this.rightClimberServo.setPosition(.35);
 		}
 		else
 		{
-			this.rightClimberServo.setPosition(100);
+			this.rightClimberServo.setPosition(1);
 		}
 	}
 
@@ -117,11 +117,11 @@ public class Teleop extends SynchronousOpMode
 	{
 		if(pad.a == true)
 		{
-			this.hooker.setPosition(0);
+			this.hooker.setPosition(.1);
 		}
 		else
 		{
-			this.hooker.setPosition(100);
+			this.hooker.setPosition(.8);
 		}
 	}
 

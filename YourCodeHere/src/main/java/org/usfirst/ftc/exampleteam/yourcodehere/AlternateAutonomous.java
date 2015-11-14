@@ -39,22 +39,22 @@ public class AlternateAutonomous extends SynchronousOpMode {
 		Robot.Straight(.8f);
 		Robot.Turn(-45);
 
-		Robot.Straight(3.9f);
+		Robot.Straight(1.6f);
 
 		Robot.Stop();
-
-		Robot.Straight(-.5f);
-
-		Robot.SlowStop(-1);
 
 		//current rotation minus initial rotation
 		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
 		//turn, accounting for additional degrees
-		Robot.Turn(135 - (float)AdditionalTurnDegrees);
+		Robot.Turn(135 - (float)AdditionalTurnDegrees, "Left");
 
 		Robot.Stop();
+
+		Robot.Straight(-.6f);
+
+		Robot.SlowStop(-1);
     }
 
 	public void RunIdle() throws InterruptedException

@@ -197,6 +197,14 @@ public class IMU
 		return ComputedRotation;
 	}
 
+	public void Turn(final float Degrees, final String StationaryWheel) throws InterruptedException
+	{
+		this.StationaryWheel = StationaryWheel;
+
+		Turn(Degrees);
+
+		this.StationaryWheel = "Right";
+	}
 
 	//this is the update loop
 	public void Turn(final float Degrees) throws InterruptedException
@@ -222,12 +230,12 @@ public class IMU
 		//while the distance from the target is greater than the error
 		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
 		{
-			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 4)
-			{
-				telemetry.log.add("low SD");
-
-				break;
-			}
+//			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
+//			{
+//				telemetry.log.add("low SD");
+//
+//				break;
+//			}
 
 			//get the standard deviation
 			ValueStandardDeviation();
@@ -302,20 +310,12 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            PConstant = 3f; //3
-            IConstant = .5f; //1.3
-            DConstant = .5f; //0
-
-			telemetry.addData("23", "D Value = " + D);
+            PConstant = 3f;
+            IConstant = .5f;
+            DConstant = .7f;
         }
         else if (Motion == "Turn")
         {
-			//the D constant is going in the wrong direction
-            //compute the d with the rate of change
-			//if the rate of change is
-
-			telemetry.addData("02", "Target = " + Target + ", Rotation = " + ComputedRotation);
-
 			if(Target < ComputedRotation) {
 				D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 			}
@@ -325,15 +325,21 @@ public class IMU
 
 			}
 
-			telemetry.addData("67", "D: " + D);
+			
 
 			//functional
-			DConstant = -.1f;
-			IConstant = .1f; //.1
-			PConstant = 2f; //2
+			DConstant = -.2f;
+			IConstant = .1f;
         }
 
+
+
 		float Direction = I * IConstant + P * PConstant + D * DConstant;
+
+		telemetry.addData("01", "P: " + P);
+		telemetry.addData("02", "I: " + I);
+		telemetry.addData("03", "D: " + D);
+		telemetry.addData("04", "Sum: " + Direction);
 
 		if (Motion == "Straight" && MovingDirection == "Backward")
 		{
