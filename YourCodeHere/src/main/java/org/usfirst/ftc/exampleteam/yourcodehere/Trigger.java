@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Created by matt on 10/30/15.
@@ -129,4 +131,74 @@ public class Trigger {
 
 		return text;
 	}
+
+	public static String determineSides () {
+
+		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
+		int readArray[];
+		readArray = new int[160];
+		int readArrayR[];
+		readArrayR = new int[160];
+		Log.d("lenght", String.valueOf(readArray.length));
+
+
+		//until it finds a group with a low enough change
+
+		//find change over 20 points
+		for(int i = 0; i < readArray.length; i++) {
+
+
+			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight()/2));
+			readArrayR[i]=Color.red(bitproc.getPixel(i, bitproc.getHeight() / 2));
+		}
+
+		//average above threshold and change is under threshold
+		boolean blue = false;
+		int max = -999;
+		int min = -999;
+		int pointSample = 10;
+
+		for(int j = 0; j < readArray.length/pointSample; j++) {
+			for (int i = 0; i < pointSample; i++) {
+				if (max == -999) {
+					max = readArray[i];
+					min = readArray[i];
+				} else {
+					if (readArray[i] > max) {
+						max = readArray[i];
+					} else if (readArray[i] < min) {
+						min = readArray[i];
+					}
+				}
+
+			}
+			Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
+			if (max - min < 2 && min > 240) {
+
+				Log.d("found", "blue");
+				blue = true;
+			}
+
+			min = -999;
+			max = -999;
+		}
+
+
+
+
+//		Log.d("min", String.valueOf(min));
+//		Log.d("max", String.valueOf(max));
+
+
+
+
+
+
+
+		return "not finished";
+	}
+
+
+
+
 }
