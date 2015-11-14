@@ -11,6 +11,7 @@ public class FollowLine {
 	private static DcMotor mRightMotor = null;
 	private static DcMotor mLeftMotor = null;
 	SynchronousOpMode ParentOpMode;
+	IMU Robot;
 
 	// Veer to the right by default
 	float highPower = 0.3f;
@@ -22,9 +23,9 @@ public class FollowLine {
 		return (mColorSensor.red() > threshold || mColorSensor.blue() > threshold);
 	}
 
-	public FollowLine(DcMotor LeftMotor, DcMotor RightMotor, HardwareMap hardwareMap, SynchronousOpMode op) throws InterruptedException {
+	public FollowLine(DcMotor LeftMotor, DcMotor RightMotor, HardwareMap hardwareMap, SynchronousOpMode op, IMU RobotClass) throws InterruptedException {
 		ParentOpMode = op;
-
+		Robot = RobotClass;
 		this.mRightMotor = RightMotor;
 		this.mLeftMotor = LeftMotor;
 
@@ -55,6 +56,11 @@ public class FollowLine {
 			}
 
 			ParentOpMode.updateGamepads();
+
+			//update the angles
+			Robot.UpdateAngles();
+
+			ParentOpMode.telemetry.addData("34", Robot.Rotation());
 
 			// Release control back to the system
 			ParentOpMode.telemetry.update();

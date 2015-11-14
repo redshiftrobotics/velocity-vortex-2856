@@ -15,42 +15,46 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Test")
-public class Test extends SynchronousOpMode {
+@TeleOp(name="Line Autonomous")
+public class LineAutonomous extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     // DcMotor motorLeft = null;
     // DcMotor motorRight = null;
-
+	public IMU Robot;
 
     @Override
     public void main() throws InterruptedException {
-        /* Initialize our hardware variables. Note that the strings used here as parameters
-         * to 'get' must correspond to the names you assigned during the robot configuration
-         * step you did in the FTC Robot Controller app on the phone.
-         */
-
-
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
-		FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this);
-		IMU Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
+		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
+		FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this, Robot);
 
 		waitForStart();
 
+		double InitialRotation = Robot.Rotation();
+
 		//get set up on the line
-		Robot.Straight(2);
+		Robot.Straight(2f);
 		Robot.Turn(-45);
 
 		//follow the line
-		follower.Straight(1.2);
+		follower.Straight(1.9f);
+
 		Robot.Stop();
 
-		//turn
-		Robot.Turn(-45);
-		Robot.Straight(1.5f);
+		//current rotation minus initial rotation
+		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
+		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
+
+		//turn, accounting for additional degrees
+		Robot.Turn(135 - (float)AdditionalTurnDegrees);
+
 		Robot.Stop();
+
+		Robot.Straight(-1.2f);
+		Robot.SlowStop(-1);
 
 		Trigger.takeImage();
 		Thread.sleep(2000);
@@ -72,13 +76,9 @@ public class Test extends SynchronousOpMode {
 			Log.d("FindAVGSides", "Inconclusive Result");
 		}
 
-		//Float startRotations = Robot.Rotation();
-		//follower.Straight(5);
-		//Robot.Turn(startRotations - Robot.Rotation());
-
-
-
-
+		Float startRotations = Robot.Rotation();
+		follower.Straight(5);
+		Robot.Turn(startRotations - Robot.Rotation());
     }
 
 	public void RunIdle() throws InterruptedException

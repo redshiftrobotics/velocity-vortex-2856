@@ -41,7 +41,7 @@ public class IMU
 			float ComputedRotation;
 			float PreviousComputedRotation;
 			float Target = 20;
-			float TargetRateOfChange = 10;
+			float TargetRateOfChange = 45;
 			ArrayList HistoricData = new ArrayList();
 			ArrayList DerivativeData = new ArrayList();
 			float D;
@@ -103,10 +103,20 @@ public class IMU
 	}
 
 
-	public void Stop()
+	public void SlowStop(int Direction) throws InterruptedException
+	{
+		LeftMotor.setPower(.01 * Math.abs(Direction) / Direction);
+		RightMotor.setPower(.01 * Math.abs(Direction) / Direction);
+
+		Thread.sleep(500);
+	}
+
+	public void Stop() throws InterruptedException
 	{
 		LeftMotor.setPower(0);
 		RightMotor.setPower(0);
+
+		Thread.sleep(200);
 	}
 
     //this is the update loop
@@ -138,27 +148,22 @@ public class IMU
         //set the target to the current position
         Target = ComputedRotation;
 
+		while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
+		{
+			telemetry.addData("12", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
+			//this is the update loop
+			UpdateTime();
+			UpdateAngles();
+			PreformCalculations();
+			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
-			while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
-			{
-				telemetry.addData("12", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
+			//update telemetry
+			telemetry.update();
 
-				//this is the update loop
-				UpdateTime();
-				UpdateAngles();
-				PreformCalculations();
-				//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
-
-				//update telemetry
-				telemetry.update();
-
-				//idle using the reference to the instance of the main opmode
-				MainOpMode.idle();
-			}
-
-
-		Stop();
+			//idle using the reference to the instance of the main opmode
+			MainOpMode.idle();
+		}
     }
 
 	private float ValueStandardDeviation()
@@ -186,6 +191,9 @@ public class IMU
 
 	public float Rotation()
 	{
+		//make sure that we have the latest data
+		UpdateAngles();
+
 		return ComputedRotation;
 	}
 
@@ -214,13 +222,10 @@ public class IMU
 		//while the distance from the target is greater than the error
 		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
 		{
-
-			Log.d("SD", Float.toString(ValueStandardDeviation()));
-
-			telemetry.addData("23", ValueStandardDeviation());
-
-			if(ValueStandardDeviation() < .01 && Math.abs(ComputedRotation - Target) < 10)
+			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 4)
 			{
+				telemetry.log.add("low SD");
+
 				break;
 			}
 
@@ -231,14 +236,14 @@ public class IMU
 			UpdateTime();
 			UpdateAngles();
 			PreformCalculations();
-			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
-
 			//update telemetry
 			telemetry.update();
 
 			//idle using the reference to the instance of the main opmode
 			MainOpMode.idle();
 		}
+
+		telemetry.log.add("turn was " + Math.abs(ComputedRotation - Target) + " degrees off.");
 	}
 
 	public void UpdateConstants()
@@ -297,20 +302,35 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            PConstant = 3f;
-            IConstant = 1.3f;
-            DConstant = 0;
+            PConstant = 3f; //3
+            IConstant = .5f; //1.3
+            DConstant = .5f; //0
+
+			telemetry.addData("23", "D Value = " + D);
         }
         else if (Motion == "Turn")
         {
+			//the D constant is going in the wrong direction
             //compute the d with the rate of change
-            D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
-			//functional
-            //DConstant = .5f;
-			DConstant = .4f;
+			//if the rate of change is
 
-			IConstant = 0f;
-			PConstant = 2.8f;
+			telemetry.addData("02", "Target = " + Target + ", Rotation = " + ComputedRotation);
+
+			if(Target < ComputedRotation) {
+				D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
+			}
+			else
+			{
+				D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) + TargetRateOfChange;
+
+			}
+
+			telemetry.addData("67", "D: " + D);
+
+			//functional
+			DConstant = -.1f;
+			IConstant = .1f; //.1
+			PConstant = 2f; //2
         }
 
 		float Direction = I * IConstant + P * PConstant + D * DConstant;
@@ -320,17 +340,6 @@ public class IMU
 			// flip the direction because we're going backwards
 			Direction *= -1;
 		}
-
-;
-
-        //logs data
-        telemetry.addData("00", "P: " + P);
-        telemetry.addData("01", "I: " + I);
-        telemetry.addData("02", "D: " + D);
-
-        telemetry.addData("03", "PConstant: " + PConstant);
-        telemetry.addData("04", "IConstant: " + IConstant);
-        telemetry.addData("05", "DConstant: " + DConstant);
 
         //constrain the direction so that abs(Direction) < 50
         if(Direction > 50)
@@ -351,7 +360,6 @@ public class IMU
 				Multiplier = Power / 2;
 				LeftMotor.setPower(Multiplier + (Direction / 200));
 				RightMotor.setPower(Multiplier - (Direction / 200));
-
 			}
 			else
 			{
