@@ -251,20 +251,6 @@ public class Trigger {
 		int redThresh = 120;
 		int changeThresh = 34950;
 
-<<<<<<< HEAD
-		Log.d("red", Arrays.toString(readArray));
-=======
-
-		//this is where i left off
-
-
-		int redThresh = 240;
-		int changeThresh = 2;
-
-		Log.d("as", Arrays.toString(readArray));
-
->>>>>>> 99fbd3023319f70af454b67155fe49c5f90dadcc
-
 		for(int j = 0; j < readArray.length/pointSample; j++) {
 			master = j*10;
 			for (i = 0; i < pointSample; i++) {
