@@ -255,7 +255,7 @@ public class Trigger {
 
 
 
-		this is where i left off
+		//this is where i left off
 
 
 		int redThresh = 240;
