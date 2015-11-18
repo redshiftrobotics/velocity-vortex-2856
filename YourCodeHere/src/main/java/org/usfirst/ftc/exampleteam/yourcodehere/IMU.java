@@ -56,8 +56,10 @@ public class IMU
 			String MovingDirection = "Forward";
 			//can be 'Right' or 'Left'
 			String StationaryWheel = "Right";
+
 			//from 0 to 1
-			float Power = .4f;
+			//.4 for test chassis
+			float Power = .8f;
 
 			DcMotor LeftMotor;
 			DcMotor RightMotor;
@@ -310,9 +312,15 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-            PConstant = 3f;
-            IConstant = .5f;
-            DConstant = .7f;
+			//constants for the test chassis
+//            PConstant = 3f;
+//            IConstant = .5f;
+//            DConstant = .7f;
+
+			//constants for the real chassis
+			PConstant = 4f;
+			IConstant = 0f;
+			DConstant = .7f;
         }
         else if (Motion == "Turn")
         {
@@ -325,13 +333,10 @@ public class IMU
 
 			}
 
-			
-
 			//functional
 			DConstant = -.2f;
 			IConstant = .1f;
         }
-
 
 
 		float Direction = I * IConstant + P * PConstant + D * DConstant;
@@ -340,6 +345,7 @@ public class IMU
 		telemetry.addData("02", "I: " + I);
 		telemetry.addData("03", "D: " + D);
 		telemetry.addData("04", "Sum: " + Direction);
+		telemetry.addData("05", "Rotation: " + ComputedRotation);
 
 		if (Motion == "Straight" && MovingDirection == "Backward")
 		{
