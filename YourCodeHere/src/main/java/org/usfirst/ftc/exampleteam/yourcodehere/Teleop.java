@@ -114,17 +114,21 @@ public class Teleop extends SynchronousOpMode
 		}
 	}
 
+
 	void HookControl(Gamepad pad)
 	{
+		
 		if(pad.a == true)
 		{
 			this.hooker.setPosition(.1);
 		}
-		else
-		{
+
+		if(pad.b == true) {
 			this.hooker.setPosition(.8);
 		}
+
 	}
+
 
 //	void CollectorControl(Gamepad pad)
 //	{
