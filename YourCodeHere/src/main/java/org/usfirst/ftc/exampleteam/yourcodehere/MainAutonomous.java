@@ -23,6 +23,8 @@ public class MainAutonomous extends SynchronousOpMode {
     public void main() throws InterruptedException {
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
+		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
+
 		RightMotor.setDirection(DcMotor.Direction.REVERSE);
 
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
@@ -30,13 +32,37 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
-		//get set up on the line
-		Robot.Straight(1.5f);
-		Robot.Turn(-45);
-		Robot.Straight(1.5f);
-		Robot.Turn(-45);
-		Robot.Straight(1);
+		double InitialRotation = Robot.Rotation();
+		double BackBraceInitial = BackBrace.getCurrentPosition();
 
+
+		Robot.Straight(.7f);
+		Robot.Stop();
+
+		//back brace to correct height
+		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 3.5)
+		{
+			//need to do this whenever not using rotation libraries
+			Robot.UpdateAngles();
+
+			telemetry.addData("11", Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()));
+			BackBrace.setPower(.1);
+		}
+		BackBrace.setPower(0);
+
+		//get set up on the line
+		Robot.Straight(.5f);
+		Robot.Turn(-45);
+		Robot.Straight(2.3f);
+
+		//current rotation minus initial rotation
+		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
+		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
+
+		//turn, accounting for additional degrees
+		Robot.Turn(135 - (float)AdditionalTurnDegrees, "Left");
+
+		Robot.Straight(-1);
 		Robot.Stop();
     }
 
