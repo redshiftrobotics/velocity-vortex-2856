@@ -24,6 +24,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
+		Servo ButtonServo = hardwareMap.servo.get("button_servo");
 
 		RightMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -60,14 +61,22 @@ public class MainAutonomous extends SynchronousOpMode {
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
 		//turn, accounting for additional degrees
-		Robot.Turn(135 - (float)AdditionalTurnDegrees, "Left");
+		Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
 
 		Robot.Straight(-1);
 		Robot.Stop();
 
 		Trigger.takeImage();
 		Thread.sleep(1000);
-		Trigger.determineSides();
+
+		if(Trigger.determineSides() == "left") {
+			ButtonServo.setPosition(0);
+		} else if (Trigger.determineSides() == "right") {
+			ButtonServo.setPosition(180);
+		} else {
+			Robot.Straight(-1);
+		}
+
 
     }
 
