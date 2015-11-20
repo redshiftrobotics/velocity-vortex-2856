@@ -275,29 +275,57 @@ public class FtcRobotControllerActivity extends Activity {
 	  ///////////////////////////////////////////////////////////
 	  /////////               MODDED           //////////////////
 	  ///////////////////////////////////////////////////////////
-	  Thread thread = new Thread(new Runnable(){
-		  @Override
-		  public void run() {
-			  ServerSocket soc;
-			  soc = null;
-			  Log.d("thread", "###################################I am running!");
-			  try {
-				  //Inet6Address i6 = new Inet6Address("::1");
-				  soc = new ServerSocket(2856, 50);
-				  soc.accept();
-				  mCamera.takePicture(null, null, mPicture);
-			  } catch (Exception e) {
-				  e.printStackTrace();
-			  }
-		  }
-	  });
+
+
+
+
+
+
+	Thread thread = new Thread(new Runnable(){
+		@Override
+		public void run() {
+			ServerSocket soc;
+			soc = null;
+			Log.d("thread", "###################################I am running!");
+			try {
+				boolean sex = true;
+				//Inet6Address i6 = new Inet6Address("::1");
+				soc = new ServerSocket(2856, 50);
+
+				//Yes this solution is incredibly ratchet... If you have a better solution please tell me!
+
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				Log.d("ERROR", "OUT OF PICTURES, PLEASE RESTART APPLICATION!!!!!");
+				soc.close();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	});
 
 	  thread.start();
 
 
+
 	  // Create an instance of Camera
 	  mCamera = getCameraInstance();
-
+	  mCamera.setDisplayOrientation(90);
 	  // Create our Preview view and set it as the content of our activity.
 	  mPreview = new CameraPreview(this, mCamera);
 	  FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);

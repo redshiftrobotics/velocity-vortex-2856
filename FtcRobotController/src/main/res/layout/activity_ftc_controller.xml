@@ -124,9 +124,10 @@
 		  android:id="@+id/textGamepad1"
 		  android:layout_above="@+id/textGamepad2" />
 
+
 	  <FrameLayout
-		  android:layout_width="10dp"
-		  android:layout_height="10dp"
+		  android:layout_width="120dp"
+		  android:layout_height="160dp"
 		  android:layout_above="@+id/textGamepad1"
 		  android:layout_centerHorizontal="true"
 		  android:id="@+id/camera_preview" />
