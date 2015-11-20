@@ -288,7 +288,6 @@ public class FtcRobotControllerActivity extends Activity {
 			soc = null;
 			Log.d("thread", "###################################I am running!");
 			try {
-				boolean sex = true;
 				//Inet6Address i6 = new Inet6Address("::1");
 				soc = new ServerSocket(2856, 50);
 

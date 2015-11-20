@@ -64,6 +64,11 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		Robot.Straight(-1);
 		Robot.Stop();
+
+		Trigger.takeImage();
+		Thread.sleep(1000);
+		Trigger.determineSides();
+
     }
 
 	public void RunIdle() throws InterruptedException
