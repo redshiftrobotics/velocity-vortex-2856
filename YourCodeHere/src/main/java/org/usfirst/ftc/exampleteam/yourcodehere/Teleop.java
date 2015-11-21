@@ -21,6 +21,7 @@ public class Teleop extends SynchronousOpMode
 	Servo leftClimberServo = null;
 	Servo rightClimberServo = null;
 	Servo hooker = null;
+	Servo climberControl = null;
 
 	float BackTargetEncoder = 0;
 	float ArmStartEncoder = 0;
@@ -38,6 +39,7 @@ public class Teleop extends SynchronousOpMode
 		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
 		this.hooker = this.hardwareMap.servo.get("hooker");
+		this.climberControl = this.hardwareMap.servo.get("climber_control");
 
 		//run these with encoders
 		backBrace.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -62,7 +64,8 @@ public class Teleop extends SynchronousOpMode
 
 			this.DriveControl(this.gamepad1);
 			this.BackBraceControl(this.gamepad1);
-			this.ClimberDeploymentControl(this.gamepad1);
+			this.ClimberDeploymentControl(this.gamepad1); //hit climbers on ramp
+			this.ClimberControl(this.gamepad2); //climberDumper mechanism
 			//this.ArmControl(this.gamepad2);
 			//this.CollectorControl(this.gamepad2);
 			this.HookControl(this.gamepad1);
@@ -93,6 +96,15 @@ public class Teleop extends SynchronousOpMode
 //		}
 //	}
 
+	void ClimberControl(Gamepad pad) {
+		if(pad.a)
+		{
+			this.climberControl.setPosition(1);
+		} else {
+			this.climberControl.setPosition(0);
+		}
+	}
+
 	void ClimberDeploymentControl(Gamepad pad)
 	{
 		if(pad.left_bumper == true)
@@ -117,7 +129,7 @@ public class Teleop extends SynchronousOpMode
 
 	void HookControl(Gamepad pad)
 	{
-		
+
 		if(pad.a == true)
 		{
 			this.hooker.setPosition(.1);
