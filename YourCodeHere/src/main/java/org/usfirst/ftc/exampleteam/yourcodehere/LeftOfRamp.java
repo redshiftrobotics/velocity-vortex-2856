@@ -1,22 +1,18 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
-import android.util.Log;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
-import com.qualcomm.robotcore.hardware.*;
-import org.swerverobotics.library.*;
-import org.swerverobotics.library.interfaces.*;
-
-
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
+import org.swerverobotics.library.SynchronousOpMode;
+import org.swerverobotics.library.interfaces.TeleOp;
 
 /**
  * A skeletal example of a do-nothing first OpMode. Go ahead and change this code
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Main Autonomous")
-public class MainAutonomous extends SynchronousOpMode {
+@TeleOp(name="LeftOfRamp")
+public class LeftOfRamp extends SynchronousOpMode {
 	public IMU Robot;
 
     @Override
@@ -58,7 +54,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//get set up on the line
 		Robot.Straight(.55f);
-		Robot.Turn(-143);
+		Robot.Turn(135, "Left");
 		BackWheel.setPower(-1);
 		Robot.Straight(1.0f);
 		BackWheel.setPower(0);
@@ -84,7 +80,7 @@ public class MainAutonomous extends SynchronousOpMode {
 //		} else {
 //			Robot.Straight(-1);
 //		}
-
+//
 
     }
 

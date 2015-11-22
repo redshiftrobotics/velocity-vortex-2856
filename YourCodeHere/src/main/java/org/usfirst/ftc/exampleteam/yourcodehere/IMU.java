@@ -227,10 +227,10 @@ public class IMU
 		Target = ComputedRotation + Degrees;
 
 		//degrees that something has to be off
-		float Error = 2;
+		float Error = 8;
 
 		//while the distance from the target is greater than the error
-		while (ValueStandardDeviation() > .05f || Math.abs(ComputedRotation - Target) > Error)
+		while (ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error)
 		{
 //			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
 //			{
@@ -334,8 +334,8 @@ public class IMU
 			}
 
 			//functional
-			DConstant = -.2f;
-			IConstant = .1f;
+			DConstant = -.3f;
+			IConstant = .15f;
         }
 
 

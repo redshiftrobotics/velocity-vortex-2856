@@ -109,11 +109,11 @@ public class Teleop extends SynchronousOpMode
 	{
 		if(pad.left_bumper == true)
 		{
-			this.leftClimberServo.setPosition(.3);
+			this.leftClimberServo.setPosition(.6);
 		}
 		else
 		{
-			this.leftClimberServo.setPosition(.6);
+			this.leftClimberServo.setPosition(0);
 		}
 
 		if(pad.right_bumper == true)
