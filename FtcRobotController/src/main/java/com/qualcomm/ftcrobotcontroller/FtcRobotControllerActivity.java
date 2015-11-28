@@ -94,22 +94,6 @@ public class FtcRobotControllerActivity extends Activity {
 	/////////               MODDED           //////////////////
 	///////////////////////////////////////////////////////////
 
-	FileObserver observer = new FileObserver("/sdcard/Pictures/processing") { // set up a file observer to watch this directory on sd card
-		@Override
-		public void onEvent(int event, String file) {
-			if(event == FileObserver.CREATE && !file.equals(".probe") && !file.equals("proc.jpg")){
-
-				mCamera.takePicture(null, null, mPicture);
-
-			}
-		}
-	};
-
-
-	public void onEvent(int event, String path) {
-
-	}
-
 	private Camera mCamera;
 	private CameraPreview mPreview;
 
@@ -277,10 +261,6 @@ public class FtcRobotControllerActivity extends Activity {
 	  ///////////////////////////////////////////////////////////
 
 
-
-
-
-
 	Thread thread = new Thread(new Runnable(){
 		@Override
 		public void run() {
@@ -358,9 +338,7 @@ public class FtcRobotControllerActivity extends Activity {
 
 
 
-
-
-	  utility = new Utility(this);
+	utility = new Utility(this);
     context = this;
     entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
     buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);

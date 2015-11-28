@@ -22,6 +22,8 @@ public class Teleop extends SynchronousOpMode
 	Servo rightClimberServo = null;
 	Servo hooker = null;
 	Servo climberControl = null;
+	Servo leftDebris = null;
+	Servo rightDebris = null;
 
 	float BackTargetEncoder = 0;
 	float ArmStartEncoder = 0;
@@ -38,15 +40,18 @@ public class Teleop extends SynchronousOpMode
 		this.backWheel = this.hardwareMap.dcMotor.get("back_wheel");
 		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
-		this.hooker = this.hardwareMap.servo.get("hooker");
+		//this.hooker = this.hardwareMap.servo.get("hooker");
 		this.climberControl = this.hardwareMap.servo.get("climber_control");
+		this.leftDebris = this.hardwareMap.servo.get("left_debris");
+		this.rightDebris = this.hardwareMap.servo.get("right_debris");
 
 		//run these with encoders
 		backBrace.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 		//arm.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
 		backWheel.setDirection(DcMotor.Direction.REVERSE);
-		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
+		this.rightDrive.setDirection(DcMotor.Direction.REVERSE);
+
 		//this.arm.setDirection(DcMotor.Direction.REVERSE);
 
 		//set initial encoders
@@ -69,6 +74,7 @@ public class Teleop extends SynchronousOpMode
 			//this.ArmControl(this.gamepad2);
 			//this.CollectorControl(this.gamepad2);
 			this.HookControl(this.gamepad1);
+			this.DebrisControl(this.gamepad1);
 
 			// Emit telemetry with the freshest possible values
 			this.telemetry.update();
@@ -95,6 +101,20 @@ public class Teleop extends SynchronousOpMode
 //			arm.setPower(0);
 //		}
 //	}
+
+	void DebrisControl(Gamepad pad) {
+		boolean previousState = true;
+
+		if(pad.x && pad.x != previousState)
+		{
+			previousState = pad.x;
+			this.rightDebris.setPosition(0);
+			this.leftDebris.setPosition(1);
+		} else if (pad.x){
+			this.rightDebris.setPosition(0.65);
+			this.leftDebris.setPosition(0.7);
+		}
+	}
 
 	void ClimberControl(Gamepad pad) {
 		if(pad.a)
