@@ -25,8 +25,6 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
-		//Servo ButtonServo = hardwareMap.servo.get("button_servo");
-		Servo hooker = this.hardwareMap.servo.get("hooker");
 		Servo dumper = this.hardwareMap.servo.get("climber_control");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -34,7 +32,6 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 		//FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this, Robot);
 
-		hooker.setPosition(.3);
 		dumper.setPosition(0);
 		waitForStart();
 
@@ -46,31 +43,26 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot.Stop();
 
 		//back brace to correct height
-		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 3.7)
-		{
-			//need to do this whenever not using rotation libraries
-			Robot.UpdateAngles();
+//		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 3.7)
+//		{
+//			//need to do this whenever not using rotation libraries
+//			Robot.UpdateAngles();
+//
+//			telemetry.addData("11", Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()));
+//			BackBrace.setPower(.5);
+//		}
+//		BackBrace.setPower(0);
 
-			telemetry.addData("11", Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()));
-			BackBrace.setPower(.5);
-		}
-		BackBrace.setPower(0);
-
-		//get set up on the line
-		Robot.Straight(.55f);
-		Robot.Turn(-143);
+		//go straight
 		BackWheel.setPower(-1);
-		Robot.Straight(1.0f);
-		BackWheel.setPower(0);
-//		//current rotation minus initial rotation
-//		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
-//		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
-//
-//		//turn, accounting for additional degrees
-//		Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
-//
-//		Robot.Straight(-1);
+		Robot.Straight(1f);
 
+		//current rotation minus initial rotation
+		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
+		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
+
+		//turn, accounting for additional degrees
+		Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
 
 		Robot.Stop();
 

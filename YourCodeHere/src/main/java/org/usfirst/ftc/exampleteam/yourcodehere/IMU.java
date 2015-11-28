@@ -227,17 +227,17 @@ public class IMU
 		Target = ComputedRotation + Degrees;
 
 		//degrees that something has to be off
-		float Error = 8;
+		float Error = 3;
 
 		//while the distance from the target is greater than the error
 		while (ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error)
 		{
-//			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
-//			{
-//				telemetry.log.add("low SD");
-//
-//				break;
-//			}
+			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
+			{
+				telemetry.log.add("low SD");
+
+				break;
+			}
 
 			//get the standard deviation
 			ValueStandardDeviation();
