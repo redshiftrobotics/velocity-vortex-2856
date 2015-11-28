@@ -4,6 +4,7 @@
         <Motor name="left_drive" port="1" />
         <Motor name="right_drive" port="2" />
     </MotorController>
+
     <DeviceInterfaceModule name="device_interface" serialNumber="AL00VDIN">
         <I2cDevice name="imu" port="1" />
     </DeviceInterfaceModule>

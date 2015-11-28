@@ -108,7 +108,7 @@ public class Teleop extends SynchronousOpMode
 		if(pad.x && pad.x != previousState)
 		{
 			previousState = pad.x;
-			this.rightDebris.setPosition(0);z
+			this.rightDebris.setPosition(0);
 			this.leftDebris.setPosition(1);
 		} else if (pad.x){
 			this.rightDebris.setPosition(0.65);
@@ -176,17 +176,18 @@ public class Teleop extends SynchronousOpMode
 
 	void BackBraceControl(Gamepad pad)
 	{
-		if (Math.abs(pad.right_trigger) > .1)
-		{
-			BackTargetEncoder += pad.right_trigger * 50;
-		}
-		else if (Math.abs(pad.left_trigger) > .1)
-		{
-			BackTargetEncoder -= pad.left_trigger * 50;
+
+		float threshold = .4f;
+		if (Math.abs(pad.left_trigger) > threshold || Math.abs(pad.right_trigger) > threshold) {
+			if (Math.abs(pad.right_trigger) > threshold) {
+				BackTargetEncoder += pad.right_trigger * 50;
+			} else if (Math.abs(pad.left_trigger) > threshold) {
+				BackTargetEncoder -= pad.left_trigger * 50;
+			}
 		}
 
 		//the difference between current and target position
-		float BackDifference = ((float)BackTargetEncoder - (float)backBrace.getCurrentPosition()) / 500f;
+		float BackDifference = ((float) BackTargetEncoder - (float) backBrace.getCurrentPosition()) / 500f;
 
 		//bound the speed of the back brace
 		if (BackDifference > 1) {
