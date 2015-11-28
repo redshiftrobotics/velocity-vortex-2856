@@ -6,6 +6,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.swerverobotics.library.SynchronousOpMode;
 import org.swerverobotics.library.interfaces.TeleOp;
 
+
+/**
+ *Do NOT USE!
+ */
+
+
 /**
  * A skeletal example of a do-nothing first OpMode. Go ahead and change this code
  * to suit your needs, or create sibling OpModes adjacent to this one in the same

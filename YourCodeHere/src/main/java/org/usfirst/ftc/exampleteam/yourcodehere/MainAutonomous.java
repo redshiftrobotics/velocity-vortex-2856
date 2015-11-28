@@ -29,7 +29,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		Servo hooker = this.hardwareMap.servo.get("hooker");
 		Servo dumper = this.hardwareMap.servo.get("climber_control");
 
-		RightMotor.setDirection(DcMotor.Direction.REVERSE);
+		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 		//FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this, Robot);
