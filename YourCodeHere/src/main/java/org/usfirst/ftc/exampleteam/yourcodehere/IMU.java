@@ -434,6 +434,8 @@ public class IMU
         //set the current rotation
         ComputedRotation = Heading + (Rotations * 360);
 
+		telemetry.addData("14", "Rotation: " + ComputedRotation);
+
         if(FirstUpdate)
         {
             FirstUpdate = false;

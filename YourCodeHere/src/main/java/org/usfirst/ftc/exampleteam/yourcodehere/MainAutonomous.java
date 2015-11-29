@@ -26,43 +26,60 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
 		Servo dumper = this.hardwareMap.servo.get("climber_control");
+		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
+		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 		//FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this, Robot);
 
+		//set positions of servos
+		rightDebris.setPosition(0);
+		leftDebris.setPosition(1);
 		dumper.setPosition(0);
+
 		waitForStart();
 
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
-
-		Robot.Straight(.7f);
+		Robot.Straight(1.5f);
 		Robot.Stop();
 
 		//back brace to correct height
-//		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 3.7)
-//		{
-//			//need to do this whenever not using rotation libraries
-//			Robot.UpdateAngles();
-//
-//			telemetry.addData("11", Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()));
-//			BackBrace.setPower(.5);
-//		}
-//		BackBrace.setPower(0);
+		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 3.7)
+		{
+			//need to do this whenever not using rotation libraries
+			Robot.UpdateAngles();
 
-		//go straight
-		BackWheel.setPower(-1);
-		Robot.Straight(1f);
+			BackBrace.setPower(1);
+		}
+		BackBrace.setPower(0);
+
+		Robot.Turn(-45);
+
+		Robot.Straight(6.5f);
 
 		//current rotation minus initial rotation
 		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
-		//turn, accounting for additional degrees
+		Robot.Stop();
+
+		//back brace to correct height
+		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) > 200)
+		{
+			//need to do this whenever not using rotation libraries
+			Robot.UpdateAngles();
+
+			BackBrace.setPower(-.1);
+		}
+		BackBrace.setPower(0);
+
 		Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
+
+		Robot.Straight(-2);
 
 		Robot.Stop();
 
@@ -79,6 +96,8 @@ public class MainAutonomous extends SynchronousOpMode {
 
 
     }
+
+
 
 	public void RunIdle() throws InterruptedException
 	{

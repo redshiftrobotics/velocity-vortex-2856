@@ -53,7 +53,9 @@ public class RightOfMountainAutonomous extends SynchronousOpMode {
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 		Robot.Turn(-135 + (float)AdditionalTurnDegrees, "Right");
 
-		Robot.Straight(2.0f);
+
+
+		//Robot.Straight(2.0f);
 
 		Robot.Stop();
     }
