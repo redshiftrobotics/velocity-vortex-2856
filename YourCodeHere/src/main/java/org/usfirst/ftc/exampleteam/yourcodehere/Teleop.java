@@ -25,6 +25,10 @@ public class Teleop extends SynchronousOpMode
 	Servo leftDebris = null;
 	Servo rightDebris = null;
 
+	boolean debounce = false;
+
+	boolean up = true;
+
 	float BackTargetEncoder = 0;
 	float ArmStartEncoder = 0;
 
@@ -103,17 +107,22 @@ public class Teleop extends SynchronousOpMode
 //	}
 
 	void DebrisControl(Gamepad pad) {
-		boolean previousState = true;
 
-		if(pad.x && pad.x != previousState)
+		if(debounce != pad.x && pad.x)
 		{
-			previousState = pad.x;
+			up = !up;
+		}
+
+		debounce = pad.x;
+
+		if(up) {
 			this.rightDebris.setPosition(0);
 			this.leftDebris.setPosition(1);
-		} else if (pad.x){
+		} else {
 			this.rightDebris.setPosition(0.65);
 			this.leftDebris.setPosition(0.7);
 		}
+
 	}
 
 	void ClimberControl(Gamepad pad) {
@@ -127,7 +136,7 @@ public class Teleop extends SynchronousOpMode
 
 	void ClimberDeploymentControl(Gamepad pad)
 	{
-		if(pad.left_bumper == true)
+		if(pad.left_bumper)
 		{
 			this.leftClimberServo.setPosition(.6);
 		}
@@ -136,7 +145,7 @@ public class Teleop extends SynchronousOpMode
 			this.leftClimberServo.setPosition(0);
 		}
 
-		if(pad.right_bumper == true)
+		if(pad.right_bumper)
 		{
 			this.rightClimberServo.setPosition(.35);
 		}
@@ -150,12 +159,12 @@ public class Teleop extends SynchronousOpMode
 	void HookControl(Gamepad pad)
 	{
 
-		if(pad.a == true)
+		if(pad.a)
 		{
 			this.hooker.setPosition(.1);
 		}
 
-		if(pad.b == true) {
+		if(pad.b) {
 			this.hooker.setPosition(.8);
 		}
 
