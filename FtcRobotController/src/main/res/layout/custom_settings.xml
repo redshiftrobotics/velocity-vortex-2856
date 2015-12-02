@@ -1,56 +1,71 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".FtcRobotControllerActivity"
-    android:focusable="true"
-    android:id="@+id/entire_screen"
-    android:orientation="vertical">
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="P"
-			android:layout_alignParentLeft="true"
-			android:layout_alignParentStart="true" />
+	<RadioGroup
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:layout_alignParentTop="true"
+android:layout_centerHorizontal="true"
+android:id="@+id/fieldSideRadioGroup">
+
+<RadioButton
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Blue"
+android:id="@+id/radioButtonBlue"
+android:layout_gravity="center_horizontal"
+android:checked="true"
+android:onClick="onFieldRadioButtonClicked" />
+
+<RadioButton
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="Red"
+android:id="@+id/radioButtonRed"
+android:layout_gravity="center_horizontal"
+android:checked="false"
+android:onClick="onFieldRadioButtonClicked" />
+
+		<RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/rampRadioGroup"
+			android:layout_gravity="center_horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Close to ramp"
+                android:id="@+id/rampCloseRadioButton"
+                android:layout_gravity="center_horizontal"
+                android:checked="true"
+				android:onClick="onRampRadioButtonClicked" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Far from ramp"
+                android:id="@+id/rampFarRadioButton"
+                android:layout_gravity="center_horizontal"
+                android:checked="false"
+                android:onClick="onRampRadioButtonClicked" />
+
+        </RadioGroup>
 
 		<EditText
-			android:layout_alignRight="@+id/P"
-			android:layout_width="wrap_content"
+			android:layout_width="160dp"
 			android:layout_height="wrap_content"
-			android:id="@+id/P"
-			android:minHeight="50dp"
-			android:minWidth="75dp"
-			android:inputType="numberDecimal" />
+			android:inputType="numberDecimal"
+			android:ems="10"
+			android:id="@+id/waitSecondsText"
+			android:layout_gravity="center_horizontal"
+			android:editable="true"
+			android:contentDescription="Seconds to wait"
+			android:text="0"
+			android:onClick="onDelayTextboxChanged" />
+	</RadioGroup>
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="I"
-			android:id="@+id/textView2" />
-
-		<EditText
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@+id/I"
-			android:minWidth="75dp"
-			android:inputType="numberDecimal" />
-
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="D"
-			android:id="@+id/textView3" />
-
-		<EditText
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@+id/D"
-			android:minWidth="75dp"
-			android:inputType="numberDecimal" />
-		<Button
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="Send"
-			android:id="@+id/Send"></Button>
-</LinearLayout>
+</RelativeLayout>
