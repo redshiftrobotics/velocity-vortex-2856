@@ -255,14 +255,6 @@ public class IMU
 		telemetry.log.add("turn was " + Math.abs(ComputedRotation - Target) + " degrees off.");
 	}
 
-	public void UpdateConstants()
-	{
-		PConstant = CustomSettingsActivity.P;
-		IConstant = CustomSettingsActivity.I;
-		DConstant = CustomSettingsActivity.D;
-	}
-
-
     void PreformCalculations()
     {
         //add the rotation to the historic data
@@ -302,9 +294,6 @@ public class IMU
         // compute all of the values
         I = (IntegralAverage);
         P = ComputedRotation - Target;
-
-		//update the constants here from the selection menu
-		UpdateConstants();
 
         //constants
         if(Motion == "Straight")

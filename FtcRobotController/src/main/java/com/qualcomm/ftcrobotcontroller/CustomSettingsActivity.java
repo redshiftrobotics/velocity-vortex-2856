@@ -3,36 +3,58 @@ package com.qualcomm.ftcrobotcontroller;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 
 /**
  * Created by Isaac Zinda on 10/20/2015.
  */
 
 public class CustomSettingsActivity extends Activity {
-	public static float P = 1;
-	public static float I = 0;
-	public static float D = 0;
+	public static enum FieldSide {
+		RED,
+		BLUE
+	}
+	public static enum RampCloseness {
+		NEAR,
+		FAR
+	}
+	public static FieldSide fieldSide;
+	public static RampCloseness rampCloseness;
+	public static int startDelay;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.custom_settings);
+	}
 
-		//setup buttons
-		Button btn = (Button) findViewById(R.id.Send);
-		btn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//P
-				P = Float.parseFloat(((EditText) findViewById(R.id.P)).getText().toString());
-				//I
-				I = Float.parseFloat(((EditText) findViewById(R.id.I)).getText().toString());
-				//D
-				D = Float.parseFloat(((EditText) findViewById(R.id.D)).getText().toString());
-			}
-		});
+	public void onFieldRadioButtonClicked(View view) {
+		boolean checked = ((RadioButton) view).isChecked();
+		int id = view.getId();
+		if (id == R.id.radioButtonBlue) {
+			if (checked) fieldSide = FieldSide.BLUE;
+		} else if (id == R.id.radioButtonRed) {
+			if (checked) fieldSide = FieldSide.RED;
+		}
+	}
+
+	public void onRampRadioButtonClicked (View view) {
+		boolean checked = ((RadioButton) view).isChecked();
+		int id = view.getId();
+		if (id == R.id.rampCloseRadioButton) {
+			if (checked) rampCloseness = RampCloseness.NEAR;
+		} else if (id == R.id.rampFarRadioButton) {
+			if (checked) rampCloseness = RampCloseness.FAR;
+		}
+	}
+
+	public void onDelayTextboxChanged (View view) {
+		if (((EditText) view).getText().toString().equals("")) {
+			startDelay = 0;
+			return;
+		}
+
+		startDelay = Integer.parseInt(((EditText) view).getText().toString());
 	}
 }
