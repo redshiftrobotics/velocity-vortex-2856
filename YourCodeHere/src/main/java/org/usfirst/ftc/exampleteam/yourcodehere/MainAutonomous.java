@@ -5,7 +5,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
-
+import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
 
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
  */
 @TeleOp(name="Main Autonomous")
 public class MainAutonomous extends SynchronousOpMode {
+
 	public IMU Robot;
 
     @Override
@@ -40,6 +41,24 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
+
+
+		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+
+
+		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
+
+		}
+
+		if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.NEAR) {
+
+		} else if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.FAR){
+
+		}
+
+
+
+
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
@@ -56,7 +75,14 @@ public class MainAutonomous extends SynchronousOpMode {
 		}
 		BackBrace.setPower(0);
 
-		Robot.Turn(-45);
+
+		//(45, left tread) for blue
+		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+			Robot.Turn(45, "Left");
+		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
+			Robot.Turn(-45);
+		}
+
 
 		Robot.Straight(7f);
 
@@ -90,8 +116,13 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		BackBrace.setPower(0);
 
-		Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
-
+		//((135 - (float) AdditionalTurnDegrees) * -1, "Right") for blue
+		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+			Robot.Turn((135 - (float) AdditionalTurnDegrees) * -1, "Right");
+		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
+			Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
+		}
+		
 		Robot.Straight(-1.5f);
 
 		Robot.Stop();
