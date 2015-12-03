@@ -50,8 +50,9 @@ public class CustomSettingsActivity extends Activity {
 	}
 
 	public void onDelayTextboxChanged (View view) {
-		if (((EditText) view).getText().toString() == "") {
+		if (((EditText) view).getText().toString().equals("")) {
 			startDelay = 0;
+			return;
 		}
 
 		startDelay = Integer.parseInt(((EditText) view).getText().toString());
