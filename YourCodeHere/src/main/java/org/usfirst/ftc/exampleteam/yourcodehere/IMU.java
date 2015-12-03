@@ -59,7 +59,8 @@ public class IMU
 
 			//from 0 to 1
 			//.4 for test chassis
-			float Power = .8f;
+			float Power = .5f;
+			float TurningPower = .8f;
 
 			DcMotor LeftMotor;
 			DcMotor RightMotor;
@@ -234,8 +235,6 @@ public class IMU
 		{
 			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
 			{
-				telemetry.log.add("low SD");
-
 				break;
 			}
 
@@ -341,12 +340,6 @@ public class IMU
 
 		float Direction = I * IConstant + P * PConstant + D * DConstant;
 
-		telemetry.addData("01", "P: " + P);
-		telemetry.addData("02", "I: " + I);
-		telemetry.addData("03", "D: " + D);
-		telemetry.addData("04", "Sum: " + Direction);
-		telemetry.addData("05", "Rotation: " + ComputedRotation);
-
 		if (Motion == "Straight" && MovingDirection == "Backward")
 		{
 			// flip the direction because we're going backwards
@@ -384,7 +377,7 @@ public class IMU
         }
         else if (Motion == "Turn")
         {
-            float Multiplier = Power * 4;
+            float Multiplier = TurningPower * 4;
 
 			if(StationaryWheel == "Right")
 			{
@@ -434,7 +427,7 @@ public class IMU
         //set the current rotation
         ComputedRotation = Heading + (Rotations * 360);
 
-		telemetry.addData("14", "Rotation: " + ComputedRotation);
+		telemetry.addData("00", "Rotation: " + ComputedRotation);
 
         if(FirstUpdate)
         {
