@@ -43,18 +43,18 @@ public class MainAutonomous extends SynchronousOpMode {
 
 
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
-
-
-		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
-
-		}
-
-		if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.NEAR) {
-
-		} else if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.FAR){
-
-		}
+//		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+//
+//
+//		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
+//
+//		}
+//
+//		if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.NEAR) {
+//
+//		} else if (CustomSettingsActivity.rampCloseness == CustomSettingsActivity.rampCloseness.FAR){
+//
+//		}
 
 
 
@@ -122,7 +122,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
 			Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
 		}
-		
+
 		Robot.Straight(-1.5f);
 
 		Robot.Stop();
