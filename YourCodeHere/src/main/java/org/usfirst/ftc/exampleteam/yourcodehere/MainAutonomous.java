@@ -26,7 +26,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
-		Servo dumper = this.hardwareMap.servo.get("climber_control");
+		Servo climberServo = this.hardwareMap.servo.get("climber_control");
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
 
@@ -35,9 +35,12 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 
 		//set positions of servos
-		rightDebris.setPosition(.55);
-		leftDebris.setPosition(.8);
-		dumper.setPosition(0);
+		rightDebris.setPosition(1);
+		leftDebris.setPosition(1);
+
+		//zero for continuos servo
+		climberServo.setPosition(0.55);
+
 
 		waitForStart();
 
@@ -76,11 +79,25 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 
-		//(45, left tread) for blue
+		//(40, left tread) for blue
+
+		//!!!!!!! If no option is selected the robot will default to running on the blue alliance
+
 		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
-			Robot.Turn(45, "Left");
+			Robot.Turn(37, "Left");
 		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
 			Robot.Turn(-45);
+		} else {
+			//OPTION NOT SELECTED
+			Robot.Turn(38, "Left");
+//
+// 		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) > 200)
+//			{
+//				//need to do this whenever not using rotation libraries
+//				Robot.UpdateAngles();
+//
+//				BackBrace.setPower(-1);
+//			}
 		}
 
 
@@ -118,14 +135,32 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//((135 - (float) AdditionalTurnDegrees) * -1, "Right") for blue
 		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
-			Robot.Turn((135 - (float) AdditionalTurnDegrees) * -1, "Right");
+			Robot.Turn(155 + (float) AdditionalTurnDegrees, "Right");
 		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
 			Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
+		} else {
+			//OPTION NOT SELECTED
+			Robot.Turn(140 + (float) AdditionalTurnDegrees, "Right");
 		}
 
-		Robot.Straight(-1.5f);
+
+		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+			Robot.Straight(-1.7f);
+		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
+			Robot.Straight(-1.5f);
+		} else {
+			//OPTION NOT SELECTED picking blue
+			Robot.Straight(-1.7f);
+		}
+
+
 
 		Robot.Stop();
+
+		climberServo.setPosition(0);
+		Thread.sleep(3000);
+		climberServo.setPosition(0.55);
+
 
 //		Trigger.takeImage();
 //		Thread.sleep(1000);
