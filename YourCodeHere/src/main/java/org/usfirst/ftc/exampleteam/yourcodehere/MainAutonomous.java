@@ -20,17 +20,15 @@ public class MainAutonomous extends SynchronousOpMode {
 
 	public IMU Robot;
 
-    @Override
-    public void main() throws InterruptedException {
+	@Override
+	public void main() throws InterruptedException {
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
 		Servo climberServo = this.hardwareMap.servo.get("climber_control");
-
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
-		Servo ClimberControl = this.hardwareMap.servo.get("climber_control");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -38,11 +36,11 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//set positions of servos
 		rightDebris.setPosition(1);
-
 		leftDebris.setPosition(1);
 
 		//zero for continuos servo
 		climberServo.setPosition(0.55);
+
 
 		waitForStart();
 
@@ -159,10 +157,10 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		Robot.Stop();
 
-
 		climberServo.setPosition(0);
 		Thread.sleep(3000);
 		climberServo.setPosition(0.55);
+
 
 //		Trigger.takeImage();
 //		Thread.sleep(1000);
@@ -176,7 +174,7 @@ public class MainAutonomous extends SynchronousOpMode {
 //		}
 
 
-    }
+	}
 
 
 
