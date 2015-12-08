@@ -25,18 +25,20 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
-		Servo dumper = this.hardwareMap.servo.get("climber_control");
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
+		Servo ClimberControl = this.hardwareMap.servo.get("climber_control");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
 		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 
 		//set positions of servos
-		rightDebris.setPosition(.55);
-		leftDebris.setPosition(.8);
-		dumper.setPosition(0);
+		rightDebris.setPosition(1);
+		leftDebris.setPosition(0);
+
+		//stop its motion
+		ClimberControl.setPosition(.5);
 
 		waitForStart();
 
@@ -95,6 +97,12 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot.Straight(-1.5f);
 
 		Robot.Stop();
+
+		ClimberControl.setPosition(1);
+
+		Thread.sleep(2000);
+
+		ClimberControl.setPosition(.5);
 
 //		Trigger.takeImage();
 //		Thread.sleep(1000);
