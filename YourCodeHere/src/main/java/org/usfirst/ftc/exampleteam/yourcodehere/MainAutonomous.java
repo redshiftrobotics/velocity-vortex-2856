@@ -44,6 +44,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
+		Thread.sleep(CustomSettingsActivity.startDelay * 1000);
 
 
 //		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {

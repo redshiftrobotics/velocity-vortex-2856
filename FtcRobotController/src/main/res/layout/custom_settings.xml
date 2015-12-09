@@ -5,9 +5,10 @@
 	<RadioGroup
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:layout_alignParentTop="true"
-android:layout_centerHorizontal="true"
-android:id="@+id/fieldSideRadioGroup">
+		android:id="@+id/fieldSideRadioGroup"
+		android:layout_alignParentTop="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentStart="true">
 
 <RadioButton
 android:layout_width="wrap_content"
@@ -33,7 +34,8 @@ android:onClick="onFieldRadioButtonClicked" />
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:id="@+id/rampRadioGroup"
-			android:layout_gravity="center_horizontal">
+			android:layout_gravity="center_horizontal"
+			android:visibility="gone">
 
             <RadioButton
                 android:layout_width="wrap_content"
@@ -55,17 +57,31 @@ android:onClick="onFieldRadioButtonClicked" />
 
         </RadioGroup>
 
-		<EditText
-			android:layout_width="160dp"
+		<TextView
+			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:inputType="numberDecimal"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:text="-"
+			android:id="@+id/textView"
+			android:layout_gravity="center_horizontal"
+			android:textStyle="bold" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:text="Seconds to Wait Before Starting"
+			android:id="@+id/textView2"
+			android:layout_gravity="center_horizontal" />
+
+		<EditText
+			android:layout_width="100dp"
+			android:layout_height="wrap_content"
+			android:inputType="number"
 			android:ems="10"
 			android:id="@+id/waitSecondsText"
-			android:layout_gravity="center_horizontal"
-			android:editable="true"
-			android:contentDescription="Seconds to wait"
-			android:text="0"
-			android:onClick="onDelayTextboxChanged" />
+			android:layout_gravity="center_horizontal" />
+
 	</RadioGroup>
 
 </RelativeLayout>
