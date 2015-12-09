@@ -11,12 +11,11 @@ import org.swerverobotics.library.interfaces.*;
 @TeleOp(name="2856 TeleOp")
 public class Teleop extends SynchronousOpMode
 {
-	//motors declarations
+	//motor / servo declarations
 	DcMotor leftDrive = null;
 	DcMotor rightDrive = null;
 	DcMotor backBrace = null;
-	//DcMotor arm = null;
-	//DcMotor blockCollector = null;
+	DcMotor hangingArm = null;
 	DcMotor backWheel = null;
 	Servo leftClimberServo = null;
 	Servo rightClimberServo = null;
@@ -25,12 +24,7 @@ public class Teleop extends SynchronousOpMode
 	Servo leftDebris = null;
 	Servo rightDebris = null;
 
-	boolean debounce = false;
-
-	boolean up = true;
-
 	float BackTargetEncoder = 0;
-	float ArmStartEncoder = 0;
 
 	@Override
 	protected void main() throws InterruptedException
@@ -39,12 +33,11 @@ public class Teleop extends SynchronousOpMode
 		this.leftDrive = this.hardwareMap.dcMotor.get("left_drive");
 		this.rightDrive = this.hardwareMap.dcMotor.get("right_drive");
 		this.backBrace = this.hardwareMap.dcMotor.get("back_brace");
-		//this.arm = this.hardwareMap.dcMotor.get("arm");
-		//this.blockCollector = this.hardwareMap.dcMotor.get("block_collector");
+		this.hangingArm = this.hardwareMap.dcMotor.get("hanging_arm");
 		this.backWheel = this.hardwareMap.dcMotor.get("back_wheel");
 		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
-		//this.hooker = this.hardwareMap.servo.get("hooker");
+
 		this.climberControl = this.hardwareMap.servo.get("climber_control");
 		this.leftDebris = this.hardwareMap.servo.get("left_debris");
 		this.rightDebris = this.hardwareMap.servo.get("right_debris");
@@ -60,9 +53,7 @@ public class Teleop extends SynchronousOpMode
 
 		//set initial encoders
 		BackTargetEncoder = backBrace.getCurrentPosition();
-		//ArmStartEncoder = arm.getCurrentPosition();
-
-		//
+		
 		// Wait until we've been given the ok to go
 		this.waitForStart();
 
@@ -75,10 +66,8 @@ public class Teleop extends SynchronousOpMode
 			this.BackBraceControl(this.gamepad1);
 			this.ClimberDeploymentControl(this.gamepad1); //hit climbers on ramp
 			this.ClimberControl(this.gamepad2); //climberDumper mechanism
-			//this.ArmControl(this.gamepad2);
-			//this.CollectorControl(this.gamepad2);
+			this.HangingArmControl(this.gamepad2);
 			this.HookControl(this.gamepad1);
-			this.DebrisControl(this.gamepad1);
 
 			// Emit telemetry with the freshest possible values
 			this.telemetry.update();
@@ -88,41 +77,20 @@ public class Teleop extends SynchronousOpMode
 		}
 	}
 
-//	void ArmControl(Gamepad pad)
-//	{
-//		float Encoder = arm.getCurrentPosition();
-//
-//		if(pad.left_stick_y > .1 && ArmStartEncoder > Encoder)
-//		{
-//			arm.setPower(pad.left_stick_y);
-//		}
-//		else if(pad.left_stick_y < -.1 && ArmStartEncoder < Encoder + 3 * 1440)
-//		{
-//			arm.setPower(pad.left_stick_y);
-//		}
-//		else
-//		{
-//			arm.setPower(0);
-//		}
-//	}
-
-	void DebrisControl(Gamepad pad) {
-
-		if(debounce != pad.x && pad.x)
+	void HangingArmControl(Gamepad pad)
+	{
+		if(pad.left_stick_y > .1)
 		{
-			up = !up;
+			hangingArm.setPower(pad.left_stick_y);
 		}
-
-		debounce = pad.x;
-
-		if(up) {
-			this.rightDebris.setPosition(0);
-			this.leftDebris.setPosition(1);
-		} else {
-			this.rightDebris.setPosition(0.65);
-			this.leftDebris.setPosition(0.7);
+		else if(pad.left_stick_y < -.1)
+		{
+			hangingArm.setPower(pad.left_stick_y);
 		}
-
+		else
+		{
+			hangingArm.setPower(0);
+		}
 	}
 
 	void ClimberControl(Gamepad pad) {
@@ -170,18 +138,6 @@ public class Teleop extends SynchronousOpMode
 
 	}
 
-
-//	void CollectorControl(Gamepad pad)
-//	{
-//		if(Math.abs(pad.right_stick_y) > .1)
-//		{
-//			blockCollector.setPower(pad.right_stick_y);
-//		}
-//		else
-//		{
-//			blockCollector.setPower(0);
-//		}
-//	}
 
 	void BackBraceControl(Gamepad pad)
 	{
