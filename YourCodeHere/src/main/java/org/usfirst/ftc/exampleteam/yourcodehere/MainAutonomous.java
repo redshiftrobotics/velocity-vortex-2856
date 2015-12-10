@@ -88,7 +88,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//!!!!!!! If no option is selected the robot will default to running on the blue alliance
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			Robot.Turn(45 + Offest, "Left");
 		} else
 		{
@@ -121,7 +121,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		BackBrace.setPower(0);
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			float DegreeOffset = 15;
 			Robot.Turn(-135 - (float) (AdditionalTurnDegrees - 45) + DegreeOffset, "Right");
 		} else
@@ -129,7 +129,7 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.Turn(135 - (float) (AdditionalTurnDegrees + 45), "Left");
 		}
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			Robot.Straight(-1.9f, 5);
 		}
 		else
