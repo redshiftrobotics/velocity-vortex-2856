@@ -60,7 +60,7 @@
 	  android:name=".CustomSettingsActivity">
   </activity>
 
-    <service
+	  <service
       android:name="com.qualcomm.ftccommon.FtcRobotControllerService"
       android:enabled="true" />
   </application>

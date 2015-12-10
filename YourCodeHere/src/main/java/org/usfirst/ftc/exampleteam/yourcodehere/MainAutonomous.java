@@ -7,6 +7,9 @@ import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
@@ -22,6 +25,20 @@ public class MainAutonomous extends SynchronousOpMode {
 
 	@Override
 	public void main() throws InterruptedException {
+
+		StringBuilder text = new StringBuilder();
+		String side = "";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("/sdcard/Pictures/prefs"));
+			side = br.readLine();
+			br.close();
+		}
+
+		catch (IOException e) {
+			//You'll need to add proper error handling here
+		}
+
+
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
@@ -39,7 +56,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		leftDebris.setPosition(.1);
 
 		waitForStart();
-
+		
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
