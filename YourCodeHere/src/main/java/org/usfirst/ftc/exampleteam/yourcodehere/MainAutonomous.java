@@ -7,6 +7,9 @@ import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Callable;
 
@@ -22,6 +25,20 @@ public class MainAutonomous extends SynchronousOpMode {
 
 	@Override
 	public void main() throws InterruptedException {
+
+		StringBuilder text = new StringBuilder();
+		String side = "";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader("/sdcard/Pictures/prefs"));
+			side = br.readLine();
+			br.close();
+		}
+
+		catch (IOException e) {
+			//You'll need to add proper error handling here
+		}
+
+
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
@@ -44,7 +61,10 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
-		Thread.sleep(CustomSettingsActivity.startDelay * 1000);
+		if(CustomSettingsActivity.startDelay != 0) {
+			Thread.sleep(CustomSettingsActivity.startDelay * 1000);
+		}
+
 
 
 //		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
@@ -84,7 +104,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//!!!!!!! If no option is selected the robot will default to running on the blue alliance
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			Robot.Turn(37, "Left");
 		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
 			Robot.Turn(-45);
@@ -135,23 +155,17 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 		//((135 - (float) AdditionalTurnDegrees) * -1, "Right") for blue
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			Robot.Turn(155 + (float) AdditionalTurnDegrees, "Right");
-		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
-			Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
 		} else {
-			//OPTION NOT SELECTED
-			Robot.Turn(140 + (float) AdditionalTurnDegrees, "Right");
+			Robot.Turn(135 - (float) AdditionalTurnDegrees, "Left");
 		}
 
 
-		if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.BLUE) {
+		if (side == "blue") {
 			Robot.Straight(-1.7f);
-		} else if (CustomSettingsActivity.fieldSide == CustomSettingsActivity.FieldSide.RED){
-			Robot.Straight(-1.5f);
 		} else {
-			//OPTION NOT SELECTED picking blue
-			Robot.Straight(-1.7f);
+			Robot.Straight(-1.5f);
 		}
 
 

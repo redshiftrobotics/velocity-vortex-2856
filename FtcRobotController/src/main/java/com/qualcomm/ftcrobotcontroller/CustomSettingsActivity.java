@@ -1,16 +1,23 @@
 package com.qualcomm.ftcrobotcontroller;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
+
+import java.io.FileOutputStream;
 
 /**
  * Created by Isaac Zinda on 10/20/2015.
  */
 
 public class CustomSettingsActivity extends Activity {
+
+	String filename = "/sdcard/Pictures/prefs";
+	FileOutputStream outputStream;
+
 	public static enum FieldSide {
 		RED,
 		BLUE
@@ -34,8 +41,11 @@ public class CustomSettingsActivity extends Activity {
 		int id = view.getId();
 		if (id == R.id.radioButtonBlue) {
 			if (checked) fieldSide = FieldSide.BLUE;
+			writeToFile("blue");
+
 		} else if (id == R.id.radioButtonRed) {
 			if (checked) fieldSide = FieldSide.RED;
+			writeToFile("red");
 		}
 	}
 
@@ -56,5 +66,15 @@ public class CustomSettingsActivity extends Activity {
 		}
 
 		startDelay = Integer.parseInt(((EditText) view).getText().toString());
+	}
+
+	public void writeToFile (String string) {
+		try {
+			outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+			outputStream.write(string.getBytes());
+			outputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
