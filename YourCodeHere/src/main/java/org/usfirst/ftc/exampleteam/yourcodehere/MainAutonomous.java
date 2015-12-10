@@ -1,5 +1,6 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.*;
@@ -8,6 +9,7 @@ import org.swerverobotics.library.interfaces.*;
 import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -26,18 +28,22 @@ public class MainAutonomous extends SynchronousOpMode {
 	@Override
 	public void main() throws InterruptedException {
 
+		String side;
+		File file = new File("/sdcard/Pictures","prefs");
 		StringBuilder text = new StringBuilder();
-		String side = "";
 		try {
-			BufferedReader br = new BufferedReader(new FileReader("/sdcard/Pictures/prefs"));
-			side = br.readLine();
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				text.append(line);
+			}
 			br.close();
 		}
-
 		catch (IOException e) {
-			//You'll need to add proper error handling here
+			//screw error handling, if it crashes, it crashes #dealwithit
 		}
-
+		side = text.toString();
 
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
@@ -88,7 +94,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//!!!!!!! If no option is selected the robot will default to running on the blue alliance
 
-		if (side == "blue") {
+		if (side.equals("blue")) {
 			Robot.Turn(45 + Offest, "Left");
 		} else
 		{
