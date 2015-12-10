@@ -26,13 +26,13 @@ public class ColorPicker extends SynchronousOpMode {
         waitForStart();
 
 
-		Robot.Straight(1);
+		Robot.Straight(1, 1);
 		Robot.Turn(-35);
 		//Robot.Straight(3.1f);
 		//linefollower.Straight(3.1f);
 		//Robot.Turn(-45);
 		Robot.Turn(180);
-		Robot.Straight(-0.87f);
+		Robot.Straight(-0.87f, 1);
 		Robot.Stop();
 		Thread.sleep(300);
 
@@ -41,7 +41,7 @@ public class ColorPicker extends SynchronousOpMode {
 
 		String side = Trigger.findAvgSides();
 		Thread.sleep(1000);
-		Robot.Straight(1.0f);
+		Robot.Straight(1.0f, 1);
 		if(side == "left") {
 			Log.d("left", "Blue is on the left");
 			Robot.Turn(-100);

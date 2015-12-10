@@ -36,7 +36,7 @@ public class LineAutonomous extends SynchronousOpMode {
 		double InitialRotation = Robot.Rotation();
 
 		//get set up on the line
-		Robot.Straight(2f);
+		Robot.Straight(2f, 1);
 		Robot.Turn(-45);
 
 		//follow the line
@@ -53,7 +53,7 @@ public class LineAutonomous extends SynchronousOpMode {
 
 		Robot.Stop();
 
-		Robot.Straight(-1.2f);
+		Robot.Straight(-1.2f, 1);
 		Robot.SlowStop(-1);
 
 		Trigger.takeImage();

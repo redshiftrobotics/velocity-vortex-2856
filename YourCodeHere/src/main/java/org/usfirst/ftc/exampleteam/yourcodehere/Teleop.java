@@ -24,6 +24,7 @@ public class Teleop extends SynchronousOpMode
 	Servo leftDebris = null;
 	Servo rightDebris = null;
 
+
 	float BackTargetEncoder = 0;
 
 	@Override
@@ -49,11 +50,15 @@ public class Teleop extends SynchronousOpMode
 		backWheel.setDirection(DcMotor.Direction.REVERSE);
 		this.rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
-		//this.arm.setDirection(DcMotor.Direction.REVERSE);
+		//setup the servos on initialization
+		rightDebris.setPosition(.5);
+		leftDebris.setPosition(.6);
+
+		climberControl.setPosition(.55);
 
 		//set initial encoders
 		BackTargetEncoder = backBrace.getCurrentPosition();
-		
+
 		// Wait until we've been given the ok to go
 		this.waitForStart();
 
@@ -65,7 +70,6 @@ public class Teleop extends SynchronousOpMode
 			this.DriveControl(this.gamepad1);
 			this.BackBraceControl(this.gamepad1);
 			this.ClimberDeploymentControl(this.gamepad1); //hit climbers on ramp
-			this.ClimberControl(this.gamepad2); //climberDumper mechanism
 			this.HangingArmControl(this.gamepad2);
 			this.HookControl(this.gamepad1);
 
@@ -79,8 +83,7 @@ public class Teleop extends SynchronousOpMode
 
 	void HangingArmControl(Gamepad pad)
 	{
-		if(pad.left_stick_y > .1)
-		{
+		if(pad.left_stick_y > .1) {
 			hangingArm.setPower(pad.left_stick_y);
 		}
 		else if(pad.left_stick_y < -.1)
@@ -90,15 +93,6 @@ public class Teleop extends SynchronousOpMode
 		else
 		{
 			hangingArm.setPower(0);
-		}
-	}
-
-	void ClimberControl(Gamepad pad) {
-		if(pad.a)
-		{
-			this.climberControl.setPosition(1);
-		} else {
-			this.climberControl.setPosition(0);
 		}
 	}
 

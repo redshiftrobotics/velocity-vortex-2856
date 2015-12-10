@@ -44,7 +44,7 @@ public class LeftOfRamp extends SynchronousOpMode {
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
 
-		Robot.Straight(.7f);
+		Robot.Straight(.7f, 1);
 		Robot.Stop();
 
 		//back brace to correct height
@@ -59,10 +59,10 @@ public class LeftOfRamp extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 		//get set up on the line
-		Robot.Straight(.55f);
+		Robot.Straight(.55f, 1);
 		Robot.Turn(135, "Left");
 		BackWheel.setPower(-1);
-		Robot.Straight(1.0f);
+		Robot.Straight(1.0f, 1);
 		BackWheel.setPower(0);
 //		//current rotation minus initial rotation
 //		double AdditionalTurnDegrees = (Robot.Rotation() - InitialRotation) + 45;

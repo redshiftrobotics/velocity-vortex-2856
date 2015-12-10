@@ -17,6 +17,8 @@ import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.Callable;
 
 public class IMU
@@ -122,9 +124,17 @@ public class IMU
 		Thread.sleep(200);
 	}
 
+	public void Straight(float Rotations) throws InterruptedException
+	{
+		Straight(Rotations, 100);
+	}
+
     //this is the update loop
-    public void Straight(float Rotations) throws InterruptedException
+    public void Straight(float Rotations, int Timeout) throws InterruptedException
     {
+		Date c = new Date();
+		long StartTime = c.getTime();
+
 		//remove the historic data values
 		ResetValues();
 
@@ -153,6 +163,18 @@ public class IMU
 
 		while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
 		{
+			//see if it has passed the timeout
+			Date a = new Date();
+			long Time = a.getTime();
+
+			telemetry.addData("05", (Math.abs(StartTime - Time)));
+
+			if(Math.abs(StartTime - Time) > Timeout * 1000)
+			{
+				telemetry.log.add("Timmed Out");
+				break;
+			}
+
 			telemetry.addData("12", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
 			//this is the update loop
@@ -300,11 +322,6 @@ public class IMU
         {
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
-			//constants for the test chassis
-//            PConstant = 3f;
-//            IConstant = .5f;
-//            DConstant = .7f;
-
 			//constants for the real chassis
 			PConstant = 4f;
 			IConstant = 0f;
@@ -322,7 +339,7 @@ public class IMU
 			}
 
 			//functional
-			DConstant = -.3f;
+			DConstant = -.2f;
 			IConstant = .15f;
         }
 
@@ -361,8 +378,6 @@ public class IMU
 				LeftMotor.setPower(Multiplier - (Direction / 200));
 				RightMotor.setPower(Multiplier + (Direction / 200));
 			}
-
-;
         }
         else if (Motion == "Turn")
         {
