@@ -70,7 +70,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		leftDebris.setPosition(.1);
 
 		waitForStart();
-		
+
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
