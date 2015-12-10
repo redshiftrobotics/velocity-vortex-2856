@@ -3,10 +3,12 @@ package com.qualcomm.ftcrobotcontroller;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioButton;
 
+import java.io.File;
 import java.io.FileOutputStream;
 
 /**
@@ -15,7 +17,6 @@ import java.io.FileOutputStream;
 
 public class CustomSettingsActivity extends Activity {
 
-	String filename = "/sdcard/Pictures/prefs";
 	FileOutputStream outputStream;
 
 	public static enum FieldSide {
@@ -70,7 +71,10 @@ public class CustomSettingsActivity extends Activity {
 
 	public void writeToFile (String string) {
 		try {
-			outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+			File file = new File("/sdcard/Pictures", "prefs");
+
+			//outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+			outputStream = new FileOutputStream(file,false);
 			outputStream.write(string.getBytes());
 			outputStream.close();
 		} catch (Exception e) {
