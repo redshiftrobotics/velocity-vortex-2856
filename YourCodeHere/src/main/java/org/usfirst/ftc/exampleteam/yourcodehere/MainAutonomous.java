@@ -71,8 +71,6 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
-		Thread.sleep(10000);
-
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
@@ -145,22 +143,29 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.Turn(135 - (float) (AdditionalTurnDegrees + 45), "Left");
 		}
 
+
+		Robot.Power = .4f;
 		if (side == "blue") {
 			Robot.Straight(-1.9f, 5);
 		}
 		else
 		{
-			Robot.Straight(-1.8f, 5);
+			Robot.Straight(-1.6f, 5);
 		}
+		Robot.Power = .4f;
+
+		telemetry.log.add("done backing up");
 
 		//deploy climbers
-		ClimberDeployment.setPower(50);
-		Thread.sleep(1000);
+		ClimberDeployment.setPower(-.15);
+		Thread.sleep(1500);
 		ClimberDeployment.setPower(0);
 		Thread.sleep(500);
-		ClimberDeployment.setPower(-50);
-		Thread.sleep(1000);
+		ClimberDeployment.setPower(.15);
+		Thread.sleep(2000);
 		ClimberDeployment.setPower(0);
+
+		telemetry.log.add("done scoring climbers");
 
 		Robot.Stop();
 	}
