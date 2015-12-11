@@ -28,23 +28,30 @@ public class MainAutonomous extends SynchronousOpMode {
 	@Override
 	public void main() throws InterruptedException {
 
-		// stuff that allows the side to persist
+
+		// Read from preferences file written by the CustomSettingsActivity to determine what side we are on.
 		String side;
+		// Retrieve file.
 		File file = new File("/sdcard/Pictures","prefs");
 		StringBuilder text = new StringBuilder();
+		// Attempt to load line from file into the buffer.
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(file));
 			String line;
-
+			// Ensure that the first line is not null.
 			while ((line = br.readLine()) != null) {
 				text.append(line);
 			}
+			// Close the buffer reader
 			br.close();
 		}
+		// Catch exceptions... Or don't because that would require effort.
 		catch (IOException e) {
-			//screw error handling, if it crashes, it crashes #dealwithit
 		}
+
+		// Provide in a more user friendly form.
 		side = text.toString();
+
 
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
