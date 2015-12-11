@@ -28,6 +28,7 @@ public class MainAutonomous extends SynchronousOpMode {
 	@Override
 	public void main() throws InterruptedException {
 
+		// stuff that allows the side to persist
 		String side;
 		File file = new File("/sdcard/Pictures","prefs");
 		StringBuilder text = new StringBuilder();
@@ -49,7 +50,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
-		Servo climberServo = this.hardwareMap.servo.get("climber_control");
+		DcMotor ClimberDeployment = this.hardwareMap.dcMotor.get("climber_control");
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
 
@@ -62,6 +63,8 @@ public class MainAutonomous extends SynchronousOpMode {
 		leftDebris.setPosition(.1);
 
 		waitForStart();
+
+		Thread.sleep(10000);
 
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
@@ -143,6 +146,14 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.Straight(-1.8f, 5);
 		}
 
+		//deploy climbers
+		ClimberDeployment.setPower(50);
+		Thread.sleep(1000);
+		ClimberDeployment.setPower(0);
+		Thread.sleep(500);
+		ClimberDeployment.setPower(-50);
+		Thread.sleep(1000);
+		ClimberDeployment.setPower(0);
 
 		Robot.Stop();
 	}
