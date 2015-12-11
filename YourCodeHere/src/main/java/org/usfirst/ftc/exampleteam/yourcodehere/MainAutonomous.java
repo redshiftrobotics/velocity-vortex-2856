@@ -71,6 +71,8 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
+		telemetry.log.add(side + " side");
+
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
@@ -130,13 +132,13 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		AdditionalTurnDegrees = ContainValue((float)AdditionalTurnDegrees);
 
-
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
 		BackBrace.setPower(0);
 
-		if (side == "blue") {
-			float DegreeOffset = 15;
+		if (side.equals("blue")) {
+			float DegreeOffset = 20;
+			telemetry.log.add("Turning " + (-135 - (float) (AdditionalTurnDegrees - 45) + DegreeOffset));
 			Robot.Turn(-135 - (float) (AdditionalTurnDegrees - 45) + DegreeOffset, "Right");
 		} else
 		{
@@ -144,15 +146,14 @@ public class MainAutonomous extends SynchronousOpMode {
 		}
 
 
-		Robot.Power = .4f;
+
 		if (side == "blue") {
-			Robot.Straight(-1.9f, 5);
+			Robot.Straight(-1.9f, 4);
 		}
 		else
 		{
-			Robot.Straight(-1.6f, 5);
+			Robot.Straight(-1.6f, 4);
 		}
-		Robot.Power = .4f;
 
 		telemetry.log.add("done backing up");
 
@@ -162,7 +163,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		ClimberDeployment.setPower(0);
 		Thread.sleep(500);
 		ClimberDeployment.setPower(.15);
-		Thread.sleep(2000);
+		Thread.sleep(1500);
 		ClimberDeployment.setPower(0);
 
 		telemetry.log.add("done scoring climbers");
