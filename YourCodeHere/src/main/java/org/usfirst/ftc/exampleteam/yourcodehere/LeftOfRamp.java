@@ -17,7 +17,7 @@ import org.swerverobotics.library.interfaces.TeleOp;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="LeftOfRamp")
+//@TeleOp(name="LeftOfRamp")
 public class LeftOfRamp extends SynchronousOpMode {
 	public IMU Robot;
 

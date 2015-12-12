@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Main Autonomous")
+@TeleOp(name="2856 Autonomous")
 public class MainAutonomous extends SynchronousOpMode {
 
 	public IMU Robot;

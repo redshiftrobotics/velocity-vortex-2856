@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-@TeleOp(name="ColorPicker")
+//@TeleOp(name="ColorPicker")
 public class ColorPicker extends SynchronousOpMode {
 
     @Override

@@ -10,7 +10,7 @@ import org.swerverobotics.library.internal.I2cDeviceClient;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="I2C")
+//@TeleOp(name="I2C")
 public class I2C extends SynchronousOpMode
     {
     /* Declare here any fields you might find useful. */

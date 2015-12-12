@@ -10,7 +10,7 @@ import org.swerverobotics.library.interfaces.TeleOp;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Right of Mountain Autonomous")
+//@TeleOp(name="Right of Mountain Autonomous")
 public class RightOfMountainAutonomous extends SynchronousOpMode {
 	public IMU Robot;
 

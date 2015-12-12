@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-@TeleOp(name="Alternate Autonomous")
+//@TeleOp(name="Alternate Autonomous")
 public class AlternateAutonomous extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     // DcMotor motorLeft = null;
