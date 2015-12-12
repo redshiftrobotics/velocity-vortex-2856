@@ -82,7 +82,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
-		Robot.Power = .5f;
+		Robot.Power = .6f;
 
 		Robot.Straight(1.5f, 5);
 
@@ -152,11 +152,11 @@ public class MainAutonomous extends SynchronousOpMode {
 		}
 
 		if (side == "blue") {
-			Robot.Straight(-1.9f, 4);
+			Robot.Straight(-1.9f, 3);
 		}
 		else
 		{
-			Robot.Straight(-1.6f, 4);
+			Robot.Straight(-1.6f, 3);
 		}
 
 		telemetry.log.add("done backing up");
