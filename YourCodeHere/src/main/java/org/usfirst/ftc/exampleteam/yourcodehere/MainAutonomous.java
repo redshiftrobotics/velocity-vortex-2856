@@ -151,8 +151,6 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.Turn(135 - (float) (AdditionalTurnDegrees + 45), "Left");
 		}
 
-
-
 		if (side == "blue") {
 			Robot.Straight(-1.9f, 4);
 		}
@@ -165,7 +163,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		//deploy climbers
 		ClimberDeployment.setPower(-.15);
-		Thread.sleep(1500);
+		Thread.sleep(2000);
 		ClimberDeployment.setPower(0);
 		Thread.sleep(500);
 		ClimberDeployment.setPower(.15);
