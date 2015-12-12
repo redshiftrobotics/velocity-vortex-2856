@@ -113,10 +113,10 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		Robot.Stop();
 
-		//back brace to correct height
+		// Back brace to correct height
 		while (Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()) > 200)
 		{
-			//need to do this whenever not using rotation libraries
+			// Need to do this whenever not using rotation libraries
 			Robot.UpdateAngles();
 
 			BackBrace.setPower(-1);
@@ -124,8 +124,8 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		telemetry.log.add("Backbrace Encoder Dif: " + Math.abs(BackBraceInitial - BackBrace.getCurrentPosition()));
 
-		//current rotation minus initial rotation
-		//there was a bug where the robot would turn 360 degrees and add 360, so take the mod
+		// Current rotation minus initial rotation
+		// There was a bug where the robot would turn 360 degrees and add 360, so take the mod
 		double AdditionalTurnDegrees = (((Robot.Rotation() - InitialRotation)));
 
 		AdditionalTurnDegrees = ContainValue((float)AdditionalTurnDegrees);
