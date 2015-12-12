@@ -57,7 +57,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
 		DcMotor BackWheel = hardwareMap.dcMotor.get("back_wheel");
-		Servo climberServo = this.hardwareMap.servo.get("climber_control");
+		DcMotor ClimberDeployment = this.hardwareMap.dcMotor.get("climber_control");
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
 
@@ -71,14 +71,16 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		waitForStart();
 
+		telemetry.log.add(side + " side");
+
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
-		Robot.Power = .4f;
-
-		Robot.Straight(1.5f, 10);
-
 		Robot.Power = .5f;
+
+		Robot.Straight(1.5f, 5);
+
+		Robot.Power = .6f;
 		Robot.Stop();
 
 		//back brace to correct height
@@ -130,27 +132,41 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		AdditionalTurnDegrees = ContainValue((float)AdditionalTurnDegrees);
 
-
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
 		BackBrace.setPower(0);
 
-		if (side == "blue") {
-			float DegreeOffset = 15;
+		if (side.equals("blue")) {
+			float DegreeOffset = 20;
+			telemetry.log.add("Turning " + (-135 - (float) (AdditionalTurnDegrees - 45) + DegreeOffset));
 			Robot.Turn(-135 - (float) (AdditionalTurnDegrees - 45) + DegreeOffset, "Right");
 		} else
 		{
 			Robot.Turn(135 - (float) (AdditionalTurnDegrees + 45), "Left");
 		}
 
+
+
 		if (side == "blue") {
-			Robot.Straight(-1.9f, 5);
+			Robot.Straight(-1.9f, 4);
 		}
 		else
 		{
-			Robot.Straight(-1.8f, 5);
+			Robot.Straight(-1.6f, 4);
 		}
 
+		telemetry.log.add("done backing up");
+
+		//deploy climbers
+		ClimberDeployment.setPower(-.15);
+		Thread.sleep(1500);
+		ClimberDeployment.setPower(0);
+		Thread.sleep(500);
+		ClimberDeployment.setPower(.15);
+		Thread.sleep(1500);
+		ClimberDeployment.setPower(0);
+
+		telemetry.log.add("done scoring climbers");
 
 		Robot.Stop();
 	}

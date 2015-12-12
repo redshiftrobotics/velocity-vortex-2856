@@ -20,7 +20,6 @@ public class Teleop extends SynchronousOpMode
 	Servo leftClimberServo = null;
 	Servo rightClimberServo = null;
 	Servo hooker = null;
-	Servo climberControl = null;
 	Servo leftDebris = null;
 	Servo rightDebris = null;
 
@@ -39,7 +38,6 @@ public class Teleop extends SynchronousOpMode
 		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
 
-		this.climberControl = this.hardwareMap.servo.get("climber_control");
 		this.leftDebris = this.hardwareMap.servo.get("left_debris");
 		this.rightDebris = this.hardwareMap.servo.get("right_debris");
 
@@ -53,8 +51,6 @@ public class Teleop extends SynchronousOpMode
 		//setup the servos on initialization
 		rightDebris.setPosition(.5);
 		leftDebris.setPosition(.6);
-
-		climberControl.setPosition(.55);
 
 		//set initial encoders
 		BackTargetEncoder = backBrace.getCurrentPosition();

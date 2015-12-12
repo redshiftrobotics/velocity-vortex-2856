@@ -329,6 +329,7 @@ public class IMU
         }
         else if (Motion == "Turn")
         {
+			telemetry.addData("01", "Target = " + Target);
 			if(Target < ComputedRotation) {
 				D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 			}
