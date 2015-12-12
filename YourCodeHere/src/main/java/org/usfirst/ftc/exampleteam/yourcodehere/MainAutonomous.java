@@ -76,11 +76,11 @@ public class MainAutonomous extends SynchronousOpMode {
 		double InitialRotation = Robot.Rotation();
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
-		Robot.Power = .4f;
-
-		Robot.Straight(1.5f, 10);
-
 		Robot.Power = .5f;
+
+		Robot.Straight(1.5f, 5);
+
+		Robot.Power = .6f;
 		Robot.Stop();
 
 		//back brace to correct height
