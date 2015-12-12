@@ -60,6 +60,8 @@ public class MainAutonomous extends SynchronousOpMode {
 		DcMotor ClimberDeployment = this.hardwareMap.dcMotor.get("climber_control");
 		Servo leftDebris = this.hardwareMap.servo.get("left_debris");
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
+		Servo leftClimberServo = this.hardwareMap.servo.get("left_climber");
+		Servo rightClimberServo = this.hardwareMap.servo.get("right_climber");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -68,6 +70,10 @@ public class MainAutonomous extends SynchronousOpMode {
 		//set positions of servos
 		rightDebris.setPosition(1);
 		leftDebris.setPosition(.1);
+
+		leftClimberServo.setPosition(0);
+		rightClimberServo.setPosition(1);
+
 
 		waitForStart();
 
