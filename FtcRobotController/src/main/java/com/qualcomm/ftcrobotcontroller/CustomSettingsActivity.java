@@ -5,11 +5,16 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Created by Isaac Zinda on 10/20/2015.
@@ -19,54 +24,24 @@ public class CustomSettingsActivity extends Activity {
 
 	FileOutputStream outputStream;
 
-	public static enum FieldSide {
-		RED,
-		BLUE
-	}
-	public static enum RampCloseness {
-		NEAR,
-		FAR
-	}
-	public static FieldSide fieldSide;
-	public static RampCloseness rampCloseness;
-	public static int startDelay;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.custom_settings);
+
+		//sideText.setText(readFromFile());
+
 	}
 
-	public void onFieldRadioButtonClicked(View view) {
-		boolean checked = ((RadioButton) view).isChecked();
-		int id = view.getId();
-		if (id == R.id.radioButtonBlue) {
-			if (checked) fieldSide = FieldSide.BLUE;
-			writeToFile("blue");
-
-		} else if (id == R.id.radioButtonRed) {
-			if (checked) fieldSide = FieldSide.RED;
-			writeToFile("red");
-		}
+	public void blueClicked(View v) {
+		writeToFile("blue");
+		//sideText.setText(readFromFile());
 	}
 
-	public void onRampRadioButtonClicked (View view) {
-		boolean checked = ((RadioButton) view).isChecked();
-		int id = view.getId();
-		if (id == R.id.rampCloseRadioButton) {
-			if (checked) rampCloseness = RampCloseness.NEAR;
-		} else if (id == R.id.rampFarRadioButton) {
-			if (checked) rampCloseness = RampCloseness.FAR;
-		}
-	}
-
-	public void onDelayTextboxChanged (View view) {
-		if (((EditText) view).getText().toString().equals("")) {
-			startDelay = 0;
-			return;
-		}
-
-		startDelay = Integer.parseInt(((EditText) view).getText().toString());
+	public void redClicked(View v) {
+		writeToFile("red");
+		//sideText.setText(readFromFile());
 	}
 
 	public void writeToFile (String string) {
@@ -81,4 +56,31 @@ public class CustomSettingsActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
+
+	public String readFromFile () {
+		// Read from preferences file written by the CustomSettingsActivity to determine what side we are on.
+		// Retrieve file.
+		File file = new File("/sdcard/Pictures","prefs");
+		StringBuilder text = new StringBuilder();
+		// Attempt to load line from file into the buffer.
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			// Ensure that the first line is not null.
+			while ((line = br.readLine()) != null) {
+				text.append(line);
+			}
+			// Close the buffer reader
+			br.close();
+		}
+		// Catch exceptions... Or don't because that would require effort.
+		catch (IOException e) {
+		}
+
+		// Provide in a more user friendly form.
+		return text.toString();
+	}
+
+
+
 }
