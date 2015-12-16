@@ -23,25 +23,24 @@ import java.io.IOException;
 public class CustomSettingsActivity extends Activity {
 
 	FileOutputStream outputStream;
-
+	TextView sideText;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.custom_settings);
-
-		//sideText.setText(readFromFile());
-
+		sideText = (TextView) findViewById(R.id.sideText);
+		sideText.setText(readFromFile());
 	}
 
 	public void blueClicked(View v) {
 		writeToFile("blue");
-		//sideText.setText(readFromFile());
+		sideText.setText(readFromFile());
 	}
 
 	public void redClicked(View v) {
 		writeToFile("red");
-		//sideText.setText(readFromFile());
+		sideText.setText(readFromFile());
 	}
 
 	public void writeToFile (String string) {
