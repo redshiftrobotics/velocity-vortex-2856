@@ -342,12 +342,19 @@ public class FtcRobotControllerActivity extends Activity {
     context = this;
     entireScreenLayout = (LinearLayout) findViewById(R.id.entire_screen);
     buttonMenu = (ImageButton) findViewById(R.id.menu_buttons);
+	ImageButton alternateMenu = (ImageButton) findViewById(R.id.alternate_menu);
     buttonMenu.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         openOptionsMenu();
       }
     });
+	alternateMenu.setOnClickListener(new View.OnClickListener() {
+	  @Override
+	  public void onClick(View v) {
+		  openOptionsMenu();
+	  }
+	});
 
     textDeviceName = (TextView) findViewById(R.id.textDeviceName);
     textWifiDirectStatus = (TextView) findViewById(R.id.textWifiDirectStatus);

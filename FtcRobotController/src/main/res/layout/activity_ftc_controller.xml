@@ -132,6 +132,22 @@
 		  android:layout_centerHorizontal="true"
 		  android:id="@+id/camera_preview" />
 
+	  <ImageButton
+		  android:id="@+id/alternate_menu"
+		  android:contentDescription="alternate_menu"
+		  android:scaleType="center"
+		  android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"
+		  android:src="@drawable/icon_menu"
+		  android:padding="15dp"
+		  android:adjustViewBounds="true"
+		  android:background="#000"
+		  android:layout_alignBottom="@+id/camera_preview"
+		  android:layout_toRightOf="@+id/camera_preview"
+		  android:layout_alignRight="@+id/textGamepad1"
+		  android:layout_alignEnd="@+id/textGamepad1"
+		  android:layout_alignTop="@+id/camera_preview" />
+
 
   </RelativeLayout>
 </LinearLayout>
