@@ -59,6 +59,9 @@ public class IMU
 			//can be 'Right' or 'Left'
 			String StationaryWheel = "Right";
 
+			//declare the logger
+			Logger Logging;
+
 			//from 0 to 1
 			//.4 for test chassis
 			float Power = .5f;
@@ -97,8 +100,11 @@ public class IMU
         //setup the program timer
         ProgramTime = new ElapsedTime();
 
-        //sets the current time
+		//sets the current time
         CurrentTime = (float) ProgramTime.time() * 1000;
+
+		//setup the file logger
+		Logging = new Logger("TurnData.txt");
     }
 
 	public void ResetValues()
@@ -413,30 +419,35 @@ public class IMU
         EulerAngles Angle = imu.getAngularOrientation();
         Heading = (float) Angle.heading;
 
-        //do rotation computation here
-        if(!FirstUpdate) {
-            //if it switches from large to small
-            if (PreviousHeading > 300 && Heading < 60) {
-                //increase the rotations by one
-                Rotations++;
-            }
-
-            if (PreviousHeading < 60 && Heading > 300) {
-                Rotations--;
-            }
-        }
-
         //set the previous to to the current
         PreviousComputedRotation = ComputedRotation;
 
         //set the current rotation
         ComputedRotation = Heading + (Rotations * 360);
 
+		//do rotation computation here
+		if(!FirstUpdate) {
+			//if it switches from large to small
+			if (PreviousHeading > 300 && Heading < 60) {
+				//increase the rotations by one
+				Rotations++;
+			}
+
+			if (PreviousHeading < 60 && Heading > 300) {
+				Rotations--;
+			}
+		}
+
 		telemetry.addData("00", "Rotation: " + ComputedRotation);
+
+		Logging.write(ComputedRotation + ", " + Heading);
 
         if(FirstUpdate)
         {
             FirstUpdate = false;
+
+			//if it was the first time do it again so that we can get the actual data
+			UpdateAngles();
         }
     }
 }

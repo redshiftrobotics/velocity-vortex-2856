@@ -14,14 +14,15 @@ public class Logger {
 
 	File file;
 
-	public void newLog(String filepath, String filename) {
-		file = new File(filepath,filename);
+	public Logger(String filename)
+	{
+		file = new File("/sdcard/Pictures",filename);
 	}
 
 	public void write(String line) {
 		FileOutputStream outputStream;
 		try {
-			outputStream = new FileOutputStream(file,false);
+			outputStream = new FileOutputStream(file, true);
 			line += "\n";
 			outputStream.write(line.getBytes());
 			outputStream.close();

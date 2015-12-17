@@ -27,8 +27,6 @@ public class MainAutonomous extends SynchronousOpMode {
 
 	@Override
 	public void main() throws InterruptedException {
-
-
 		// Read from preferences file written by the CustomSettingsActivity to determine what side we are on.
 		String side;
 		// Retrieve file.
@@ -80,6 +78,9 @@ public class MainAutonomous extends SynchronousOpMode {
 		telemetry.log.add(side + " side");
 
 		double InitialRotation = Robot.Rotation();
+
+		telemetry.log.add("Initial Rotation: " + InitialRotation);
+
 		double BackBraceInitial = BackBrace.getCurrentPosition();
 
 		Robot.Power = .6f;
@@ -99,10 +100,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		}
 		BackBrace.setPower(0);
 
-
 		float Offest = (float)(InitialRotation - Robot.Rotation());
-
-		Offest = ContainValue(Offest);
 
 		telemetry.log.add("Offset of " + Offest);
 
@@ -136,7 +134,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		// There was a bug where the robot would turn 360 degrees and add 360, so take the mod
 		double AdditionalTurnDegrees = (((Robot.Rotation() - InitialRotation)));
 
-		AdditionalTurnDegrees = ContainValue((float)AdditionalTurnDegrees);
+		AdditionalTurnDegrees = (float)AdditionalTurnDegrees;
 
 		telemetry.log.add(AdditionalTurnDegrees + " additional degrees to turn.");
 
@@ -173,20 +171,6 @@ public class MainAutonomous extends SynchronousOpMode {
 		telemetry.log.add("done scoring climbers");
 
 		Robot.Stop();
-	}
-
-	private float ContainValue(float Value)
-	{
-		if(Value < -200)
-		{
-			Value += 360;
-		}
-		else if(Value > 200)
-		{
-			Value -= 360;
-		}
-
-		return Value;
 	}
 
 	public void RunIdle() throws InterruptedException
