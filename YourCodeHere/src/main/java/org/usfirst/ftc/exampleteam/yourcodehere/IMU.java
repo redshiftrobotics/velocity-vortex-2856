@@ -21,63 +21,70 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
+
 public class IMU
-		{
-			// Our sensors, motors, and other devices go here, along with other long term state
-			IBNO055IMU imu;
-			IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
+{
+	// Our sensors, motors, and other devices go here, along with other long term state
+	IBNO055IMU imu;
+	IBNO055IMU.Parameters parameters = new IBNO055IMU.Parameters();
 
-			//heading data
-			float Heading;
-			float PreviousHeading;
-			int Rotations = 0;
-			boolean FirstUpdate = true;
-			ElapsedTime ProgramTime;
+	//heading data
+	float Heading;
+	float PreviousHeading;
+	int Rotations = 0;
+	boolean FirstUpdate = true;
+	ElapsedTime ProgramTime;
 
-			//time data
-			float PreviousTime = 0;
-			float CurrentTime = 0;
-			float UpdateTime = 0;
+	//time data
+	float PreviousTime = 0;
+	float CurrentTime = 0;
+	float UpdateTime = 0;
 
-			//PID data
-			float ComputedRotation;
-			float PreviousComputedRotation;
-			float Target = 20;
-			float TargetRateOfChange = 45;
-			ArrayList HistoricData = new ArrayList();
-			ArrayList DerivativeData = new ArrayList();
-			float D;
-			float I;
-			float P;
-			float DConstant;
-			float IConstant;
-			float PConstant;
-			//can be "Straight" or "Turn"
-			String Motion = "Turn";
-			//Forward or Backward are the options
-			String MovingDirection = "Forward";
-			//can be 'Right' or 'Left'
-			String StationaryWheel = "Right";
+	//PID data
+	float ComputedRotation;
+	float PreviousComputedRotation;
+	float Target = 20;
+	float TargetRateOfChange = 45;
+	ArrayList HistoricData = new ArrayList();
+	ArrayList DerivativeData = new ArrayList();
+	float D;
+	float I;
+	float P;
+	float DConstant;
+	float IConstant;
+	float PConstant;
 
-			//declare the logger
-			Logger Logging;
+	//this is the threading function, the code that is run whenever the robot turns
+	public String ThreadingFunction = "None";
 
-			//from 0 to 1
-			//.4 for test chassis
-			float Power = .5f;
-			float TurningPower = .8f;
+	//can be "Straight" or "Turn"
+	String Motion = "Turn";
+	//Forward or Backward are the options
+	String MovingDirection = "Forward";
+	//can be 'Right' or 'Left'
+	String StationaryWheel = "Right";
 
-			DcMotor LeftMotor;
-			DcMotor RightMotor;
-			DcMotorController DriveController;
+	//declare the logger
+	Logger Logging;
 
-			HardwareMap hardwareMap;
-			TelemetryDashboardAndLog telemetry;
-			SynchronousOpMode MainOpMode;
-			// Button btn;
+	//from 0 to 1
+	//.4 for test chassis
+	float Power = .5f;
+	float TurningPower = .8f;
 
-	public IMU(DcMotor LeftMotor, DcMotor RightMotor, HardwareMap map, TelemetryDashboardAndLog tel, SynchronousOpMode OpMode)
+	DcMotor LeftMotor;
+	DcMotor RightMotor;
+	DcMotor BackBrace;
+	DcMotorController DriveController;
+
+	HardwareMap hardwareMap;
+	TelemetryDashboardAndLog telemetry;
+	MainAutonomous MainOpMode;
+	// Button btn;
+
+	public IMU(DcMotor LeftMotor, DcMotor RightMotor, DcMotor BackBrace, HardwareMap map, TelemetryDashboardAndLog tel, MainAutonomous OpMode)
 	{
+		this.BackBrace = BackBrace;
 		this.LeftMotor = LeftMotor;
 		this.RightMotor = RightMotor;
 		//set the hardware map
@@ -107,6 +114,38 @@ public class IMU
 		Logging = new Logger("TurnData.txt");
     }
 
+	private void ThreadingFunction(String Function)
+	{
+		if(Function == "None")
+		{
+
+		}
+		else if(Function == "BackBraceLower")
+		{
+			if (Math.abs(MainOpMode.BackBraceInitial - BackBrace.getCurrentPosition()) < 1440 * 4)
+			{
+				BackBrace.setPower(.5);
+			}
+			else
+			{
+				this.BackBrace.setPower(0);
+			}
+		}
+		else if (Function == "BackBraceRaise")
+		{
+			// if the back brace still needs to be lowered...
+			if (Math.abs(MainOpMode.BackBraceInitial - BackBrace.getCurrentPosition()) > 200)
+			{
+				BackBrace.setPower(-1);
+			}
+			else
+			{
+				BackBrace.setPower(0);
+			}
+		}
+	}
+
+
 	public void ResetValues()
 	{
 		HistoricData.clear();
@@ -132,11 +171,16 @@ public class IMU
 
 	public void Straight(float Rotations) throws InterruptedException
 	{
-		Straight(Rotations, 100);
+		Straight(Rotations, 100, "None");
+	}
+
+	public void Straight(float Rotations, int Timeout) throws InterruptedException
+	{
+		Straight(Rotations, Timeout, "None");
 	}
 
     //this is the update loop
-    public void Straight(float Rotations, int Timeout) throws InterruptedException
+    public int Straight(float Rotations, int Timeout, String Function) throws InterruptedException
     {
 		Date c = new Date();
 		long StartTime = c.getTime();
@@ -158,36 +202,43 @@ public class IMU
         //start position
         long StartPosition = RightMotor.getCurrentPosition();
 
-        //this is the first update
-        FirstUpdate = true;
-
         //update the angles
         UpdateAngles();
 
         //set the target to the current position
         Target = ComputedRotation;
 
+		telemetry.log.add("Function: " + Function);
+
 		while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
 		{
+			if(Function == "ControlRotation")
+			{
+				//if the robot is 5 degfrees off, stop its movement
+				if(Math.abs(this.Rotation() - MainOpMode.LastStageRotation) > 10)
+				{
+					telemetry.log.add("turned too much, robot stopped.");
+					this.Stop();
+					return -1;
+				}
+			}
+
+			ThreadingFunction(Function);
+
 			//see if it has passed the timeout
 			Date a = new Date();
 			long Time = a.getTime();
 
-			telemetry.addData("05", (Math.abs(StartTime - Time)));
-
 			if(Math.abs(StartTime - Time) > Timeout * 1000)
 			{
-				telemetry.log.add("Timmed Out");
+				telemetry.log.add("Timed Out");
 				break;
 			}
-
-			telemetry.addData("12", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
 			//this is the update loop
 			UpdateTime();
 			UpdateAngles();
 			PreformCalculations();
-			//telemetry.addData("7", Math.abs(StartPosition - RightMotor.getCurrentPosition()));
 
 			//update telemetry
 			telemetry.update();
@@ -195,6 +246,8 @@ public class IMU
 			//idle using the reference to the instance of the main opmode
 			MainOpMode.idle();
 		}
+
+		return 1;
     }
 
 	private float ValueStandardDeviation()
@@ -228,32 +281,39 @@ public class IMU
 		return ComputedRotation;
 	}
 
+	public void Turn(final float Degrees) throws InterruptedException
+	{
+		TurnToAngle(ComputedRotation + Degrees, "Right", "None");
+	}
+
+	public void Turn(final float Degrees, final String StationaryWheel, String ThreadingFunction) throws InterruptedException
+	{
+		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, ThreadingFunction);
+	}
+
 	public void Turn(final float Degrees, final String StationaryWheel) throws InterruptedException
 	{
-		this.StationaryWheel = StationaryWheel;
-
-		Turn(Degrees);
-
-		this.StationaryWheel = "Right";
+		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, "None");
 	}
 
 	//this is the update loop
-	public void Turn(final float Degrees) throws InterruptedException
+	public void TurnToAngle(final float Degrees, String StationaryWheel, String ThreadingFunction) throws InterruptedException
 	{
+		this.StationaryWheel = StationaryWheel;
 
 		//remove the historic data values
 		ResetValues();
 
 		Motion = "Turn";
 
-		//this is the first update
-		FirstUpdate = true;
-
 		//update the angles, if this is uncommented it gets the values from the UI
 		UpdateAngles();
 
 		//set the target to the current position
-		Target = ComputedRotation + Degrees;
+
+		telemetry.log.add("current rotation is " + ComputedRotation + ", amount to rotate is " + Degrees);
+
+		Target = Degrees;
 
 		//degrees that something has to be off
 		float Error = 3;
@@ -261,6 +321,8 @@ public class IMU
 		//while the distance from the target is greater than the error
 		while (ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error)
 		{
+			ThreadingFunction(ThreadingFunction);
+
 			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
 			{
 				break;
@@ -279,8 +341,6 @@ public class IMU
 			//idle using the reference to the instance of the main opmode
 			MainOpMode.idle();
 		}
-
-		telemetry.log.add("turn was " + Math.abs(ComputedRotation - Target) + " degrees off.");
 	}
 
     void PreformCalculations()
@@ -335,7 +395,6 @@ public class IMU
         }
         else if (Motion == "Turn")
         {
-			telemetry.addData("01", "Target = " + Target);
 			if(Target < ComputedRotation) {
 				D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2))) - TargetRateOfChange;
 			}
@@ -346,7 +405,7 @@ public class IMU
 			}
 
 			//functional
-			DConstant = -.2f;
+			DConstant = -.1f;
 			IConstant = .15f;
         }
 
@@ -412,6 +471,8 @@ public class IMU
     }
 
     void UpdateAngles() {
+		telemetry.addData("00", "Rotation: " + ComputedRotation);
+
         //sets the previous heading
         PreviousHeading = Heading;
 
@@ -431,14 +492,18 @@ public class IMU
 			if (PreviousHeading > 300 && Heading < 60) {
 				//increase the rotations by one
 				Rotations++;
+
+				//update again because otherwise it would be out of date
+				UpdateAngles();
 			}
 
 			if (PreviousHeading < 60 && Heading > 300) {
 				Rotations--;
+
+				//update again because otherwise it would be out of date
+				UpdateAngles();
 			}
 		}
-
-		telemetry.addData("00", "Rotation: " + ComputedRotation);
 
 		Logging.write(ComputedRotation + ", " + Heading);
 

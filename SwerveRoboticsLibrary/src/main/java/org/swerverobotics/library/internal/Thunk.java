@@ -1,25 +1,22 @@
 package org.swerverobotics.library.internal;
 
 import android.util.Log;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.swerverobotics.library.SynchronousOpMode;
-import org.swerverobotics.library.interfaces.*;
 
 /**
  * ThunkBase contains most of the code for thunking a call from a synchronous thread to the loop() thread
  *
  * @see <a href="https://en.wikipedia.org/wiki/Thunk">https://en.wikipedia.org/wiki/Thunk</a>
  */
-public abstract class Thunk implements IAction, IActionKeyed
+public abstract class Thunk implements Runnable, IActionKeyed
     {
     //----------------------------------------------------------------------------------------------
     // State
     //----------------------------------------------------------------------------------------------
 
-    private   final SynchronousThreadContext context;
+    private   final SwerveThreadContext      context;
     protected final Object                   theLock;
     protected       RuntimeException         exception;
     public    final List<Integer>            actionKeys;
@@ -30,7 +27,7 @@ public abstract class Thunk implements IAction, IActionKeyed
 
     public Thunk()
         {
-        this.context    = SynchronousThreadContext.getThreadContext();
+        this.context    = SwerveThreadContext.getThreadContext();
         this.theLock    = new Object();
         this.exception  = null;
         this.actionKeys = new LinkedList<Integer>();
@@ -67,9 +64,9 @@ public abstract class Thunk implements IAction, IActionKeyed
     //----------------------------------------------------------------------------------------------
 
     /**
-     * Executed on the loop() thread, doAction() is called to carry out the work of the thunk
+     * Executed on the loop() thread, run() is called to carry out the work of the thunk
      */
-    public void doAction()
+    public void run()
         {
         try {
             // Do what we came here to do
@@ -114,7 +111,7 @@ public abstract class Thunk implements IAction, IActionKeyed
      */
     protected void dispatch() throws InterruptedException
         {
-        SynchronousThreadContext.assertSynchronousThread();
-        this.context.getThunker().executeOnLoopThread(this);
+        SwerveThreadContext.assertSynchronousThread();
+        this.context.thisGetThunker().executeOnLoopThread(this);
         }
     }

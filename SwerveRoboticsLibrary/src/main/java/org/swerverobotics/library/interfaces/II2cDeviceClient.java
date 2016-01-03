@@ -1,11 +1,44 @@
 package org.swerverobotics.library.interfaces;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.*;
 import org.swerverobotics.library.*;
 
 /**
  * II2cDeviceClient is the public interface to a utility class that makes it easier to
  * use I2cDevice instances.
+ *
+ * <p>Having created an II2cDeviceClient instance, reads and writes are performed by calling
+ * {@link #read8(int) read8()} and {@link #write8(int, int) write8()} or
+ * {@link #read(int, int) read()} and {@link #write(int, byte[]) write()} respectively. These
+ * calls are synchronous; they block until their action is semantically complete. No attention
+ * to 'read mode' or 'write mode' is required. Simply call reads and writes as you need them, and
+ * the right thing happens.</p>
+ *
+ * <p>A word about optimizing reads. In I2cDevice, reads are accomplished by calling
+ * {@link I2cDevice#enableI2cReadMode(int, int, int) enableI2cReadMode()} to indicate a set of
+ * registers which are to be read from the I2C device. <em>Changing</em> that set of registers
+ * is a relatively time consuming operation, on the order of several tens of milliseconds. If your
+ * code wishes to read some registers at some times and then others at another, it behooves you to
+ * set up a {@link org.swerverobotics.library.interfaces.II2cDeviceClient.ReadWindow ReadWindow} that
+ * covers them all (if it can): the read window will be read all at once, then subsequent read()
+ * operations will return various parts of that already retrieved data (if still valid) without
+ * the need to invoke another enableI2cReadMode() expense. Note that this is purely an optimization:
+ * if you don't specify an explicit read window, one will be automatically created for you. But
+ * it's usually worth thinking about.</p>
+ *
+ * <p>Three different flavors of read window are available that differ in whether they
+ * read only one time or perform repeated reads, and whether they aggressively return to reading
+ * when there's no writing to do or just read when it's opportune to do so but don't on their
+ * own cause underlying mode switches.</p>
+ *
+ * <p>For devices that automatically shutdown if no communication is received in a certain
+ * duration, a heartbeat facility is optionally provided.</p>
+ *
+ * @see ClassFactory#createI2cDeviceClient(OpMode, I2cDevice, int, boolean)
+ * @see org.swerverobotics.library.interfaces.II2cDeviceClient.ReadWindow
+ * @see #ensureReadWindow(ReadWindow, ReadWindow)
+ * @see #setHeartbeatAction(HeartbeatAction)
  */
 public interface II2cDeviceClient extends HardwareDevice
     {
@@ -126,6 +159,23 @@ public interface II2cDeviceClient extends HardwareDevice
         public long     nanoTime;
         }
 
+    /**
+     * Advanced: Atomically calls ensureReadWindow() with the last two parameters and then
+     * readTimeStamped() with the first two without the possibility of a concurrent client
+     * interrupting in the middle.
+     *
+     * @param ireg              the register number of the first byte register to read
+     * @param creg              the number of bytes / registers to read
+     * @param readWindowNeeded  the read window we require
+     * @param readWindowSet     the read window to set if the required read window is not current
+     * @return                  the data that was read, together with the timestamp
+     *
+     * @see #ensureReadWindow(ReadWindow, ReadWindow)
+     * @see #readTimeStamped(int, int)
+     * @see #executeFunctionWhileLocked(IFunc)
+     */
+    TimestampedData readTimeStamped(int ireg, int creg, ReadWindow readWindowNeeded, ReadWindow readWindowSet);
+
     //----------------------------------------------------------------------------------------------
     // Writing
     //----------------------------------------------------------------------------------------------
@@ -181,6 +231,12 @@ public interface II2cDeviceClient extends HardwareDevice
      */
     void write(int ireg, byte[] data, boolean waitForCompletion);
 
+    /**
+     * Waits for any previously issued writes to complete.
+     * @throws InterruptedException
+     */
+    void waitForWriteCompletions();
+
     //----------------------------------------------------------------------------------------------
     // Concurrency management
     //----------------------------------------------------------------------------------------------
@@ -192,7 +248,7 @@ public interface II2cDeviceClient extends HardwareDevice
      * @param action the action to execute
      * @see #executeFunctionWhileLocked(IFunc)
      */
-    void executeActionWhileLocked(IAction action);
+    void executeActionWhileLocked(Runnable action);
 
     /**
      * Executes the indicated function while holding the concurrency lock on the object
@@ -201,7 +257,7 @@ public interface II2cDeviceClient extends HardwareDevice
      * @param function      the function to execute
      * @param <T>           the type of the data returned from the function
      * @return              the datum value returned from the function
-     * @see #executeActionWhileLocked(IAction)
+     * @see #executeActionWhileLocked(Runnable)
      */
     <T> T executeFunctionWhileLocked(IFunc<T> function);
 
@@ -266,15 +322,9 @@ public interface II2cDeviceClient extends HardwareDevice
          * otherwise might not support for this heartbeat form may make use of
          * worker threads.
          *
-         * @see #explicitReadPriority
          * @see #executeFunctionWhileLocked(IFunc)
          */
         public ReadWindow   heartbeatReadWindow = null;
-
-        /** Advanced: if a read on a separate thread is in fact needed, use this thread priority
-         * @see #heartbeatReadWindow
-         */
-        public int          explicitReadPriority = Math.min(Thread.MAX_PRIORITY, Thread.NORM_PRIORITY+1);
         }
 
     //----------------------------------------------------------------------------------------------
@@ -321,28 +371,82 @@ public interface II2cDeviceClient extends HardwareDevice
     void setLoggingTag(String loggingTag);
 
     /**
+     * Arms the client for operation. This involves registering for callbacks with
+     * the underlying I2cDevice. Only one client of an I2cDevice may register for callbacks
+     * at any given time; if multiple clients exist, they must be coordinated so as to use
+     * the I2cDevice sequentially. This method is idempotent.
+     * @see #disarm()
+     * @see #isArmed()
+     */
+    void arm();
+
+    /**
+     * Answers as to whether this I2cDeviceClient is currently armed.
+     * @return whether the client is currently armed
+     * @see #arm()
+     */
+    boolean isArmed();
+
+    /**
+     * Disarms the client if it is currently armed. This method is idempotent.
+     * @see #arm()
+     */
+    void disarm();
+
+    /**
      * Close down and disable this device. Once this is done, the object instance cannot
-     * support further read() or write() calls.
+     * support further read() or write() calls. Note that calling close() here does NOT
+     * also close() the underlying I2cDevice: we here are a *client* of the I2cDevice, not
+     * its owner. If your I2cDevice has a non-trivial close() semantic, you are yourself
+     * responsible for calling that method at an appropriate time.
      */
     void close();
+
+    /**
+     * Sets the I2C address of the underlying client. If necessary, the client is briefly
+     * disarmed and automatically rearmed in the process.
+     * @param i2cAddr8Bit the new I2C address
+     */
+    void setI2cAddr(int i2cAddr8Bit);
+
+    /**
+     * Returns the I2C address currently being used.
+     * @return the current I2C address
+     */
+    int getI2cAddr();
 
     //----------------------------------------------------------------------------------------------
     // RegWindow
     //----------------------------------------------------------------------------------------------
 
     /**
-     * READ_MODE controls whether when asked to read we read only once or read multiple times
+     * READ_MODE controls whether when asked to read we read only once or read multiple times.
+     *
+     * In all modes, it is guaranteed that a read() which follows a write() operation will
+     * see the state of the device <em>after</em> the write has had effect.
      */
     enum READ_MODE
         {
         /**
          * Continuously issue I2C reads whenever there's nothing else needing to be done.
          * In this mode, {@link #read(int, int) read()} will not necessarily execute an I2C transaction
-         * for every call but might instead return data previously read on from the I2C device.
+         * for every call but might instead return data previously read from the I2C device.
+         * This mode is most useful in a device that spends most of its time doing read operations
+         * and only very infrequently writes, if ever.
          *
          * @see #read(int, int)
          */
         REPEAT,
+
+        /**
+         * Continuously issue I2C reads as in REPEAT when we can, but do <em>not</em> automatically
+         * transition back to read-mode following a write operation in order to do so. This mode is
+         * most useful in a device which has a balanced mix of read() and write() operations, such
+         * as a motor controller. Like {@link #REPEAT}, this mode might return data that was
+         * previously read a short while ago.
+         */
+        BALANCED,
+
         /**
          * Only issue a single I2C read, then set the read window to null to disable further reads.
          * Executing a {@link #read(int, int) read()} in this mode will always get fresh data
@@ -364,10 +468,13 @@ public interface II2cDeviceClient extends HardwareDevice
 
         /**
          * enableI2cReadMode and enableI2cWriteMode both impose a maximum length
-         * on the size of data that can be read or written at one time. cregMax
-         * indicates that maximum size.
+         * on the size of data that can be read or written at one time. cregReadMax
+         * and cregWriteMax indicate those maximum sizes.
+         * @see #cregWriteMax
          */
-        public static final int cregMax = 26;   // No, not 27: the CDIM can't handle 27
+        public static final int cregReadMax = 26;   // No, not 27: the CDIM can't handle 27
+        /** @see #cregReadMax */
+        public static final int cregWriteMax = 26;  // the CDIM might be able to do 27, not just 26, but we're paranoid
 
         /**
          * The first register in the window
@@ -422,7 +529,20 @@ public interface II2cDeviceClient extends HardwareDevice
          * false for ONLY_ONCE windows after {@link #setReadIssued()} has been called on them.
          * @return whether it is permitted to perform a read for this window.
          */
-        public boolean isOkToRead() { return this.readMode==READ_MODE.REPEAT || !this.readIssued; }
+        public boolean isOkToRead()
+            {
+            return !this.readIssued || this.readMode != READ_MODE.ONLY_ONCE;
+            }
+
+        /**
+         * Answers as to whether this window in its present state ought to cause a transition
+         * to read-mode when there's nothing else for the device to be doing.
+         * @return whether this device should cause a read mode transition
+         */
+        public boolean maySwitchToReadMode()
+            {
+            return !this.readIssued || this.readMode == READ_MODE.REPEAT;
+            }
 
         //------------------------------------------------------------------------------------------
         // Construction
@@ -430,6 +550,10 @@ public interface II2cDeviceClient extends HardwareDevice
 
         /**
          * Create a new register window with the indicated starting register and register count
+         *
+         * @param iregFirst the index of the first register to read
+         * @param creg      the number of registers to read
+         * @param readMode  whether to repeat-read or read only once
          */
         public ReadWindow(int iregFirst, int creg, READ_MODE readMode)
             {
@@ -437,12 +561,13 @@ public interface II2cDeviceClient extends HardwareDevice
             this.readIssued = false;
             this.iregFirst  = iregFirst;
             this.creg       = creg;
-            if (creg < 0 || creg > cregMax)
-                throw new IllegalArgumentException(String.format("buffer length %d invalid; max is %d", creg, cregMax));
+            if (creg < 0 || creg > cregReadMax)
+                throw new IllegalArgumentException(String.format("buffer length %d invalid; max is %d", creg, cregReadMax));
             }
 
         /**
          * Returns a copy of this window but with the {@link #readIssued} flag clear
+         * @return a fresh readable copy of the window
          */
         public ReadWindow freshCopy()
             {
@@ -474,6 +599,7 @@ public interface II2cDeviceClient extends HardwareDevice
          *
          * @param him   the window we wish to see whether we contain
          * @return      whether or not we contain the window
+         * @see #contains(int, int)
          */
         public boolean contains(ReadWindow him)
             {

@@ -1,7 +1,5 @@
 package org.swerverobotics.library.internal;
 
-import org.swerverobotics.library.exceptions.*;
-
 /**
  * A class that helps us start a thread and interlock with its actual starting up.
  *
@@ -11,6 +9,9 @@ import org.swerverobotics.library.exceptions.*;
  * begun execution and positively indicated that it's good to go.
  *
  * This class helps to implement that handshake logic.
+ *
+ * That all said, this class is probably less useful than we initially thought it would be.
+ * And its implementation should be cleaned up to use ExecutorService's.
  */
 public class HandshakeThreadStarter
     {
@@ -74,13 +75,13 @@ public class HandshakeThreadStarter
 
             this.started = true;
             }
-        catch (InterruptedException|RuntimeInterruptedException e)
+        catch (Exception e)
             {
             // Clean up if we were interrupted while waiting
             this.started = true;    // so stop() will work
             stop();
 
-            Util.handleCapturedInterrupt(e); // pass it on
+            Util.handleCapturedException(e);
             }
         }
 
@@ -110,9 +111,9 @@ public class HandshakeThreadStarter
                 else
                     this.thread.join(msWait);
                 }
-            catch (InterruptedException|RuntimeInterruptedException e)
+            catch (Exception e)
                 {
-                Util.handleCapturedInterrupt(e);
+                Util.handleCapturedException(e);
                 }
             finally
                 {
