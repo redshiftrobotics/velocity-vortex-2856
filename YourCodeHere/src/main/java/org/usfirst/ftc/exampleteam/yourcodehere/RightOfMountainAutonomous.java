@@ -24,7 +24,7 @@ public class RightOfMountainAutonomous extends SynchronousOpMode {
 		BackWheel.setDirection(DcMotor.Direction.REVERSE);
 		RightMotor.setDirection(DcMotor.Direction.REVERSE);
 
-		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
+		//Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 
 		waitForStart();
 

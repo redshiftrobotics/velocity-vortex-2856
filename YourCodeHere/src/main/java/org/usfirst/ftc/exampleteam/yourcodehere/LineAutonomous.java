@@ -28,7 +28,7 @@ public class LineAutonomous extends SynchronousOpMode {
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
-		Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
+		//Robot = new IMU(LeftMotor, RightMotor, hardwareMap, telemetry, this);
 		FollowLine follower = new FollowLine(LeftMotor, RightMotor, hardwareMap, this, Robot);
 
 		waitForStart();
