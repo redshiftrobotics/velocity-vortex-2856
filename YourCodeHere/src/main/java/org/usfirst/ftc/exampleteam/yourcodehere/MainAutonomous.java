@@ -63,6 +63,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		Servo rightDebris = this.hardwareMap.servo.get("right_debris");
 		Servo leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		Servo rightClimberServo = this.hardwareMap.servo.get("right_climber");
+		ColorSensor colorSensor = hardwareMap.colorSensor.get("color_sensor");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -102,8 +103,14 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.Turn(-45 + Offset, "Right", "BackBraceLower");
 		}
 
-		Robot.Straight(6.0f, 10);
-
+		//move slightly farther for blue so that it can stay on the left side of the white line
+		if (side.equals("blue")) {
+			Robot.Straight(6.2f, 10);
+		}
+		else
+		{
+			Robot.Straight(5.7f, 10);
+		}
 
 		Robot.Stop();
 
@@ -118,12 +125,12 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 		if (side.equals("blue")) {
-			float DegreeOffset = 20;
+			float DegreeOffset = 10;
 			Robot.Turn((float)(InitialRotation - 90 + DegreeOffset), "Right", "BackBraceRaise");
 		}
 		else
 		{
-			float DegreeOffset = -10;
+			float DegreeOffset = 10;
 			Robot.TurnToAngle((float)(InitialRotation + 90 + DegreeOffset), "Left", "BackBraceRaise");
 		}
 
@@ -132,66 +139,89 @@ public class MainAutonomous extends SynchronousOpMode {
 		// set the last stage rotation
 		LastStageRotation = Robot.Rotation();
 
-		if (side.equals("blue"))
+		Robot.Straight(-.7f, 2);
+
+//		if (side.equals("blue"))
+//		{
+//			Robot.Straight(-1.5f, 3, "ControlRotation");
+//		}
+//		else
+//		{
+//			Robot.Straight(-1.6f, 3);
+//		}
+//
+//		telemetry.log.add("done backing up");
+//
+//		//deploy climbers
+//		ClimberDeployment.setPower(-.15);
+//		Thread.sleep(2000);
+//		ClimberDeployment.setPower(0);
+//		Thread.sleep(500);
+//		ClimberDeployment.setPower(.15);
+//		Thread.sleep(1500);
+//		ClimberDeployment.setPower(0);
+//
+//		telemetry.log.add("done scoring climbers");
+
+//		Robot.Stop();
+//
+//		if (side.equals("red"))
+//		{
+//			Robot.TurnToAngle((float) (InitialRotation - 45 + 180), "Left", "None");
+//		}
+//		else
+//		{
+//			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None");
+//		}
+//
+//		telemetry.log.add("moving straight");
+//
+//		//move forward while lowering the back brace
+//		Robot.Straight(2.6f, 5, "BackBraceLower");
+//		BackBrace.setPower(0);
+//		Robot.Stop();
+//
+//		if (side.equals("red")) {
+//			Robot.Turn(90, "Left");
+//		}
+//		else
+//		{
+//			Robot.Turn(-90, "Right");
+//		}
+//
+//		//raise the front blocker servos
+//		rightDebris.setPosition(.5);
+//		leftDebris.setPosition(.6);
+//
+//
+//		//move up the mountain
+//		BackWheel.setPower(-1);
+//		LeftMotor.setPower(1);
+//		RightMotor.setPower(1);
+//
+//		Thread.sleep(4000);
+//
+//		BackWheel.setPower(0);
+//
+//		Robot.Stop();
+
+		int Threshold = 60;
+
+		while(true)
 		{
-			Robot.Straight(-1.5f, 3, "ControlRotation");
+			if(colorSensor.green() > Threshold)
+			{
+				LeftMotor.setPower(0);
+				RightMotor.setPower(-.4);
+			}
+			else
+			{
+				LeftMotor.setPower(-.4);
+				RightMotor.setPower(0);
+			}
+
+			telemetry.addData("03", colorSensor.green());
 		}
-		else
-		{
-			Robot.Straight(-1.6f, 3);
-		}
-
-		telemetry.log.add("done backing up");
-
-		//deploy climbers
-		ClimberDeployment.setPower(-.15);
-		Thread.sleep(2000);
-		ClimberDeployment.setPower(0);
-		Thread.sleep(500);
-		ClimberDeployment.setPower(.15);
-		Thread.sleep(1500);
-		ClimberDeployment.setPower(0);
-
-		telemetry.log.add("done scoring climbers");
-
-		Robot.Stop();
-
-		if (side.equals("red"))
-		{
-			Robot.TurnToAngle((float)(InitialRotation - 45 + 180), "Left", "None");
-		}
-		else
-		{
-			Robot.TurnToAngle((float)(InitialRotation + 45 - 180), "Right", "None");
-		}
-
-		//move forward while lowering the back brace
-		Robot.Straight(2.6f, 5, "BackBraceLower");
-		BackBrace.setPower(0);
-		Robot.Stop();
-
-		if (side.equals("red")) {
-			Robot.Turn(90, "Left");
-		}
-		else
-		{
-			Robot.Turn(-90, "Right");
-		}
-
-		//raise the front blocker servos
-		rightDebris.setPosition(.5);
-		leftDebris.setPosition(.6);
-
-
-		//move up the mountain
-		BackWheel.setPower(-1);
-		LeftMotor.setPower(1);
-		RightMotor.setPower(1);
-
-		Thread.sleep(4000);
-
-		BackWheel.setPower(0);
-		Robot.Stop();
 	}
 
 	public void RunIdle() throws InterruptedException
