@@ -310,7 +310,6 @@ public class IMU
 		UpdateAngles();
 
 		//set the target to the current position
-
 		telemetry.log.add("current rotation is " + ComputedRotation + ", amount to rotate is " + Degrees);
 
 		Target = Degrees;
