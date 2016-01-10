@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,8 +23,6 @@ import java.util.Random;
  * Created by matt on 10/30/15.
  */
 public class Trigger {
-
-
 
 	public static void takeImage() {
 
@@ -43,7 +43,6 @@ public class Trigger {
 
 
 	}
-
 
 	public static String findAvgSides() {
 
@@ -120,7 +119,7 @@ public class Trigger {
 	}
 
 
-	public static int determineRed () {
+	public static int[] determineRed () {
 
 		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
 		int readArray[];
@@ -156,6 +155,10 @@ public class Trigger {
 		int master = 0;
 		int redStart = -1;
 		int i = 0;
+		int redEnd = -1;
+		boolean onRed = false;
+		int returner[];
+		returner = new int[3];
 
 
 
@@ -183,10 +186,18 @@ public class Trigger {
 
 
 			//Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
-			if (max - min < changeThresh && min > redThresh) {
+			if (max - min < changeThresh && min > redThresh  && !onRed) {
 				redStart = j;
+				returner[0] = redStart;
+				onRed = true;
 				Log.d("found red", String.valueOf(redStart));
-				return redStart;
+			} else if (onRed && max - min > changeThresh && min < redThresh) {
+				redEnd = j;
+				returner[0] = redEnd;
+				console.log("red ends " + redEnd);
+				onRed = false;
+				return returner;
+
 			}
 
 			min = -999;
@@ -195,14 +206,17 @@ public class Trigger {
 
 //		Log.d("min", String.valueOf(min));
 //		Log.d("max", String.valueOf(max));
-		return -1;
+		returner[0] = -1;
+		returner[1] = -1;
+		returner[2] = bitproc.getWidth();
+		return returner;
 	}
 
 
 
 
 
-	public static int determineBlue() {
+	public static int[] determineBlue() {
 
 		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
 		int readArray[];
@@ -238,7 +252,10 @@ public class Trigger {
 		int master = 0;
 		int blueStart = -1;
 		int i = 0;
-
+		int blueEnd = -1;
+		boolean onBlue = false;
+		int returner[];
+		returner = new int[4];
 
 		int blueThresh = 200;
 		int changeThresh = 25;
@@ -261,11 +278,22 @@ public class Trigger {
 
 			}
 			//Log.d("min and max", String.valueOf(min) + "-" + String.valueOf(max));
-			if (max - min < changeThresh && min > blueThresh) {
+			if (max - min < changeThresh && min > blueThresh && !onBlue) {
 				blueStart = j;
-
+				returner[0] = blueStart;
+				onBlue = true;
 				Log.d("found blue", String.valueOf(blueStart));
-				return blueStart;
+
+
+				//return blueStart;
+			} else if (onBlue && max - min > changeThresh && min < blueThresh) {
+				blueEnd = j;
+				returner[0] = blueEnd;
+				console.log("blue ends" + blueEnd);
+				onBlue = false;
+				return returner;
+
+
 			}
 
 			min = -999;
@@ -274,15 +302,11 @@ public class Trigger {
 
 //		Log.d("min", String.valueOf(min));
 //		Log.d("max", String.valueOf(max));
-		return -1;
+		returner[0] = -1;
+		returner[1] = -1;
+		returner[2] = bitproc.getWidth();
+		return returner;
 	}
-
-
-
-
-
-
-
 
 
 
@@ -290,19 +314,55 @@ public class Trigger {
 	////////////////////////USE INFORMATION ///////////////////////////////
 
 
+	public static void seek(DcMotor rightMotor, DcMotor leftMotor) {
+
+		int blueIndex;
+		int redIndex;
+		if(determineSides() == "left") {
+			blueIndex = 1;
+			redIndex = 0;
+		} else {
+			blueIndex = 0;
+			redIndex = 1;
+		}
+
+		int center;
+		takeImage();
+		int[] blue = determineBlue();
+		int[] red = determineRed();
+		center = (blue[blueIndex] + red[redIndex])/2;
+
+		while(center < blue[2]/2/*width / 2*/) {
+			takeImage();
+			blue = determineBlue();
+			red = determineRed();
+			center = (blue[blueIndex]+red[redIndex])/2;
+			//center is further to left, robot must turn right
+			leftMotor.setPower(0.2);
+		}
+		while(center > blue[2]/2) {
+			takeImage();
+			blue = determineBlue();
+			red = determineRed();
+			center = (blue[blueIndex]+red[redIndex])/2;
+			//center is further to right, robot must turn left
+			rightMotor.setPower(0.2);
+		}
+
+	}
 
 
 	public static String determineSides() {
-		int blue = determineBlue();
-		int red = determineRed();
+		int[] blue = determineBlue();
+		int[] red = determineRed();
 
 
 		String blueison = "error";
 		Log.d("########## BLUE", String.valueOf(blue));
 		Log.d("########## RED", String.valueOf(red));
-		if(blue != -1 && red != -1) {
+		if(blue[0] != -1 && red[0] != -1) {
 
-			if(blue > red) {
+			if(blue[0] > red[0]) {
 				blueison = "right";
 			} else {
 				blueison = "left";
@@ -310,9 +370,9 @@ public class Trigger {
 
 		} else {
 
-			if(blue == -1) {
+			if(blue[0] == -1) {
 				blueison = "no blue";
-			} else if (red == -1){
+			} else if (red[0] == -1){
 				blueison = "no red";
 			}
 		}

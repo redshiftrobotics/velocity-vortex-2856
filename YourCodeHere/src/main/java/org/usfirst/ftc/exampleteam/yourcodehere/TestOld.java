@@ -15,7 +15,7 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
-//@TeleOp(name="TestOld")
+@TeleOp(name="Seek Test")
 public class TestOld extends SynchronousOpMode {
     /* Declare here any fields you might find useful. */
     // DcMotor motorLeft = null;
@@ -29,20 +29,10 @@ public class TestOld extends SynchronousOpMode {
          * step you did in the FTC Robot Controller app on the phone.
          */
 
-//		FollowLine follower = new FollowLine(hardwareMap, this);
-//		IMU Robot = new IMU(hardwareMap, telemetry, this);
-
+		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
+		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		waitForStart();
-
-		Trigger.takeImage();
-		Thread.sleep(1000);
-		Log.d("##Blue is on the: ###", Trigger.determineSides());
-
-//		Float startRotations = Robot.Rotation();
-//		follower.Straight(5);
-//		Robot.Turn(startRotations - Robot.Rotation());
-
-
+		Trigger.seek(LeftMotor, RightMotor);
 
     }
 
