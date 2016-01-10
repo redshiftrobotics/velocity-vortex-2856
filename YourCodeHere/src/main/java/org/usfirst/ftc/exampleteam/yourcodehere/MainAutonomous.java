@@ -222,6 +222,8 @@ public class MainAutonomous extends SynchronousOpMode {
 
 			telemetry.addData("03", colorSensor.green());
 		}
+
+		
 	}
 
 	public void RunIdle() throws InterruptedException
