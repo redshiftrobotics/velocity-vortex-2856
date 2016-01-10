@@ -150,7 +150,7 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None");
 		}
 
-		Robot.Straight(-1.5f, 2);
+		Robot.Straight(-1.0f, 2);
 
 		Robot.Stop();
 
@@ -179,6 +179,10 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 		Robot.Stop();
 
+		//raise the front blocker servos
+		rightDebris.setPosition(.5);
+		leftDebris.setPosition(.6);
+
 		if (side.equals("red")) {
 			Robot.Turn(90, "Left");
 		}
@@ -186,12 +190,6 @@ public class MainAutonomous extends SynchronousOpMode {
 		{
 			Robot.Turn(-90, "Right");
 		}
-
-		//raise the front blocker servos
-		rightDebris.setPosition(.5);
-		leftDebris.setPosition(.6);
-
-		Thread.sleep(500);
 
 		//move up the mountain
 		BackWheel.setPower(-1);
