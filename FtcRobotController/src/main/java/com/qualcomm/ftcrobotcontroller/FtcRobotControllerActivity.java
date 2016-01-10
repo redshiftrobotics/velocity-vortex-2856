@@ -136,8 +136,6 @@ public class FtcRobotControllerActivity extends Activity {
 		}
 	};
 
-
-
 	/** Create a File for saving an image or video */
 	private static File getOutputMediaFile(){
 		// To be safe, you should check that the SDCard is mounted
@@ -163,11 +161,26 @@ public class FtcRobotControllerActivity extends Activity {
 		return mediaFile;
 	}
 
+
+	private static int getFrontCameraId(){
+		int camId = -1;
+		int numberOfCameras = Camera.getNumberOfCameras();
+		Camera.CameraInfo ci = new Camera.CameraInfo();
+
+		for(int i = 0;i < numberOfCameras;i++){
+			Camera.getCameraInfo(i,ci);
+			if(ci.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
+				camId = i;
+			}
+		}
+
+		return camId;
+	}
 	/** A safe way to get an instance of the Camera object. */
 	public static Camera getCameraInstance() {
 		Camera c = null;
 		try {
-			c = Camera.open(); // attempt to get a Camera instance
+			c = Camera.open(getFrontCameraId()); // attempt to get a Camera instance
 		} catch (Exception e) {
 			// Camera is not available (in use or does not exist)
 			Log.d("uhhh", "yep couldnt get camera");
