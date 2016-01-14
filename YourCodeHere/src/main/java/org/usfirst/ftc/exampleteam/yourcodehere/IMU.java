@@ -283,22 +283,26 @@ public class IMU
 
 	public void Turn(final float Degrees) throws InterruptedException
 	{
-		TurnToAngle(ComputedRotation + Degrees, "Right", "None");
+		TurnToAngle(ComputedRotation + Degrees, "Right", "None", 10);
 	}
 
 	public void Turn(final float Degrees, final String StationaryWheel, String ThreadingFunction) throws InterruptedException
 	{
-		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, ThreadingFunction);
+		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, ThreadingFunction, 10);
 	}
 
 	public void Turn(final float Degrees, final String StationaryWheel) throws InterruptedException
 	{
-		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, "None");
+		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, "None", 10);
 	}
 
 	//this is the update loop
-	public void TurnToAngle(final float Degrees, String StationaryWheel, String ThreadingFunction) throws InterruptedException
+	public void TurnToAngle(final float Degrees, String StationaryWheel, String ThreadingFunction, int Timeout) throws InterruptedException
 	{
+		Date c = new Date();
+		long StartTime = c.getTime();
+		long CurrentTime = StartTime;
+
 		this.StationaryWheel = StationaryWheel;
 
 		//remove the historic data values
@@ -318,8 +322,12 @@ public class IMU
 		float Error = 3;
 
 		//while the distance from the target is greater than the error
-		while (ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error)
+		while ((ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error) && Math.abs(CurrentTime - StartTime) < Timeout)
 		{
+			//get the time for the timeout
+			Date r = new Date();
+			CurrentTime = r.getTime();
+
 			ThreadingFunction(ThreadingFunction);
 
 			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)

@@ -74,10 +74,10 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot = new IMU(LeftMotor, RightMotor, BackBrace, hardwareMap, telemetry, this);
 
 		//set positions of servos
-		rightDebris.setPosition(1);
-		leftDebris.setPosition(.1);
-		leftClimberServo.setPosition(.1);
-		rightClimberServo.setPosition(.9);
+		rightDebris.setPosition(.7);
+		leftDebris.setPosition(.2);
+		leftClimberServo.setPosition(0);
+		rightClimberServo.setPosition(1);
 
 		backDebris.setPosition(.5);
 
@@ -98,11 +98,11 @@ public class MainAutonomous extends SynchronousOpMode {
 		telemetry.log.add("side " + side);
 
 		if (side.equals("blue")) {
-			Robot.TurnToAngle(35 + (float)InitialRotation, "Left", "BackBraceLower");
+			Robot.TurnToAngle(35 + (float)InitialRotation, "Left", "BackBraceLower", 5);
 		}
 		else
 		{
-			Robot.Turn(-45 + (float)InitialRotation, "Right", "BackBraceLower");
+			Robot.TurnToAngle(-45 + (float)InitialRotation, "Right", "BackBraceLower", 5);
 		}
 
 		//move slightly farther for blue so that it can stay on the left side of the white line
@@ -121,11 +121,11 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 		if (side.equals("blue")) {
-			Robot.TurnToAngle((float) (InitialRotation - 90), "Right", "BackBraceRaise");
+			Robot.TurnToAngle((float) (InitialRotation - 90), "Right", "BackBraceRaise", 3);
 		}
 		else
 		{
-			Robot.TurnToAngle((float)(InitialRotation + 90), "Left", "BackBraceRaise");
+			Robot.TurnToAngle((float)(InitialRotation + 90), "Left", "BackBraceRaise", 3);
 		}
 
 		BackBrace.setPower(0);
@@ -134,9 +134,6 @@ public class MainAutonomous extends SynchronousOpMode {
 		LastStageRotation = Robot.Rotation();
 
 		Robot.Straight(-.6f, 2);
-		Robot.Straight(1.0f);
-		Thread.sleep(500);
-		Robot.Straight(-1.0f);
 
 		// color sensor threshold
 		int Threshold = 60;
@@ -147,11 +144,11 @@ public class MainAutonomous extends SynchronousOpMode {
 			RightMotor.setPower(0);
 		}
 		if(side.equals("red")) {
-			Robot.TurnToAngle((float) (InitialRotation + 90), "Left", "None");
+			Robot.TurnToAngle((float) (InitialRotation + 90), "Left", "None", 5);
 		}
 		else
 		{
-			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None");
+			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None", 5);
 		}
 
 		int BackupStartEncoder = LeftMotor.getCurrentPosition();
@@ -159,6 +156,10 @@ public class MainAutonomous extends SynchronousOpMode {
 		Date a = new Date();
 		long BackupStartTime = a.getTime();
 		long BackupCurrentTime = BackupStartTime;
+
+
+		Robot.Stop();
+		Thread.sleep(5000);
 
 		String beaconBlue = Trigger.determineSides();
 		telemetry.log.add("Blue is on the " + beaconBlue);
@@ -181,7 +182,9 @@ public class MainAutonomous extends SynchronousOpMode {
 			}
 		}
 
-		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 2000 && Math.abs(BackupStartTime - BackupCurrentTime) < 2000)
+
+
+		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 3000 && Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
 		{
 			Date b = new Date();
 			BackupCurrentTime = b.getTime();
@@ -197,26 +200,22 @@ public class MainAutonomous extends SynchronousOpMode {
 			}
 		}
 
-//		Robot.Straight(-1.0f, 2);
-
 		Robot.Stop();
 
 		//deploy climbers
-		ClimberDeployment.setPower(-.15);
+		ClimberDeployment.setPower(-.3);
 		Thread.sleep(1000);
-		ClimberDeployment.setPower(0);
-		Thread.sleep(500);
-		ClimberDeployment.setPower(.15);
+		ClimberDeployment.setPower(.3);
 		Thread.sleep(1000);
 		ClimberDeployment.setPower(0);
 
 		if (side.equals("red"))
 		{
-			Robot.TurnToAngle((float) (InitialRotation - 45 + 180), "Left", "None");
+			Robot.TurnToAngle((float) (InitialRotation - 45 + 180), "Left", "None", 5);
 		}
 		else
 		{
-			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None");
+			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None", 5);
 		}
 
 		telemetry.log.add("moving straight");
@@ -227,7 +226,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		}
 		else
 		{
-			Robot.Straight(2.9f, 5, "BackBraceLower");
+			Robot.Straight(2.2f, 5, "BackBraceLower");
 		}
 		BackBrace.setPower(0);
 		Robot.Stop();
