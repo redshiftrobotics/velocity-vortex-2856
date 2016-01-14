@@ -76,8 +76,8 @@ public class MainAutonomous extends SynchronousOpMode {
 		//set positions of servos
 		rightDebris.setPosition(1);
 		leftDebris.setPosition(.1);
-		leftClimberServo.setPosition(0);
-		rightClimberServo.setPosition(1);
+		leftClimberServo.setPosition(.1);
+		rightClimberServo.setPosition(.9);
 
 		backDebris.setPosition(.5);
 
@@ -161,7 +161,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		long BackupCurrentTime = BackupStartTime;
 
 		String beaconBlue = Trigger.determineSides();
-
+		telemetry.log.add("Blue is on the " + beaconBlue);
 		if(side.equals("blue")) {
 
 			if (beaconBlue == "left") {
