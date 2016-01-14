@@ -24,6 +24,6 @@
         <Servo name="right_climber" port="3" />
         <Servo name="left_climber" port="4" />
         <Servo name="right_debris" port="5" />
-        <Servo name="button_servo" port="6" />
+        <Servo name="beacon_servo" port="6" />
     </ServoController>
 </Robot>
