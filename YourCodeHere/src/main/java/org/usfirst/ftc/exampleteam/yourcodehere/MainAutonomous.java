@@ -66,6 +66,8 @@ public class MainAutonomous extends SynchronousOpMode {
 		Servo rightClimberServo = this.hardwareMap.servo.get("right_climber");
 		ColorSensor colorSensor = hardwareMap.colorSensor.get("color_sensor");
 		Servo backDebris = this.hardwareMap.servo.get("back_debris");
+		Servo beaconServo = this.hardwareMap.servo.get("beacon_servo");
+
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -132,6 +134,9 @@ public class MainAutonomous extends SynchronousOpMode {
 		LastStageRotation = Robot.Rotation();
 
 		Robot.Straight(-.6f, 2);
+		Robot.Straight(1.0f);
+		Thread.sleep(500);
+		Robot.Straight(-1.0f);
 
 		// color sensor threshold
 		int Threshold = 60;
@@ -154,6 +159,27 @@ public class MainAutonomous extends SynchronousOpMode {
 		Date a = new Date();
 		long BackupStartTime = a.getTime();
 		long BackupCurrentTime = BackupStartTime;
+
+		String beaconBlue = Trigger.determineSides();
+
+		if(side.equals("blue")) {
+
+			if (beaconBlue == "left") {
+				//flip left
+				beaconServo.setPosition(0);
+			} else {
+				//flip right
+				beaconServo.setPosition(1);
+			}
+		} else {
+			if (beaconBlue == "left") {
+				//flip to right
+				beaconServo.setPosition(1);
+			} else {
+				//flip to left
+				beaconServo.setPosition(0);
+			}
+		}
 
 		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 2000 && Math.abs(BackupStartTime - BackupCurrentTime) < 2000)
 		{
@@ -193,9 +219,6 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None");
 		}
 
-<<<<<<< HEAD
-		
-=======
 		telemetry.log.add("moving straight");
 
 		if(side.equals("red")) {
