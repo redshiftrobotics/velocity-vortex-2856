@@ -193,6 +193,9 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None");
 		}
 
+<<<<<<< HEAD
+		
+=======
 		telemetry.log.add("moving straight");
 
 		if(side.equals("red")) {
