@@ -65,6 +65,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		Servo leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		Servo rightClimberServo = this.hardwareMap.servo.get("right_climber");
 		ColorSensor colorSensor = hardwareMap.colorSensor.get("color_sensor");
+		Servo backDebris = this.hardwareMap.servo.get("back_debris");
 
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -75,6 +76,8 @@ public class MainAutonomous extends SynchronousOpMode {
 		leftDebris.setPosition(.1);
 		leftClimberServo.setPosition(0);
 		rightClimberServo.setPosition(1);
+
+		backDebris.setPosition(.5);
 
 		waitForStart();
 
@@ -90,23 +93,19 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot.Straight(1.5f, 5, "BackBraceLower");
 		Robot.Stop();
 
-		float Offset = (float)(InitialRotation - Robot.Rotation());
-
-		telemetry.log.add("Offset of " + Offset);
-
 		telemetry.log.add("side " + side);
 
 		if (side.equals("blue")) {
-			Robot.Turn(45 + Offset, "Left", "BackBraceLower");
+			Robot.TurnToAngle(35 + (float)InitialRotation, "Left", "BackBraceLower");
 		}
 		else
 		{
-			Robot.Turn(-45 + Offset, "Right", "BackBraceLower");
+			Robot.Turn(-45 + (float)InitialRotation, "Right", "BackBraceLower");
 		}
 
 		//move slightly farther for blue so that it can stay on the left side of the white line
 		if (side.equals("blue")) {
-			Robot.Straight(5.8f, 10);
+			Robot.Straight(6.3f, 10);
 		}
 		else
 		{
@@ -150,17 +149,39 @@ public class MainAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None");
 		}
 
-		Robot.Straight(-1.0f, 2);
+		int BackupStartEncoder = LeftMotor.getCurrentPosition();
+
+		Date a = new Date();
+		long BackupStartTime = a.getTime();
+		long BackupCurrentTime = BackupStartTime;
+
+		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 2000 && Math.abs(BackupStartTime - BackupCurrentTime) < 2000)
+		{
+			Date b = new Date();
+			BackupCurrentTime = b.getTime();
+
+			if(colorSensor.green() < Threshold) {
+				LeftMotor.setPower(-.6);
+				RightMotor.setPower(0);
+			}
+			else
+			{
+				LeftMotor.setPower(0);
+				RightMotor.setPower(-6.0f);
+			}
+		}
+
+//		Robot.Straight(-1.0f, 2);
 
 		Robot.Stop();
 
 		//deploy climbers
 		ClimberDeployment.setPower(-.15);
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		ClimberDeployment.setPower(0);
 		Thread.sleep(500);
-		ClimberDeployment.setPower(-.15);
-		Thread.sleep(1500);
+		ClimberDeployment.setPower(.15);
+		Thread.sleep(1000);
 		ClimberDeployment.setPower(0);
 
 		if (side.equals("red"))
@@ -174,8 +195,14 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		telemetry.log.add("moving straight");
 
-		//move forward while lowering the back brace
-		Robot.Straight(2.6f, 5, "BackBraceLower");
+		if(side.equals("red")) {
+			//move forward while lowering the back brace
+			Robot.Straight(2.6f, 5, "BackBraceLower");
+		}
+		else
+		{
+			Robot.Straight(2.9f, 5, "BackBraceLower");
+		}
 		BackBrace.setPower(0);
 		Robot.Stop();
 
