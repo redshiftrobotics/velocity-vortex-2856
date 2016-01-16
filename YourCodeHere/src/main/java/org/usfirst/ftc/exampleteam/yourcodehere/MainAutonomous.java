@@ -159,7 +159,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 
 		Robot.Stop();
-		Thread.sleep(5000);
+		Thread.sleep(500);
 
 		String beaconBlue = Trigger.determineSides();
 		telemetry.log.add("Blue is on the " + beaconBlue);
