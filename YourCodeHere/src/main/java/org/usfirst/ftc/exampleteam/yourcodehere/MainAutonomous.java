@@ -159,7 +159,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 
 		Robot.Stop();
-
+		
 		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 3000 && Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
 		{
 			Date b = new Date();
