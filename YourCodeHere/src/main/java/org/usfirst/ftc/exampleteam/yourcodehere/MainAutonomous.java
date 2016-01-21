@@ -74,7 +74,7 @@ public class MainAutonomous extends SynchronousOpMode {
 		Robot = new IMU(LeftMotor, RightMotor, BackBrace, hardwareMap, telemetry, this);
 
 		//set positions of servos
-		rightDebris.setPosition(.7);
+		rightDebris.setPosition(.65);
 		leftDebris.setPosition(.2);
 		leftClimberServo.setPosition(0);
 		rightClimberServo.setPosition(1);
@@ -87,7 +87,7 @@ public class MainAutonomous extends SynchronousOpMode {
 
 		telemetry.log.add("Initial rotation of " + InitialRotation);
 
-		//this is the back brace initial position, its a global so that threading can access it
+		//this is the back brace initial position, its a global so that threading can access it`
 		BackBraceInitial = BackBrace.getCurrentPosition();
 
 		// set the power for the whole program
@@ -121,11 +121,11 @@ public class MainAutonomous extends SynchronousOpMode {
 		BackBrace.setPower(0);
 
 		if (side.equals("blue")) {
-			Robot.TurnToAngle((float) (InitialRotation - 90), "Right", "BackBraceRaise", 3);
+			Robot.TurnToAngle((float) (InitialRotation - 90), "Right", "BackBraceRaise", 5);
 		}
 		else
 		{
-			Robot.TurnToAngle((float)(InitialRotation + 90), "Left", "BackBraceRaise", 3);
+			Robot.TurnToAngle((float)(InitialRotation + 90), "Left", "BackBraceRaise", 5);
 		}
 
 		BackBrace.setPower(0);
@@ -144,11 +144,11 @@ public class MainAutonomous extends SynchronousOpMode {
 			RightMotor.setPower(0);
 		}
 		if(side.equals("red")) {
-			Robot.TurnToAngle((float) (InitialRotation + 90), "Left", "None", 5);
+			Robot.TurnToAngle((float) (InitialRotation + 90), "Left", "None", 7);
 		}
 		else
 		{
-			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None", 5);
+			Robot.TurnToAngle((float) (InitialRotation - 90), "Left", "None", 7);
 		}
 
 		int BackupStartEncoder = LeftMotor.getCurrentPosition();
@@ -159,30 +159,6 @@ public class MainAutonomous extends SynchronousOpMode {
 
 
 		Robot.Stop();
-		Thread.sleep(5000);
-
-		String beaconBlue = Trigger.determineSides();
-		telemetry.log.add("Blue is on the " + beaconBlue);
-		if(side.equals("blue")) {
-
-			if (beaconBlue == "left") {
-				//flip left
-				beaconServo.setPosition(0);
-			} else {
-				//flip right
-				beaconServo.setPosition(1);
-			}
-		} else {
-			if (beaconBlue == "left") {
-				//flip to right
-				beaconServo.setPosition(1);
-			} else {
-				//flip to left
-				beaconServo.setPosition(0);
-			}
-		}
-
-
 
 		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 3000 && Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
 		{
@@ -209,50 +185,53 @@ public class MainAutonomous extends SynchronousOpMode {
 		Thread.sleep(1000);
 		ClimberDeployment.setPower(0);
 
-		if (side.equals("red"))
-		{
-			Robot.TurnToAngle((float) (InitialRotation - 45 + 180), "Left", "None", 5);
-		}
-		else
-		{
-			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None", 5);
-		}
-
-		telemetry.log.add("moving straight");
-
-		if(side.equals("red")) {
-			//move forward while lowering the back brace
-			Robot.Straight(2.6f, 5, "BackBraceLower");
-		}
-		else
-		{
-			Robot.Straight(2.2f, 5, "BackBraceLower");
-		}
-		BackBrace.setPower(0);
 		Robot.Stop();
-
-		//raise the front blocker servos
-		rightDebris.setPosition(.5);
-		leftDebris.setPosition(.6);
-
-		if (side.equals("red")) {
-			Robot.Turn(90, "Left");
-		}
-		else
-		{
-			Robot.Turn(-90, "Right");
-		}
-
-		//move up the mountain
-		BackWheel.setPower(-1);
-		LeftMotor.setPower(1);
-		RightMotor.setPower(1);
-
-		Thread.sleep(4000);
-
-		BackWheel.setPower(0);
-
-		Robot.Stop();
+//
+//		if (side.equals("red"))
+//		{
+//			Robot.TurnToAngle((float) (InitialRotation - 45 + 180), "Left", "None", 2);
+//		}
+//		else
+//		{
+//			Robot.TurnToAngle((float) (InitialRotation + 45 - 180), "Right", "None", 2);
+//		}
+//
+//		telemetry.log.add("moving straight");
+//
+//		if(side.equals("red")) {
+//			//move forward while lowering the back brace
+//			Robot.Straight(2.6f, 5, "BackBraceLower");
+//		}
+//		else
+//		{
+//			Robot.Straight(2.2f, 5, "BackBraceLower");
+//		}
+//		BackBrace.setPower(0);
+//		Robot.Stop();
+//
+//		//raise the front blocker servos
+//		rightDebris.setPosition(.3);
+//		leftDebris.setPosition(.7);
+//
+//
+//		if (side.equals("red")) {
+//			Robot.Turn(90, "Left", 2);
+//		}
+//		else
+//		{
+//			Robot.Turn(-90, "Right", 2);
+//		}
+//
+//		//move up the mountain
+//		BackWheel.setPower(-1);
+//		LeftMotor.setPower(1);
+//		RightMotor.setPower(1);
+//
+//		Thread.sleep(4000);
+//
+//		BackWheel.setPower(0);
+//
+//		Robot.Stop();
 	}
 
 	public void RunIdle() throws InterruptedException

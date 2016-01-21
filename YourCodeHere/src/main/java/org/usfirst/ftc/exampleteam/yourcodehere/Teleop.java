@@ -22,6 +22,7 @@ public class Teleop extends SynchronousOpMode
 	Servo hooker = null;
 	Servo leftDebris = null;
 	Servo rightDebris = null;
+	DcMotor ClimberDeployment;
 
 
 	float BackTargetEncoder = 0;
@@ -37,9 +38,9 @@ public class Teleop extends SynchronousOpMode
 		this.backWheel = this.hardwareMap.dcMotor.get("back_wheel");
 		this.leftClimberServo = this.hardwareMap.servo.get("left_climber");
 		this.rightClimberServo = this.hardwareMap.servo.get("right_climber");
-
 		this.leftDebris = this.hardwareMap.servo.get("left_debris");
 		this.rightDebris = this.hardwareMap.servo.get("right_debris");
+		this.ClimberDeployment = this.hardwareMap.dcMotor.get("climber_control");
 
 		//run these with encoders
 		backBrace.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
@@ -49,8 +50,8 @@ public class Teleop extends SynchronousOpMode
 		this.rightDrive.setDirection(DcMotor.Direction.REVERSE);
 
 		//setup the servos on initialization
-		rightDebris.setPosition(.5);
-		leftDebris.setPosition(.6);
+		rightDebris.setPosition(.3);
+		leftDebris.setPosition(.7);
 
 		//set initial encoders
 		BackTargetEncoder = backBrace.getCurrentPosition();
@@ -90,6 +91,18 @@ public class Teleop extends SynchronousOpMode
 		{
 			hangingArm.setPower(0);
 		}
+
+		if(pad.right_stick_y > .1) {
+			ClimberDeployment.setPower(pad.right_stick_y / 3);
+		}
+		else if(pad.right_stick_y < -.1)
+		{
+			ClimberDeployment.setPower(pad.right_stick_y / 3);
+		}
+		else
+		{
+			ClimberDeployment.setPower(0);
+		}
 	}
 
 	void ClimberDeploymentControl(Gamepad pad)
@@ -105,6 +118,7 @@ public class Teleop extends SynchronousOpMode
 
 		if(pad.right_bumper)
 		{
+			telemetry.log.add("right pressed");
 			this.rightClimberServo.setPosition(.35);
 		}
 		else

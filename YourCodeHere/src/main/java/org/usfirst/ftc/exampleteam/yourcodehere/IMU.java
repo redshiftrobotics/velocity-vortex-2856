@@ -291,6 +291,11 @@ public class IMU
 		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, ThreadingFunction, 10);
 	}
 
+	public void Turn(final float Degrees, final String StationaryWheel, int  Timeout) throws InterruptedException
+	{
+		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, "None", Timeout);
+	}
+
 	public void Turn(final float Degrees, final String StationaryWheel) throws InterruptedException
 	{
 		TurnToAngle(ComputedRotation + Degrees, StationaryWheel, "None", 10);
@@ -322,7 +327,7 @@ public class IMU
 		float Error = 3;
 
 		//while the distance from the target is greater than the error
-		while ((ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error) && Math.abs(CurrentTime - StartTime) < Timeout)
+		while ((ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error) && Math.abs(CurrentTime - StartTime) < Timeout * 1000)
 		{
 			//get the time for the timeout
 			Date r = new Date();
