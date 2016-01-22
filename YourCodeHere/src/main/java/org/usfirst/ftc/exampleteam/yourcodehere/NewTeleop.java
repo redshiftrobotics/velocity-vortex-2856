@@ -19,6 +19,11 @@ public class NewTeleop extends SynchronousOpMode
 	DcMotor blockCollector = null;
 	DcMotor hangingArm = null;
 	Servo hangingControl = null;
+	Servo blockConveyer = null;
+	Servo leftGate = null;
+	Servo rightGate = null;
+	Servo leftWing = null;
+	Servo rightWing = null;
 
 	//this is the default servo position
 	double ServoPosition = .5;
@@ -34,7 +39,11 @@ public class NewTeleop extends SynchronousOpMode
 		this.blockCollector = this.hardwareMap.dcMotor.get("block_collector");
 		this.hangingArm = this.hardwareMap.dcMotor.get("hanging_motor");
 		this.hangingControl = this.hardwareMap.servo.get("hanging_control");
-
+		this.blockConveyer = this.hardwareMap.servo.get("block_conveyor");
+		this.rightGate = this.hardwareMap.servo.get("right_gate");
+		this.leftGate = this.hardwareMap.servo.get("left_gate");
+		this.leftWing = this.hardwareMap.servo.get("left_wing");
+		this.rightWing = this.hardwareMap.servo.get("right_wing");
 
 		backWheel.setDirection(DcMotor.Direction.REVERSE);
 		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -49,7 +58,10 @@ public class NewTeleop extends SynchronousOpMode
 
 			this.DriveControl(this.gamepad1);
 			this.BackBraceControl(this.gamepad1);
+			this.Hanging(this.gamepad1);
 			this.Blocks(this.gamepad1);
+			this.BlockDepoly(this.gamepad2);
+			this.Zipliners(this.gamepad2);
 
 			// Emit telemetry with the freshest possible values
 			this.telemetry.update();
@@ -61,13 +73,13 @@ public class NewTeleop extends SynchronousOpMode
 
 	void Blocks(Gamepad pad)
 	{
-		if (pad.left_bumper == true)
+		if (pad.left_bumper)
 		{
-			this.blockCollector.setPower(1);
+			this.blockCollector.setPower(.9);
 		}
-		else if(pad.right_bumper == true)
+		else if(pad.right_bumper)
 		{
-			this.blockCollector.setPower(-1);
+			this.blockCollector.setPower(-0.9);
 		}
 		else
 		{
@@ -123,6 +135,49 @@ public class NewTeleop extends SynchronousOpMode
 		}
 
 		hangingControl.setPosition(ServoPosition);
+	}
+
+	void BlockDepoly(Gamepad pad)
+	{
+		if(pad.left_trigger > 0.1) {
+			blockConveyer.setPosition(0);
+		} else if (pad.right_trigger > 0.1) {
+			blockConveyer.setPosition(1);
+		} else {
+			blockConveyer.setPosition(0.55);
+		}
+
+		if(pad.left_bumper)
+		{
+			this.leftGate.setPosition(.55); //open
+			this.rightGate.setPosition(.95); //close
+		}
+
+		if(pad.right_bumper)
+		{
+			this.leftGate.setPosition(0); //close
+			this.rightGate.setPosition(.20); //open
+		}
+
+		if(pad.dpad_up)
+		{
+			this.leftGate.setPosition(0); //close
+			this.rightGate.setPosition(.95); //open
+		}
+
+
+	}
+
+	void Zipliners(Gamepad pad)
+	{
+		if(pad.x) {
+			this.leftWing.setPosition(.3);
+		} else if(pad.b) {
+			this.rightWing.setPosition(.3);
+		} else {
+			this.leftWing.setPosition(.7);
+			this.rightWing.setPosition(.7);
+		}
 	}
 
 }
