@@ -233,9 +233,4 @@ public class MainAutonomous extends SynchronousOpMode {
 //
 //		Robot.Stop();
 	}
-
-	public void RunIdle() throws InterruptedException
-	{
-		idle();
-	}
 }

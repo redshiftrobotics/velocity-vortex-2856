@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<Robot>
+    <MotorController name="drive_controller" serialNumber="AL00VBVM">
+        <Motor name="left_drive" port="1" />
+        <Motor name="right_drive" port="2" />
+    </MotorController>
+    <ServoController name="main_servo_controller" serialNumber="AL00YBBS">
+        <Servo name="right_wing" port="1" />
+        <Servo name="left_wing" port="2" />
+        <Servo name="right_ramp" port="3" />
+        <Servo name="hang_adjust" port="4" />
+        <Servo name="block_conveyor" port="5" />
+        <Servo name="climber_deploy" port="6" />
+    </ServoController>
+    <DeviceInterfaceModule name="device_interface_module" serialNumber="AL00VF84">
+        <I2cDevice name="imu" port="0" />
+    </DeviceInterfaceModule>
+    <MotorController name="collector_controller" serialNumber="AL00UYQ6">
+        <Motor name="block_collector" port="1" />
+        <Motor name="hanging_motor" port="2" />
+    </MotorController>
+    <MotorController name="brace_controller" serialNumber="AL00VUP7">
+        <Motor name="back_wheel" port="1" />
+        <Motor name="back_brace" port="2" />
+    </MotorController>
+    <ServoController name="second_servo_controller" serialNumber="AI02QU16">
+        <Servo name="left_ramp" port="5" />
+        <Servo name="all_clear" port="6" />
+    </ServoController>
+    <LegacyModuleController name="legacy_module" serialNumber="AL00XTPF">
+        <ColorSensor name="color_sensor" port="3" />
+    </LegacyModuleController>
+</Robot>
