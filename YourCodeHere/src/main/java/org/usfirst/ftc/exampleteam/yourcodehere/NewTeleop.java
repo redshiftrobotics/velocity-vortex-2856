@@ -53,7 +53,7 @@ public class NewTeleop extends SynchronousOpMode
 		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
 		this.leftGate.setPosition(0); //close
 		this.rightGate.setPosition(1); //close
-		this.hangingControl.setPosition(.2);
+		this.hangingControl.setPosition(.1);
 		this.hangLock.setPosition(0.72);
 		this.blockConveyer.setPosition(.55);
 		this.leftWing.setPosition(.2);
@@ -166,11 +166,9 @@ public class NewTeleop extends SynchronousOpMode
 
 	void allClear(Gamepad pad) {
 		if(pad.y) {
-			this.leftWing.setPosition(.7);
 			this.allClear.setPosition(0); //engaged
 
 		} else if(pad.a) {
-			this.leftWing.setPosition(.2);
 			this.allClear.setPosition(1); //disengaged
 		}
 	}
@@ -204,7 +202,7 @@ public class NewTeleop extends SynchronousOpMode
 			this.rightGate.setPosition(.10); //open
 		}
 
-		// what is the purpose of this?
+		// close both gates for collection
 		if(pad.y)
 		{
 			this.leftGate.setPosition(0); //close
