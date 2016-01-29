@@ -26,9 +26,13 @@ public class NewTeleop extends SynchronousOpMode
 	Servo rightWing = null;
 	Servo hangLock = null;
 	Servo allClear = null;
+	Servo climberDeploy = null;
 
-	//this is the default servo position
-	double ServoPosition = .5;
+
+	//this is the default servo position for the hang adjust servo
+	double HangingServoPosition = 1;
+	int backBraceShouldBe;
+
 
 	@Override
 	protected void main() throws InterruptedException
@@ -46,18 +50,20 @@ public class NewTeleop extends SynchronousOpMode
 		this.leftGate = this.hardwareMap.servo.get("left_ramp");
 		this.leftWing = this.hardwareMap.servo.get("left_wing");
 		this.rightWing = this.hardwareMap.servo.get("right_wing");
-		this.hangLock = this.hardwareMap.servo.get("climber_deploy"); //IMPORTANT: Right now this is being used for the hang servo
+		this.hangLock = this.hardwareMap.servo.get("hang_stop");
 		this.allClear = this.hardwareMap.servo.get("all_clear");
+		this.climberDeploy = this.hardwareMap.servo.get("climber_deploy");
 
 		this.backWheel.setDirection(DcMotor.Direction.REVERSE);
 		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
 		this.leftGate.setPosition(0); //close
 		this.rightGate.setPosition(1); //close
-		this.hangingControl.setPosition(.1);
 		this.hangLock.setPosition(0.72);
 		this.blockConveyer.setPosition(.55);
 		this.leftWing.setPosition(.2);
 		this.rightWing.setPosition(.6);
+
+		this.backBraceShouldBe = backBrace.getCurrentPosition();
 
 		// Wait until we've been given the ok to go
 		this.waitForStart();
@@ -87,11 +93,11 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		if (pad.left_bumper)
 		{
-			this.blockCollector.setPower(.9);
+			this.blockCollector.setPower(1);
 		}
 		else if(pad.right_bumper)
 		{
-			this.blockCollector.setPower(-0.9);
+			this.blockCollector.setPower(-1);
 		}
 		else
 		{
@@ -101,21 +107,32 @@ public class NewTeleop extends SynchronousOpMode
 
 	void BackBraceControl(Gamepad pad)
 	{
+
 		if (Math.abs(pad.right_trigger) > .1)
 		{
+			backBraceShouldBe = backBrace.getCurrentPosition();
 			backBrace.setPower(pad.right_trigger);
 			telemetry.addData("00", "right trigger pressed");
 		}
 		else if (Math.abs(pad.left_trigger) > .1)
 		{
+			backBraceShouldBe = backBrace.getCurrentPosition();
 			backBrace.setPower(-pad.left_trigger);
 			telemetry.addData("00", "left trigger pressed");
 		}
+//		else if (backBrace.getCurrentPosition() > backBraceShouldBe) {
+//			backBrace.setPower(0.5);
+//		} else if (backBrace.getCurrentPosition() < backBraceShouldBe) {
+//			backBrace.setPower(-0.5);
+//		}
 		else
 		{
 			backBrace.setPower(0);
 			telemetry.addData("00", "no trigger pressed");
 		}
+
+		telemetry.addData("01", String.valueOf(backBraceShouldBe));
+
 	}
 
 	void DriveControl(Gamepad pad) throws InterruptedException {
@@ -156,10 +173,18 @@ public class NewTeleop extends SynchronousOpMode
 		//moves the servo that angles the tape measure
 		if (Math.abs(pad.right_stick_y) > .1)
 		{
-			ServoPosition += pad.right_stick_y / 200;
+			HangingServoPosition += pad.right_stick_y / 200;
 		}
 
-		hangingControl.setPosition(ServoPosition);
+		if(HangingServoPosition >= 0 && HangingServoPosition <= 1) {
+			hangingControl.setPosition(HangingServoPosition);
+		} else if (HangingServoPosition > 1) {
+			hangingControl.setPosition(1);
+		} else if (HangingServoPosition < 0) {
+			hangingControl.setPosition(0);
+		}
+
+
 
 
 	}
@@ -175,6 +200,25 @@ public class NewTeleop extends SynchronousOpMode
 
 	void BlockDeploy(Gamepad pad)
 	{
+		double LeftRandom;
+		if (pad.left_bumper) {
+			LeftRandom = Math.floor(Math.random() / 10);
+		}
+		else
+		{
+			LeftRandom = 0;
+		}
+
+		double RightRandom;
+		if (pad.left_bumper) {
+			RightRandom = Math.floor(Math.random() / 10);
+		}
+		else
+		{
+			RightRandom = 0;
+		}
+
+
 		if(pad.left_trigger > 0.1)
 		{
 			blockConveyer.setPosition(0);
@@ -193,13 +237,13 @@ public class NewTeleop extends SynchronousOpMode
 		if(pad.left_bumper)
 		{
 			this.leftGate.setPosition(.55); //open
-			this.rightGate.setPosition(.9); //close
+			this.rightGate.setPosition(.9 + LeftRandom); //close
 		}
 
 		if(pad.right_bumper)
 		{
 			this.leftGate.setPosition(0); //close
-			this.rightGate.setPosition(.10); //open
+			this.rightGate.setPosition(.10 + RightRandom); //open
 		}
 
 		// close both gates for collection
@@ -225,6 +269,13 @@ public class NewTeleop extends SynchronousOpMode
 			this.leftWing.setPosition(.2);
 			this.rightWing.setPosition(.6);
 		}
+
+		if (pad.a) {
+			this.climberDeploy.setPosition(1); //go forward
+		} else {
+			this.climberDeploy.setPosition(0.55);
+		}
 	}
+
 
 }
