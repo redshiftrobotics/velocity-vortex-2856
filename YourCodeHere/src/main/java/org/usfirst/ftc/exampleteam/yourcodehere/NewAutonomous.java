@@ -78,12 +78,14 @@ public class NewAutonomous extends SynchronousOpMode {
 		//maximize turning power
 		Robot.TurningPower = 1f;
 
+		int FirstTurnOffset = 0;
+
 		if (side.equals("blue")) {
-			Robot.Turn(45, "Left", 5);
+			Robot.Turn(45 - FirstTurnOffset, "Left", 3);
 		}
 		else
 		{
-			Robot.Turn(-45, "Right", 5);
+			Robot.Turn(-45 + FirstTurnOffset, "Right", 3);
 		}
 
 		// set the power to max
@@ -93,24 +95,24 @@ public class NewAutonomous extends SynchronousOpMode {
 		Robot.StopAtLight = true;
 
 		// move backwards, the encoder count is arbitrary
-		Robot.Straight(-10f, 5);
+		Robot.Straight(10f, 15);
 		Robot.Stop();
 
 		//prevent the robot from stopping at the light again
 		Robot.StopAtLight = false;
 
 		// this is the offset that each turn will have
-		int Offset = 10;
+		int Offset = 5;
 
 		// turn to line up with
 		if (side.equals("blue")) {
 			// rotate 10 degrees too few
-			Robot.TurnToAngle((float) InitialRotation - 90 + Offset, "Right", 5);
+			Robot.TurnToAngle((float) InitialRotation + 90 - Offset, "Left", 5);
 		}
 		else
 		{
 			//rotate 10 degrees too many
-			Robot.TurnToAngle((float) InitialRotation + 90 + Offset, "Left", 5);
+			Robot.TurnToAngle((float) InitialRotation - 90 - Offset, "Right", 5);
 		}
 
 		//get the position of the encoder at the backup
@@ -124,19 +126,20 @@ public class NewAutonomous extends SynchronousOpMode {
 		//set the light sensor threshold
 		int Threshold = 60;
 
-		while (Math.abs(LeftMotor.getCurrentPosition() - BackupStartEncoder) < 3000 && Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
+		//do this for 3 seconds
+		while (Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
 		{
 			Date b = new Date();
 			BackupCurrentTime = b.getTime();
 
 			if(colorSensor.green() < Threshold) {
-				LeftMotor.setPower(-.6);
-				RightMotor.setPower(0);
+				LeftMotor.setPower(0);
+				RightMotor.setPower(.6);
 			}
 			else
 			{
-				LeftMotor.setPower(0);
-				RightMotor.setPower(-6.0f);
+				LeftMotor.setPower(.6);
+				RightMotor.setPower(0);
 			}
 		}
 

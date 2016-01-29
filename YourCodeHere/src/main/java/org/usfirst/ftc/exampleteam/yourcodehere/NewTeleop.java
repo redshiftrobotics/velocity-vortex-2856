@@ -28,7 +28,7 @@ public class NewTeleop extends SynchronousOpMode
 	Servo allClear = null;
 
 	//this is the default servo position
-	double ServoPosition = .5;
+	double HangingServoPosition = .5;
 
 	@Override
 	protected void main() throws InterruptedException
@@ -156,10 +156,10 @@ public class NewTeleop extends SynchronousOpMode
 		//moves the servo that angles the tape measure
 		if (Math.abs(pad.right_stick_y) > .1)
 		{
-			ServoPosition += pad.right_stick_y / 200;
+			HangingServoPosition  += pad.right_stick_y / 200;
 		}
 
-		hangingControl.setPosition(ServoPosition);
+		hangingControl.setPosition(HangingServoPosition);
 
 
 	}

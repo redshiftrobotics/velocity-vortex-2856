@@ -357,9 +357,9 @@ public class NewIMU
 			}
 
 			//functional
-			PConstant = 6;
-			DConstant = -.3f;
-			IConstant = .45f;
+			PConstant = 4;
+			DConstant = -.1f;
+			IConstant = .35f;
         }
 
 
