@@ -57,8 +57,15 @@ public class NewAutonomous extends SynchronousOpMode {
 		DcMotor LeftMotor = hardwareMap.dcMotor.get("left_drive");
 		DcMotor RightMotor = hardwareMap.dcMotor.get("right_drive");
 		DcMotor BackBrace = hardwareMap.dcMotor.get("back_brace");
-		//Servo ClimberDeployment = this.hardwareMap.servo.get("climber_control");
+		Servo climberDeploy = hardwareMap.servo.get("climber_deploy");
+		Servo blockConveyer = hardwareMap.servo.get("block_conveyor");
 		ColorSensor colorSensor = hardwareMap.colorSensor.get("color_sensor");
+		Servo leftWing = hardwareMap.servo.get("left_wing");
+		Servo rightWing = hardwareMap.servo.get("right_wing");
+		Servo rightGate = hardwareMap.servo.get("right_ramp");
+		Servo leftGate = hardwareMap.servo.get("left_ramp");
+		Servo hangLock = hardwareMap.servo.get("hang_stop");
+		Servo hangingControl = this.hardwareMap.servo.get("hang_adjust");
 
 		//we don't know which one to reverse yet
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -72,24 +79,39 @@ public class NewAutonomous extends SynchronousOpMode {
 		//wait for start
 		waitForStart();
 
+		//initialize the servos
+		blockConveyer.setPosition(.55);
+		climberDeploy.setPosition(.5);
+		leftGate.setPosition(0);
+		rightGate.setPosition(1);
+		leftWing.setPosition(.2);
+		rightWing.setPosition(.6);
+		hangLock.setPosition(.72);
+		hangingControl.setPosition(.8);
+
 		//this is the initial rotation; it will be referenced through the entire program
 		double InitialRotation = Robot.Rotation();
+
+		Robot.Power = 1f;
+
+		Robot.Straight(1, 3);
+
+		Robot.Stop();
 
 		//maximize turning power
 		Robot.TurningPower = 1f;
 
-		int FirstTurnOffset = 0;
+		//turn so that blocks go away
+		int RedFirstTurnOffset = 7;
+		int BlueFirstTurnOffset = 3;
 
 		if (side.equals("blue")) {
-			Robot.Turn(45 - FirstTurnOffset, "Left", 3);
+			Robot.Turn(45 - BlueFirstTurnOffset, "Left", 3);
 		}
 		else
 		{
-			Robot.Turn(-45 + FirstTurnOffset, "Right", 3);
+			Robot.Turn(-45 + RedFirstTurnOffset, "Right", 3);
 		}
-
-		// set the power to max
-		Robot.Power = 1f;
 
 		//set the robot to stop when it hits the white line
 		Robot.StopAtLight = true;
@@ -101,22 +123,28 @@ public class NewAutonomous extends SynchronousOpMode {
 		//prevent the robot from stopping at the light again
 		Robot.StopAtLight = false;
 
-		// this is the offset that each turn will have
-		int Offset = 5;
-
-		// turn to line up with
 		if (side.equals("blue")) {
-			// rotate 10 degrees too few
-			Robot.TurnToAngle((float) InitialRotation + 90 - Offset, "Left", 5);
+			Robot.Turn(-30, "Right", 2);
+			Robot.Turn(30, "Right", 2);
 		}
 		else
 		{
-			//rotate 10 degrees too many
-			Robot.TurnToAngle((float) InitialRotation - 90 - Offset, "Right", 5);
+			Robot.Turn(30, "Left", 2);
+			Robot.Turn(-30, "Left", 2);
 		}
 
-		//get the position of the encoder at the backup
-		int BackupStartEncoder = LeftMotor.getCurrentPosition();
+		// this is the offset that each turn will have
+		int RedOffset = 5;
+		int BlueOffset = 10;
+
+		// turn to line up with
+		if (side.equals("blue")) {
+			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 5);
+		}
+		else
+		{
+			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 5);
+		}
 
 		//setup the variables for the backup timeout
 		Date a = new Date();
@@ -126,24 +154,41 @@ public class NewAutonomous extends SynchronousOpMode {
 		//set the light sensor threshold
 		int Threshold = 60;
 
+		//score the climbers
+		climberDeploy.setPosition(0);
+		
 		//do this for 3 seconds
-		while (Math.abs(BackupStartTime - BackupCurrentTime) < 3000)
+		while (Math.abs(BackupStartTime - BackupCurrentTime) < 4000)
 		{
 			Date b = new Date();
 			BackupCurrentTime = b.getTime();
 
-			if(colorSensor.green() < Threshold) {
-				LeftMotor.setPower(0);
-				RightMotor.setPower(.6);
+			if(side.equals("red")) {
+				if (colorSensor.green() < Threshold) {
+					LeftMotor.setPower(-.3);
+					RightMotor.setPower(.8);
+				} else {
+					LeftMotor.setPower(.8);
+					RightMotor.setPower(-.3);
+				}
 			}
 			else
 			{
-				LeftMotor.setPower(.6);
-				RightMotor.setPower(0);
+				if (colorSensor.green() < Threshold) {
+					RightMotor.setPower(-.3);
+					LeftMotor.setPower(.8);
+				} else {
+					RightMotor.setPower(.8);
+					LeftMotor.setPower(-.3);
+				}
 			}
 		}
 
 		Robot.Stop();
+
+		Thread.sleep(2000);
+		climberDeploy.setPosition(.5);
+		idle();
 	}
 
 	public void RunIdle() throws InterruptedException

@@ -26,9 +26,12 @@ public class NewTeleop extends SynchronousOpMode
 	Servo rightWing = null;
 	Servo hangLock = null;
 	Servo allClear = null;
+	Servo climberDeploy = null;
+
+	int backBraceShouldBe;
 
 	//this is the default servo position
-	double HangingServoPosition = .5;
+	double HangingServoPosition = .8;
 
 	@Override
 	protected void main() throws InterruptedException
@@ -46,21 +49,24 @@ public class NewTeleop extends SynchronousOpMode
 		this.leftGate = this.hardwareMap.servo.get("left_ramp");
 		this.leftWing = this.hardwareMap.servo.get("left_wing");
 		this.rightWing = this.hardwareMap.servo.get("right_wing");
-		this.hangLock = this.hardwareMap.servo.get("climber_deploy"); //IMPORTANT: Right now this is being used for the hang servo
+		this.hangLock = this.hardwareMap.servo.get("hang_stop");
 		this.allClear = this.hardwareMap.servo.get("all_clear");
+		this.climberDeploy = this.hardwareMap.servo.get("climber_deploy");
 
 		this.backWheel.setDirection(DcMotor.Direction.REVERSE);
 		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
-		this.leftGate.setPosition(0); //close
-		this.rightGate.setPosition(1); //close
-		this.hangingControl.setPosition(.2);
-		this.hangLock.setPosition(0.72);
-		this.blockConveyer.setPosition(.55);
-		this.leftWing.setPosition(.2);
-		this.rightWing.setPosition(.6);
 
 		// Wait until we've been given the ok to go
 		this.waitForStart();
+
+		this.leftGate.setPosition(0); //close
+		this.rightGate.setPosition(1); //close
+		this.hangLock.setPosition(0.72);
+		this.blockConveyer.setPosition(.50);
+		this.leftWing.setPosition(.2);
+		this.rightWing.setPosition(.6);
+
+		this.backBraceShouldBe = backBrace.getCurrentPosition();
 
 		// Enter a loop processing all the input we receive
 		while (this.opModeIsActive())
@@ -87,11 +93,11 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		if (pad.left_bumper)
 		{
-			this.blockCollector.setPower(.9);
+			this.blockCollector.setPower(1);
 		}
 		else if(pad.right_bumper)
 		{
-			this.blockCollector.setPower(-0.9);
+			this.blockCollector.setPower(-1);
 		}
 		else
 		{
@@ -103,19 +109,39 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		if (Math.abs(pad.right_trigger) > .1)
 		{
+			backBraceShouldBe = backBrace.getCurrentPosition();
 			backBrace.setPower(pad.right_trigger);
 			telemetry.addData("00", "right trigger pressed");
 		}
 		else if (Math.abs(pad.left_trigger) > .1)
 		{
+			backBraceShouldBe = backBrace.getCurrentPosition();
 			backBrace.setPower(-pad.left_trigger);
 			telemetry.addData("00", "left trigger pressed");
 		}
-		else
+		// if there is a  big error
+		else if(Math.abs(backBrace.getCurrentPosition() - backBraceShouldBe) > 100) {
+			float ChangeValue = Math.abs(backBrace.getCurrentPosition() - backBraceShouldBe) / 1000;
+
+			if(ChangeValue > 1)
+			{
+				ChangeValue = 1;
+			}
+
+			if (backBrace.getCurrentPosition() > backBraceShouldBe) {
+				backBrace.setPower(-1 * ChangeValue);
+			}
+			if (backBrace.getCurrentPosition() < backBraceShouldBe) {
+				backBrace.setPower(ChangeValue);
+			}
+		} else
 		{
 			backBrace.setPower(0);
-			telemetry.addData("00", "no trigger pressed");
 		}
+
+
+
+		telemetry.addData("02", "back encoder " + String.valueOf(backBrace.getCurrentPosition()));
 	}
 
 	void DriveControl(Gamepad pad) throws InterruptedException {
@@ -125,8 +151,6 @@ public class NewTeleop extends SynchronousOpMode
 		float rightPower = pad.right_stick_y;
 
 		float backWheelPower = (leftPower + rightPower) / 2f;
-
-		telemetry.addData("01", backWheelPower);
 
 		// drive the motors
 		this.leftDrive.setPower(leftPower);
@@ -156,27 +180,48 @@ public class NewTeleop extends SynchronousOpMode
 		//moves the servo that angles the tape measure
 		if (Math.abs(pad.right_stick_y) > .1)
 		{
-			HangingServoPosition  += pad.right_stick_y / 200;
+			HangingServoPosition  += pad.right_stick_y / 150;
+		}
+
+		if(HangingServoPosition <= 0) {
+			HangingServoPosition = 0;
+		} else if (HangingServoPosition > 1) {
+			HangingServoPosition = 1;
 		}
 
 		hangingControl.setPosition(HangingServoPosition);
-
-
 	}
 
 	void allClear(Gamepad pad) {
 		if(pad.y) {
-			this.leftWing.setPosition(.7);
 			this.allClear.setPosition(0); //engaged
 
 		} else if(pad.a) {
-			this.leftWing.setPosition(.2);
 			this.allClear.setPosition(1); //disengaged
 		}
 	}
 
 	void BlockDeploy(Gamepad pad)
 	{
+		double LeftRandom;
+		if (pad.left_bumper) {
+			LeftRandom = (Math.random() - .5) / 10;
+		}
+		else
+		{
+			LeftRandom = 0;
+		}
+
+		double RightRandom;
+		if (pad.left_bumper) {
+			RightRandom = (Math.random() - .5) / 10;
+		}
+		else
+		{
+			RightRandom = 0;
+		}
+
+
 		if(pad.left_trigger > 0.1)
 		{
 			blockConveyer.setPosition(0);
@@ -195,16 +240,16 @@ public class NewTeleop extends SynchronousOpMode
 		if(pad.left_bumper)
 		{
 			this.leftGate.setPosition(.55); //open
-			this.rightGate.setPosition(.9); //close
+			this.rightGate.setPosition(.9 + LeftRandom); //close
 		}
 
 		if(pad.right_bumper)
 		{
 			this.leftGate.setPosition(0); //close
-			this.rightGate.setPosition(.10); //open
+			this.rightGate.setPosition(.10 + RightRandom); //open
 		}
 
-		// what is the purpose of this?
+		// close both gates for collection
 		if(pad.y)
 		{
 			this.leftGate.setPosition(0); //close
@@ -227,6 +272,13 @@ public class NewTeleop extends SynchronousOpMode
 			this.leftWing.setPosition(.2);
 			this.rightWing.setPosition(.6);
 		}
+
+		if (pad.a) {
+			this.climberDeploy.setPosition(1); //go forward
+		} else {
+			this.climberDeploy.setPosition(0.5);
+		}
 	}
+
 
 }
