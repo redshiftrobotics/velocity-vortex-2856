@@ -102,7 +102,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		Robot.TurningPower = 1f;
 
 		//turn so that blocks go away
-		int RedFirstTurnOffset = 7;
+		int RedFirstTurnOffset = 11;
 		int BlueFirstTurnOffset = 3;
 
 		if (side.equals("blue")) {
@@ -154,12 +154,15 @@ public class NewAutonomous extends SynchronousOpMode {
 		//set the light sensor threshold
 		int Threshold = 60;
 
-		//score the climbers
-		climberDeploy.setPosition(0);
-		
 		//do this for 3 seconds
 		while (Math.abs(BackupStartTime - BackupCurrentTime) < 4000)
 		{
+			if(Math.abs(BackupStartTime - BackupCurrentTime) > 2000)
+			{
+				//begin scoring the climbers
+				climberDeploy.setPosition(0);
+			}
+
 			Date b = new Date();
 			BackupCurrentTime = b.getTime();
 
@@ -186,7 +189,7 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		Robot.Stop();
 
-		Thread.sleep(2000);
+		Thread.sleep(4000);
 		climberDeploy.setPosition(.5);
 		idle();
 	}

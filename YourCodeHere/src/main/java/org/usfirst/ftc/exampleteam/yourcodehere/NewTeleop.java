@@ -205,7 +205,7 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		double LeftRandom;
 		if (pad.left_bumper) {
-			LeftRandom = (Math.random() - .5) / 10;
+			LeftRandom = (Math.random() - .5) / 5;
 		}
 		else
 		{
@@ -213,8 +213,8 @@ public class NewTeleop extends SynchronousOpMode
 		}
 
 		double RightRandom;
-		if (pad.left_bumper) {
-			RightRandom = (Math.random() - .5) / 10;
+		if (pad.right_bumper) {
+			RightRandom = (Math.random() - .5) / 5;
 		}
 		else
 		{
@@ -239,8 +239,8 @@ public class NewTeleop extends SynchronousOpMode
 
 		if(pad.left_bumper)
 		{
-			this.leftGate.setPosition(.55); //open
-			this.rightGate.setPosition(.9 + LeftRandom); //close
+			this.leftGate.setPosition(.55 + LeftRandom); //open
+			this.rightGate.setPosition(.9); //close
 		}
 
 		if(pad.right_bumper)
