@@ -103,14 +103,14 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		//turn so that blocks go away
 		int RedFirstTurnOffset = 11;
-		int BlueFirstTurnOffset = 3;
+		int BlueFirstTurnOffset = 6;
 
 		if (side.equals("blue")) {
-			Robot.Turn(45 - BlueFirstTurnOffset, "Left", 3);
+			Robot.TurnToAngle((float)InitialRotation + 45 - BlueFirstTurnOffset, "Left", 3);
 		}
 		else
 		{
-			Robot.Turn(-45 + RedFirstTurnOffset, "Right", 3);
+			Robot.TurnToAngle((float)InitialRotation -45 + RedFirstTurnOffset, "Right", 3);
 		}
 
 		//set the robot to stop when it hits the white line

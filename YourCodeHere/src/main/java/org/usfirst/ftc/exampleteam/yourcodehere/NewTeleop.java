@@ -163,8 +163,6 @@ public class NewTeleop extends SynchronousOpMode
 		//engage hang lock servo
 		if (pad.dpad_up) {
 			this.hangLock.setPosition(.9);
-		} else if (pad.dpad_down) {
-			this.hangLock.setPosition(.72);
 		}
 
 		//moves the arm up and down
@@ -190,6 +188,14 @@ public class NewTeleop extends SynchronousOpMode
 		}
 
 		hangingControl.setPosition(HangingServoPosition);
+
+		if(pad.back) {
+			climberDeploy.setPosition(1);
+		} else if (pad.start) {
+			climberDeploy.setPosition(0);
+		} else {
+			climberDeploy.setPosition(.5);
+		}
 	}
 
 	void allClear(Gamepad pad) {
@@ -239,7 +245,7 @@ public class NewTeleop extends SynchronousOpMode
 
 		if(pad.left_bumper)
 		{
-			this.leftGate.setPosition(.55 + LeftRandom); //open
+			this.leftGate.setPosition(.73 + LeftRandom); //open
 			this.rightGate.setPosition(.9); //close
 		}
 
@@ -272,13 +278,5 @@ public class NewTeleop extends SynchronousOpMode
 			this.leftWing.setPosition(.2);
 			this.rightWing.setPosition(.6);
 		}
-
-		if (pad.a) {
-			this.climberDeploy.setPosition(1); //go forward
-		} else {
-			this.climberDeploy.setPosition(0.5);
-		}
 	}
-
-
 }

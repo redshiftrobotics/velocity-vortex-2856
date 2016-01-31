@@ -24,6 +24,7 @@
         <Motor name="back_brace" port="2" />
     </MotorController>
     <ServoController name="second_servo_controller" serialNumber="AI02QU16">
+        <Servo name="hang_stop" port="4" />
         <Servo name="left_ramp" port="5" />
         <Servo name="all_clear" port="6" />
     </ServoController>

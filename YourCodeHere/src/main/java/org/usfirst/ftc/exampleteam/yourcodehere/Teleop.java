@@ -8,6 +8,7 @@ import org.swerverobotics.library.interfaces.*;
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot. 
  */
+@Disabled
 @TeleOp(name="2856 TeleOp")
 public class Teleop extends SynchronousOpMode
 {
@@ -26,6 +27,7 @@ public class Teleop extends SynchronousOpMode
 
 
 	float BackTargetEncoder = 0;
+
 
 	@Override
 	protected void main() throws InterruptedException

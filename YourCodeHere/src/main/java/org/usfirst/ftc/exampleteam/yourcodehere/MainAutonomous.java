@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
  * to suit your needs, or create sibling OpModes adjacent to this one in the same
  * Java package.
  */
+@Disabled
 @TeleOp(name="2856 Autonomous")
 public class MainAutonomous extends SynchronousOpMode {
 
