@@ -16,6 +16,9 @@ android {
             debuggable true
         }
     }
+//	sourceSets {
+//		main.java.srcDirs += 'src/main/decompiledSource'
+//	}
 }
 repositories {
     flatDir {
