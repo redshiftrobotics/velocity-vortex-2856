@@ -93,8 +93,8 @@ public class IMU
 		MainOpMode = OpMode;
 
 		// setup the IMU
-		parameters.angleunit = IBNO055IMU.ANGLEUNIT.DEGREES;
-		parameters.accelunit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
+		parameters.angleUnit = IBNO055IMU.ANGLEUNIT.DEGREES;
+		parameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
 		parameters.loggingEnabled = true;
 		parameters.loggingTag = "BNO055";
 
