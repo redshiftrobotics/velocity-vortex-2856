@@ -88,10 +88,10 @@ public final class EasyLegacyMotorController extends I2cControllerPortDeviceImpl
     // Construction
     //----------------------------------------------------------------------------------------------
 
-    private EasyLegacyMotorController(OpMode context, II2cDeviceClient ii2cDeviceClient, DcMotorController target)
+    private EasyLegacyMotorController(OpMode context, II2cDeviceClient ii2cDeviceClient, DcMotorController target, I2cController controller, int targetPort)
         {
         super(((I2cControllerPortDevice)target).getI2cController(), ((I2cControllerPortDevice)target).getPort());
-        this.helper          = new I2cDeviceReplacementHelper<DcMotorController>(context, this, target);
+        this.helper          = new I2cDeviceReplacementHelper<DcMotorController>(context, this, target, controller, targetPort);
 
         this.context         = context;
         this.i2cDeviceClient = ii2cDeviceClient;
@@ -113,6 +113,7 @@ public final class EasyLegacyMotorController extends I2cControllerPortDeviceImpl
 
         this.i2cDeviceClient.setHeartbeatAction(heartbeatAction);
         this.i2cDeviceClient.setHeartbeatInterval(2000);
+        this.i2cDeviceClient.enableWriteCoalescing(true);   // it's useful to us, particularly for setting motor speeds
 
         // Also: set up a read-window. We make it BALANCED to avoid unnecessary ping-ponging
         // between read mode and write mode, since motors are read about as much as they are
@@ -136,7 +137,7 @@ public final class EasyLegacyMotorController extends I2cControllerPortDeviceImpl
             // Make a new legacy motor controller
             II2cDevice i2cDevice                 = new I2cDeviceOnI2cDeviceController(module, port);
             I2cDeviceClient i2cDeviceClient      = new I2cDeviceClient(context, i2cDevice, i2cAddr8Bit, false);
-            EasyLegacyMotorController controller = new EasyLegacyMotorController(context, i2cDeviceClient, target);
+            EasyLegacyMotorController controller = new EasyLegacyMotorController(context, i2cDeviceClient, target, module, port);
 
             controller.setMotors(motor1, motor2);
             controller.engage();
@@ -321,25 +322,25 @@ public final class EasyLegacyMotorController extends I2cControllerPortDeviceImpl
 
     @Override synchronized public boolean onUserOpModeStop()
         {
-        Log.d(LOGGING_TAG, "Easy: auto-stopping...");
+        Log.d(LOGGING_TAG, "Easy legacy motor: auto-stopping...");
         if (this.isEngaged())
             {
             this.stopMotors();  // mirror StopRobotOpMode
             this.disengage();
             }
-        Log.d(LOGGING_TAG, "Easy: ... done");
+        Log.d(LOGGING_TAG, "Easy legacy motor: ... auto-stopping complete");
         return true;    // unregister us
         }
 
     @Override synchronized public boolean onRobotShutdown()
         {
-        Log.d(LOGGING_TAG, "Easy: auto-closing...");
+        Log.d(LOGGING_TAG, "Easy legacy motor: auto-closing...");
 
         // We actually shouldn't be here by now, having received a onUserOpModeStop()
         // after which we should have been unregistered. But we close down anyway.
         this.close();
 
-        Log.d(LOGGING_TAG, "Easy: ... done");
+        Log.d(LOGGING_TAG, "Easy legacy motor: ... auto-closing complete");
         return true;    // unregister us
         }
 
