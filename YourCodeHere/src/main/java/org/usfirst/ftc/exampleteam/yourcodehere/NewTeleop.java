@@ -267,7 +267,7 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		if(pad.x)
 		{
-			this.leftWing.setPosition(.8);
+			this.leftWing.setPosition(.9);
 		}
 		else if(pad.b)
 		{
@@ -275,7 +275,7 @@ public class NewTeleop extends SynchronousOpMode
 		}
 		else if(!pad.x && !pad.b)
 		{
-			this.leftWing.setPosition(.2);
+			this.leftWing.setPosition(.3);
 			this.rightWing.setPosition(.6);
 		}
 	}

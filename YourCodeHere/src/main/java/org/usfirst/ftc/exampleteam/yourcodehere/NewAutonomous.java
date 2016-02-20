@@ -84,7 +84,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		climberDeploy.setPosition(.5);
 		leftGate.setPosition(0);
 		rightGate.setPosition(1);
-		leftWing.setPosition(.2);
+		leftWing.setPosition(.3);
 		rightWing.setPosition(.6);
 		hangLock.setPosition(.72);
 		hangingControl.setPosition(.8);
