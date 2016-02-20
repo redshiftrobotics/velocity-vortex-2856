@@ -91,11 +91,11 @@ public class NewTeleop extends SynchronousOpMode
 
 	void Blocks(Gamepad pad)
 	{
-		if (pad.left_bumper)
+		if (pad.x)
 		{
 			this.blockCollector.setPower(1);
 		}
-		else if(pad.right_bumper)
+		else if(pad.y)
 		{
 			this.blockCollector.setPower(-1);
 		}
