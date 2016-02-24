@@ -40,9 +40,7 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.hardware.Camera;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileObserver;
@@ -74,7 +72,6 @@ import com.qualcomm.ftccommon.UpdateUI;
 import com.qualcomm.ftcrobotcontroller.opmodes.FtcOpModeRegister;
 import com.qualcomm.hardware.HardwareFactory;
 import com.qualcomm.robotcore.eventloop.EventLoopManager;
-import com.qualcomm.robotcore.exception.RobotCoreException;
 import com.qualcomm.robotcore.hardware.configuration.Utility;
 import com.qualcomm.robotcore.robocol.*;
 import com.qualcomm.robotcore.robot.Robot;
@@ -83,23 +80,17 @@ import com.qualcomm.robotcore.util.Dimmer;
 import com.qualcomm.robotcore.util.ImmersiveMode;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.wifi.WifiDirectAssistant;
-
-import java.io.BufferedReader;
 import java.io.File;
 import static junit.framework.Assert.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.regex.Pattern;
 
 import org.swerverobotics.library.*;
@@ -225,7 +216,6 @@ public class FtcRobotControllerActivity extends Activity {
 
   public static final String CONFIGURE_FILENAME = "CONFIGURE_FILENAME";
 
-  protected WifiManager.WifiLock wifiLock;
   protected SharedPreferences preferences;
 
   protected UpdateUI.Callback callback;
@@ -243,13 +233,13 @@ public class FtcRobotControllerActivity extends Activity {
   protected ImmersiveMode immersion;
 
   protected SwerveUpdateUIHook updateUI;
+  protected SwervePhoneNameVerifier nameVerifier;
   protected Dimmer dimmer;
   protected LinearLayout entireScreenLayout;
 
   protected FtcRobotControllerService controllerService;
 
   protected FtcEventLoop eventLoop;
-  protected Queue<UsbDevice> receivedUsbAttachmentNotifications;
 
   protected class RobotRestarter implements Restarter {
 
@@ -275,44 +265,15 @@ public class FtcRobotControllerActivity extends Activity {
   @Override
   protected void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
-
-    if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
-      UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-      if (usbDevice != null) {  // paranoia
-        // We might get attachment notifications before the event loop is set up, so
-        // we hold on to them and pass them along only when we're good and ready.
-        if (receivedUsbAttachmentNotifications != null) { // *total* paranoia
-          receivedUsbAttachmentNotifications.add(usbDevice);
-          passReceivedUsbAttachmentsToEventLoop();
-        }
-      }
-    }
-  }
-
-  protected void passReceivedUsbAttachmentsToEventLoop() {
-    if (this.eventLoop != null) {
-      for (;;) {
-        UsbDevice usbDevice = receivedUsbAttachmentNotifications.poll();
-        if (usbDevice == null)
-          break;
-        this.eventLoop.onUsbDeviceAttached(usbDevice);
-      }
-    }
-    else {
-      // Paranoia: we don't want the pending list to grow without bound when we don't
-      // (yet) have an event loop
-      while (receivedUsbAttachmentNotifications.size() > 100) {
-        receivedUsbAttachmentNotifications.poll();
-      }
+    if (UsbManager.ACTION_USB_ACCESSORY_ATTACHED.equals(intent.getAction())) {
+      // a new USB device has been attached
+      DbgLog.msg("USB Device attached; app restart may be needed");
     }
   }
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    receivedUsbAttachmentNotifications = new ConcurrentLinkedQueue<UsbDevice>();
-    eventLoop = null;
 
     setContentView(R.layout.activity_ftc_controller);
 
@@ -322,81 +283,40 @@ public class FtcRobotControllerActivity extends Activity {
 	  /////////               MODDED           //////////////////
 	  ///////////////////////////////////////////////////////////
 
-Log.d("[server]", "starting thread");
 
 	Thread thread = new Thread(new Runnable(){
 		@Override
 		public void run() {
-			ServerSocket soc = null;
-
-			// initial connection
+			ServerSocket soc;
+			soc = null;
+			Log.d("thread", "###################################I am running!");
 			try {
+				//Inet6Address i6 = new Inet6Address("::1");
 				soc = new ServerSocket(2856, 50);
-				Log.d("[server]", "started socket successfully");
-			}
-			catch (Exception e)
-			{
-				Log.d("[server]", "error starting socket: " + e.toString());
-			}
 
-			while (true) {
-				// accept the connection
-				Socket Connection = null;
-				InputStreamReader Input = null;
+				//Yes this solution is incredibly ratchet... If you have a better solution please tell me!
 
-				try {
-					Connection = soc.accept();
-					Input = new InputStreamReader(Connection.getInputStream());
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				soc.accept();
+				mCamera.takePicture(null, null, mPicture);
+				Log.d("ERROR", "OUT OF PICTURES, PLEASE RESTART APPLICATION!!!!!");
+				soc.close();
 
-					Log.d("[server]", "accepted connection");
-				}
-				catch (Exception e)
-				{
-					Log.d("[server]", "couldn't accept connection");
-				}
-
-				// read data from the socket stream
-				try {
-					char[] CharArray = new char[100];
-					int index = 0;
-
-					while(true) {
-						// read a line from the stream
-
-
-
-						index += Input.read(CharArray, index, 1);
-
-						Log.d("[server]", "received command" + CharArray);
-//
-//						if (CharArray.toString().) {
-//							Command += Letter;
-//						}
-//						//once we receive the newline character
-//						else {
-//
-//							Log.d("[server]", "recieved command" + Command);
-//							// when the command is restart...
-//							if(Command == "restart-robot")
-//							{
-//								Log.d("[server]", "restsart robot");
-//////							RobotRestarter i = new RobotRestarter();
-//////							i.requestRestart();
-//							}
-//
-//							//close the connection
-//							Connection.close();
-//							break;
-//						}
-
-						//Log.d("[server]", "'" + (char) Input.read() + "'");
-
-						//break;
-					}
-
-				} catch (Exception e) {
-					Log.d("[server]", "disconnecting, exception: " + e.toString());
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 	});
@@ -477,12 +397,10 @@ Log.d("[server]", "starting thread");
     updateUI.setTextViews(textWifiDirectStatus, textRobotStatus,
 			textGamepad, textOpMode, textErrorMessage, textDeviceName);
     callback = updateUI.new CallbackHook();
+    nameVerifier = new SwervePhoneNameVerifier();
 
     PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
     preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-    WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-    wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "");
 
     hittingMenuButtonBrightensScreen();
 
@@ -504,14 +422,13 @@ Log.d("[server]", "starting thread");
     callback.wifiDirectUpdate(WifiDirectAssistant.Event.DISCONNECTED);
 
     entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-      dimmer.handleDimTimer();
-      return false;
-      }
-    });
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			dimmer.handleDimTimer();
+			return false;
+		}
+	});
 
-    wifiLock.acquire();
   }
 
   @Override
@@ -531,8 +448,6 @@ Log.d("[server]", "starting thread");
     if (controllerService != null) unbindService(connection);
 
     RobotLog.cancelWriteLogcatToDisk(this);
-
-    wifiLock.release();
   }
 
   @Override
@@ -570,7 +485,7 @@ Log.d("[server]", "starting thread");
 
 	if (id==R.id.action_custom_settings) {
 	  Intent settingsIntent = new Intent(this, CustomSettingsActivity.class);
-	  //the 0 is for the constants list, but we don't give a fuck
+	  //the 0 is for the constants list, but we dont give a fuck
 	  startActivityForResult(settingsIntent, LaunchActivityConstantsList.FTC_ROBOT_CONTROLLER_ACTIVITY_CONFIGURE_ROBOT);
 	  return true;
 	}
@@ -598,12 +513,12 @@ Log.d("[server]", "starting thread");
         startActivity(viewLogsIntent);
         return true;
     }
-        return super.onOptionsItemSelected(item);
-    }
+    return super.onOptionsItemSelected(item);
+  }
 
-  @Override
+@Override
   public void onConfigurationChanged(Configuration newConfig) {
-	super.onConfigurationChanged(newConfig);
+    super.onConfigurationChanged(newConfig);
     // don't destroy assets on screen rotation
   }
 
@@ -655,8 +570,6 @@ Log.d("[server]", "starting thread");
 
     controllerService.setCallback(callback);
     controllerService.setupRobot(eventLoop);
-
-    passReceivedUsbAttachmentsToEventLoop();
   }
 
   private FileInputStream fileSetup() {
@@ -788,7 +701,28 @@ Log.d("[server]", "starting thread");
 
             // Ok, the EventLoopManager is up and running. Install our hooks if we haven't already done so
 
-            EventLoopManager.EventLoopMonitor monitor = eventLoopManager.getMonitor();
+            // Make sure our event loop manager has a thread-safe socket. Doing so will allow us
+            // to explore the possibility of sending telemetry from other than the loop() thread.
+            RobocolDatagramSocket socket = MemberUtil.socketOfEventLoopManager(eventLoopManager);
+            if (socket != null)
+                {
+                if (socket instanceof ThreadSafeRobocolDatagramSocket)
+                    {
+                    }
+                else
+                    {
+                    // We should be inserting this hook before the socket manages to do anything
+                    assertTrue(!BuildConfig.DEBUG || socket.getState() == RobocolDatagramSocket.State.CLOSED);
+
+                    // Stuff in a replacement, thread-safe, socket.
+                    RobocolDatagramSocket newSocket = new ThreadSafeRobocolDatagramSocket();
+                    MemberUtil.setSocketOfEventLoopManager(eventLoopManager, newSocket);
+                    robot.socket = newSocket;
+                    Log.v(SynchronousOpMode.LOGGING_TAG, "installed ThreadSafeRobocolDatagramSocket");
+                    }
+                }
+
+            EventLoopManager.EventLoopMonitor monitor = MemberUtil.monitorOfEventLoopManager(eventLoopManager);
             if (monitor != null)
                 {
                 if (monitor instanceof SwerveEventLoopMonitorHook)
@@ -813,20 +747,118 @@ Log.d("[server]", "starting thread");
             {
             this.prevMonitor.onStateChange(newState);
             RobotStateTransitionNotifier.onRobotStateChange(newState);
+
+            if (newState == RobotState.RUNNING)
+                this.activity.nameVerifier.verifyLegalPhoneNames();
+            }
+        }
+
+    class SwervePhoneNameVerifier
+        {
+        //------------------------------------------------------------------------------------------
+        // State
+        //------------------------------------------------------------------------------------------
+
+        /* The rule about how robot controllers and driver stations are to be named is the following:
+             <RS02> Each Team MUST “name” their Robot Controller with their official FTC Team
+             number and –RC (e.g. “1234-RC”). Each Team MUST “name” their Driver Station with
+             their official FTC Team number and –DS (e.g. 1234-DS). Spare Android devices
+             should be named with the Team number followed by a hyphen then a letter designation
+             beginning with “B” (e.g. “1234-B-RC”, “1234-C-RC”).
+           We're going to enforce that here.
+        */
+        Pattern legalRCNamePattern = Pattern.compile("^\\d{1,5}(-[B-Z])?-RC", Pattern.CASE_INSENSITIVE);
+        Pattern legalDSNamePattern = Pattern.compile("^\\d{1,5}(-[B-Z])?-DS", Pattern.CASE_INSENSITIVE);
+
+        // We match for all 'telephone's per the Wifi Simple Configuration Technical Specification v2.0.4.
+        // See Table 41 in that document. Example: "10-0050F204-5".
+        Pattern telephonePeerPattern = Pattern.compile("10-0050F204-\\d+", Pattern.CASE_INSENSITIVE);
+
+        //------------------------------------------------------------------------------------------
+        // Verification
+        //------------------------------------------------------------------------------------------
+
+        void verifyLegalPhoneNames()
+            {
+            if (controllerService != null)
+                {
+                WifiDirectAssistant assistant = controllerService.getWifiDirectAssistant();
+
+                // Check the robot controller name for legality. Sometimes, during startup, we get
+                // called back here before we can access the real RC name, so we check for the empty string.
+                String robotControllerName = assistant.getDeviceName();
+                if (robotControllerName != "")
+                    {
+                    if (!legalRCNamePattern.matcher(robotControllerName).matches())
+                        {
+                        if (containsNewline(robotControllerName))
+                            reportWifiDirectError("robot controller name \"%s\" contains a carriage return: PLEASE FIX immediately", withoutNewlines(robotControllerName));
+                        // else
+                        //    reportWifiDirectError("\"%s\" is not a legal robot controller name (see <RS02>)", robotControllerName);
+                        }
+                    }
+
+                // We'd like to check all the peers as well, but some of them may not be actually
+                // the driver station but instead, e.g., development laptops. So we need to be a
+                // little careful.
+                for (WifiP2pDevice peer : assistant.getPeers())
+                    {
+                    if (isDriverStation(peer))
+                        {
+                        if (!legalDSNamePattern.matcher(peer.deviceName).matches())
+                            {
+                            if (containsNewline(peer.deviceName))
+                                reportWifiDirectError("driver station name \"%s\" contains a carriage return: PLEASE FIX immediately", withoutNewlines(peer.deviceName));
+                            //else
+                            //    reportWifiDirectError("\"%s\" is not a legal driver station name (see <RS02>)", peer.deviceName);
+                            }
+                        }
+                    }
+                }
             }
 
-        @Override
-        public void onErrorOrWarning()
-          {
-          this.prevMonitor.onErrorOrWarning();
-          }
+        //------------------------------------------------------------------------------------------
+        // Utility
+        //------------------------------------------------------------------------------------------
+
+        boolean containsNewline(String name)
+            {
+            return name.contains("\n") || name.contains("\r");
+            }
+        String withoutNewlines(String name)
+            {
+            StringBuilder result = new StringBuilder();
+            for (int ich = 0; ich < name.length(); ich++)
+                {
+                char ch = name.charAt(ich);
+                switch (ch)
+                    {
+                    case '\r':case '\n': break;
+                    default: result.append(ch); break;
+                    }
+                }
+            return result.toString();
+            }
+
+        /** Is this peer a driver station? If in doubt, answer 'no'*/
+        boolean isDriverStation(WifiP2pDevice peer)
+            {
+            return this.telephonePeerPattern.matcher(peer.primaryDeviceType).matches();
+            }
+
+        void reportWifiDirectError(String format, Object... args)
+            {
+            String message = String.format(format, args);
+            // Show the message in the log
+            Log.w(LOGGING_TAG, String.format("wifi direct error: %s", message));
+            // Make the message appear on the driver station (only the first one will actually appear)
+            RobotLog.setGlobalErrorMsg(message);
+            }
         }
 
     class SwerveUpdateUIHook extends UpdateUI
     // Hook used to augment the user interface
         {
-
-
         //------------------------------------------------------------------------------------------
         // State
         //------------------------------------------------------------------------------------------
@@ -869,8 +901,7 @@ Log.d("[server]", "starting thread");
             // is called in FtcRobotControllerService.run(); that ensures we get to see the raw
             // initial state.
                 {
-					Log.d("[isaac]", "robot update");
-					// Make sure we get to see all the robot state transitions
+                // Make sure we get to see all the robot state transitions
                 SwerveEventLoopMonitorHook.installIfNecessary(controllerService, FtcRobotControllerActivity.this);
 
                 super.robotUpdate(status);
@@ -880,7 +911,6 @@ Log.d("[server]", "starting thread");
             @Override
             public void wifiDirectUpdate(WifiDirectAssistant.Event event)
                 {
-
                 super.wifiDirectUpdate(event);
 
                 final String message = controllerService == null
@@ -894,12 +924,12 @@ Log.d("[server]", "starting thread");
                     {
                     activity.textWifiDirectPassphrase.setText(message);
                     }
-    });
-  }
+                });
+                }
 
             }
         }
-}
+  }
 
 
 

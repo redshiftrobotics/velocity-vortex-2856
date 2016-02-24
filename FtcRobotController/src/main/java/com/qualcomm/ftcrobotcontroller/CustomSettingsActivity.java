@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,12 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Isaac Zinda on 10/20/2015.
@@ -40,45 +33,7 @@ public class CustomSettingsActivity extends Activity {
 		sideText.setText(readFromFile());
 	}
 
-	public void SendData(final ArrayList<String> ToSend)
-	{
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-
-				// connect to the socket then get the output stream
-				try {
-					//connect
-					Socket soc = new Socket();
-					InetSocketAddress addr = new InetSocketAddress(2856);
-
-					Log.d("[client]", "initialized socket");
-
-					soc.connect(addr, 50);
-					OutputStream socketData = soc.getOutputStream();
-					Log.d("[client]", "received output stream");
-					socketData.write(("restart-robot\n").getBytes());
-					Log.d("[client]", "written data");
-
-					//Thread.sleep(1000);
-					//socketData.close();
-					//Log.d("[client]", "closing");
-				}
-				catch (Exception e)
-				{
-					Log.d("[client]", "error: " + e.toString());
-				}
-			}
-		};
-
-		thread.start();
-	}
-
-	public void blueClicked(View v){
-		ArrayList<String> Temp = new ArrayList<String>();
-		Temp.add("restart-robot");
-		SendData(Temp);
-
+	public void blueClicked(View v) {
 		writeToFile("blue");
 		sideText.setText(readFromFile());
 	}
