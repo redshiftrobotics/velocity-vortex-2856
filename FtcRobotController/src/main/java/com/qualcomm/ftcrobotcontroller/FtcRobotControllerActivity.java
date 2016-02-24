@@ -80,12 +80,16 @@ import com.qualcomm.robotcore.util.Dimmer;
 import com.qualcomm.robotcore.util.ImmersiveMode;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.wifi.WifiDirectAssistant;
+
+import java.io.BufferedReader;
 import java.io.File;
 import static junit.framework.Assert.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.InetSocketAddress;
@@ -283,40 +287,81 @@ public class FtcRobotControllerActivity extends Activity {
 	  /////////               MODDED           //////////////////
 	  ///////////////////////////////////////////////////////////
 
+Log.d("[server]", "starting thread");
 
 	Thread thread = new Thread(new Runnable(){
 		@Override
 		public void run() {
-			ServerSocket soc;
-			soc = null;
-			Log.d("thread", "###################################I am running!");
+			ServerSocket soc = null;
+
+			// initial connection
 			try {
-				//Inet6Address i6 = new Inet6Address("::1");
 				soc = new ServerSocket(2856, 50);
+				Log.d("[server]", "started socket successfully");
+			}
+			catch (Exception e)
+			{
+				Log.d("[server]", "error starting socket: " + e.toString());
+			}
 
-				//Yes this solution is incredibly ratchet... If you have a better solution please tell me!
+			while (true) {
+				// accept the connection
+				Socket Connection = null;
+				InputStreamReader Input = null;
 
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				soc.accept();
-				mCamera.takePicture(null, null, mPicture);
-				Log.d("ERROR", "OUT OF PICTURES, PLEASE RESTART APPLICATION!!!!!");
-				soc.close();
+				try {
+					Connection = soc.accept();
+					Input = new InputStreamReader(Connection.getInputStream());
 
-			} catch (Exception e) {
-				e.printStackTrace();
+					Log.d("[server]", "accepted connection");
+				}
+				catch (Exception e)
+				{
+					Log.d("[server]", "couldn't accept connection");
+				}
+
+				// read data from the socket stream
+				try {
+					char[] CharArray = new char[100];
+					int index = 0;
+
+					while(true) {
+						// read a line from the stream
+
+
+
+						index += Input.read(CharArray, index, 1);
+
+						Log.d("[server]", "received command" + CharArray);
+//
+//						if (CharArray.toString().) {
+//							Command += Letter;
+//						}
+//						//once we receive the newline character
+//						else {
+//
+//							Log.d("[server]", "recieved command" + Command);
+//							// when the command is restart...
+//							if(Command == "restart-robot")
+//							{
+//								Log.d("[server]", "restsart robot");
+//////							RobotRestarter i = new RobotRestarter();
+//////							i.requestRestart();
+//							}
+//
+//							//close the connection
+//							Connection.close();
+//							break;
+//						}
+
+						//Log.d("[server]", "'" + (char) Input.read() + "'");
+
+						//break;
+					}
+
+				} catch (Exception e) {
+					Log.d("[server]", "disconnecting, exception: " + e.toString());
+				}
 			}
 		}
 	});
@@ -485,7 +530,7 @@ public class FtcRobotControllerActivity extends Activity {
 
 	if (id==R.id.action_custom_settings) {
 	  Intent settingsIntent = new Intent(this, CustomSettingsActivity.class);
-	  //the 0 is for the constants list, but we dont give a fuck
+	  //the 0 is for the constants list, but we don't give a fuck
 	  startActivityForResult(settingsIntent, LaunchActivityConstantsList.FTC_ROBOT_CONTROLLER_ACTIVITY_CONFIGURE_ROBOT);
 	  return true;
 	}
@@ -518,7 +563,7 @@ public class FtcRobotControllerActivity extends Activity {
 
 @Override
   public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
+	super.onConfigurationChanged(newConfig);
     // don't destroy assets on screen rotation
   }
 
@@ -859,6 +904,8 @@ public class FtcRobotControllerActivity extends Activity {
     class SwerveUpdateUIHook extends UpdateUI
     // Hook used to augment the user interface
         {
+
+
         //------------------------------------------------------------------------------------------
         // State
         //------------------------------------------------------------------------------------------
@@ -901,7 +948,8 @@ public class FtcRobotControllerActivity extends Activity {
             // is called in FtcRobotControllerService.run(); that ensures we get to see the raw
             // initial state.
                 {
-                // Make sure we get to see all the robot state transitions
+					Log.d("[isaac]", "robot update");
+					// Make sure we get to see all the robot state transitions
                 SwerveEventLoopMonitorHook.installIfNecessary(controllerService, FtcRobotControllerActivity.this);
 
                 super.robotUpdate(status);
@@ -911,6 +959,7 @@ public class FtcRobotControllerActivity extends Activity {
             @Override
             public void wifiDirectUpdate(WifiDirectAssistant.Event event)
                 {
+
                 super.wifiDirectUpdate(event);
 
                 final String message = controllerService == null

@@ -28,7 +28,7 @@ public class Trigger {
 
 		Socket soc = new Socket();
 		InetSocketAddress addr = new InetSocketAddress(2856);
-		String s = "lol";
+		String s = "take-picture\n";
 		byte[] b = s.getBytes();
 
 		try {
@@ -40,8 +40,23 @@ public class Trigger {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
 
+	// mode can be either 'autonomous' or 'teleop'
+	public static void SetMode(String Mode) {
+		Socket soc = new Socket();
+		InetSocketAddress addr = new InetSocketAddress(2856);
+		byte[] b = Mode.getBytes();
 
+		try {
+			soc.connect(addr, 50);
+			OutputStream socketData = soc.getOutputStream();
+			socketData.write(b);
+			socketData.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static String findAvgSides() {
