@@ -27,11 +27,10 @@ public class NewTeleop extends SynchronousOpMode
 	Servo hangLock = null;
 	Servo allClear = null;
 	Servo climberDeploy = null;
-
 	int backBraceShouldBe;
 
 	//this is the default servo position
-	double HangingServoPosition = .8;
+	double HangingServoPosition = .7;
 
 	@Override
 	protected void main() throws InterruptedException
@@ -61,12 +60,14 @@ public class NewTeleop extends SynchronousOpMode
 
 		this.leftGate.setPosition(0); //close
 		this.rightGate.setPosition(1); //close
-		this.hangLock.setPosition(0.72);
+		this.hangLock.setPosition(0);
 		this.blockConveyer.setPosition(.50);
 		this.leftWing.setPosition(.2);
 		this.rightWing.setPosition(.6);
 
 		this.backBraceShouldBe = backBrace.getCurrentPosition();
+
+
 
 		// Enter a loop processing all the input we receive
 		while (this.opModeIsActive())
@@ -107,6 +108,9 @@ public class NewTeleop extends SynchronousOpMode
 
 	void BackBraceControl(Gamepad pad)
 	{
+
+		float ChangeValue = 0;
+
 		if (Math.abs(pad.right_trigger) > .1)
 		{
 			backBraceShouldBe = backBrace.getCurrentPosition();
@@ -121,7 +125,7 @@ public class NewTeleop extends SynchronousOpMode
 		}
 		// if there is a  big error
 		else if(Math.abs(backBrace.getCurrentPosition() - backBraceShouldBe) > 100) {
-			float ChangeValue = Math.abs(backBrace.getCurrentPosition() - backBraceShouldBe) / 1000;
+			ChangeValue = Math.abs(backBrace.getCurrentPosition() - backBraceShouldBe) / 1000f;
 
 			if(ChangeValue > 1)
 			{
@@ -141,7 +145,7 @@ public class NewTeleop extends SynchronousOpMode
 
 
 
-		telemetry.addData("02", "back encoder " + String.valueOf(backBrace.getCurrentPosition()));
+		telemetry.addData("02", "encoder " + String.valueOf(backBrace.getCurrentPosition()) + " current" + String.valueOf(backBraceShouldBe) + " change value" + String.valueOf(ChangeValue));
 	}
 
 	void DriveControl(Gamepad pad) throws InterruptedException {

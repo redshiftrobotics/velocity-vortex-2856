@@ -178,7 +178,7 @@ public class NewIMU
 				telemetry.log.add("Timed Out");
 				break;
 			}
-
+			telemetry.addData("03", LightSensor.blue() + LightSensor.red() + LightSensor.green());
 			// if the light sensor value is above a certain threshold, stop the movement
 			int Threshold = 60;
 			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold)

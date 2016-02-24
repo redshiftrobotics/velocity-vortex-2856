@@ -191,6 +191,13 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		Thread.sleep(4000);
 		climberDeploy.setPosition(.5);
+
+		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 5);
+
+		Robot.Straight(-1);
+
+		Robot.Turn(180, "Left", 3);
+
 		idle();
 	}
 
