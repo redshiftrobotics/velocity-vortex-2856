@@ -131,7 +131,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = bitproc.getHeight()/3; k < 2*(bitproc.getHeight()/3); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/3); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.red(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.red(bitproc.getPixel(i, k));
@@ -228,7 +228,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = bitproc.getHeight()/3; k < 2*(bitproc.getHeight()/3); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/3); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.blue(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.blue(bitproc.getPixel(i, k));
