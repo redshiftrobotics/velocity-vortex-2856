@@ -84,7 +84,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		climberDeploy.setPosition(.5);
 		leftGate.setPosition(0);
 		rightGate.setPosition(1);
-		leftWing.setPosition(.2);
+		leftWing.setPosition(.3);
 		rightWing.setPosition(.6);
 		hangLock.setPosition(.72);
 		hangingControl.setPosition(.8);
@@ -191,6 +191,13 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		Thread.sleep(4000);
 		climberDeploy.setPosition(.5);
+
+		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 5);
+
+		Robot.Straight(-1);
+
+		Robot.Turn(180, "Left", 3);
+
 		idle();
 	}
 
