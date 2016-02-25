@@ -124,13 +124,13 @@ public class NewAutonomous extends SynchronousOpMode {
 		Robot.StopAtLight = false;
 
 		if (side.equals("blue")) {
-			Robot.Turn(-30, "Right", 2);
-			Robot.Turn(30, "Right", 2);
+			Robot.Turn(-50, "Right", 2);
+			Robot.Turn(50, "Right", 2);
 		}
 		else
 		{
-			Robot.Turn(30, "Left", 2);
-			Robot.Turn(-30, "Left", 2);
+			Robot.Turn(50, "Left", 2);
+			Robot.Turn(-50, "Left", 2);
 		}
 
 		// this is the offset that each turn will have
@@ -146,6 +146,9 @@ public class NewAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 5);
 		}
 
+		// get the image here
+		String ImageSide = Trigger.determineSides();
+
 		//setup the variables for the backup timeout
 		Date a = new Date();
 		long BackupStartTime = a.getTime();
@@ -154,15 +157,12 @@ public class NewAutonomous extends SynchronousOpMode {
 		//set the light sensor threshold
 		int Threshold = 60;
 
+		// start scoring the climbers
+		climberDeploy.setPosition(0);
+
 		//do this for 3 seconds
 		while (Math.abs(BackupStartTime - BackupCurrentTime) < 4000)
 		{
-			if(Math.abs(BackupStartTime - BackupCurrentTime) > 2000)
-			{
-				//begin scoring the climbers
-				climberDeploy.setPosition(0);
-			}
-
 			Date b = new Date();
 			BackupCurrentTime = b.getTime();
 
@@ -189,14 +189,26 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		Robot.Stop();
 
-		Thread.sleep(4000);
+		Thread.sleep(2000);
 		climberDeploy.setPosition(.5);
 
 		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 5);
 
 		Robot.Straight(-1);
 
-		Robot.Turn(180, "Left", 3);
+		// determine the offset based on the side
+		int FinalTurnOffset = 0;
+
+		if (ImageSide == "left")
+		{
+			FinalTurnOffset = -20;
+		}
+		else if (ImageSide == "right")
+		{
+			FinalTurnOffset = 20;
+		}
+
+		Robot.Turn(180 + FinalTurnOffset, "Neither", 3);
 
 		idle();
 	}

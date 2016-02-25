@@ -411,6 +411,11 @@ public class NewIMU
 				LeftMotor.setPower(0);
 				RightMotor.setPower(-(Direction / 200) * Multiplier);
 			}
+			else if(StationaryWheel == "Neither")
+			{
+				LeftMotor.setPower((Direction / 200) * Multiplier);
+				RightMotor.setPower(-(Direction / 200) * Multiplier);
+			}
         }
     }
 
