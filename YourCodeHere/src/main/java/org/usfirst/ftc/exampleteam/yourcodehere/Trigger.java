@@ -146,7 +146,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = 0; k < (bitproc.getHeight()/3); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/6); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.red(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.red(bitproc.getPixel(i, k));
@@ -154,7 +154,7 @@ public class Trigger {
 
 			}
 
-			readArray[i] = sumsauce/(bitproc.getHeight()/3);
+			readArray[i] = sumsauce/(bitproc.getHeight()/6);
 
 			//deprecated line... this samples just one line along the image in the very center
 //			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
@@ -243,7 +243,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = 0; k < (bitproc.getHeight()/3); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/6); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.blue(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.blue(bitproc.getPixel(i, k));
@@ -251,7 +251,7 @@ public class Trigger {
 
 			}
 
-			readArray[i] = sumsauce/(bitproc.getHeight()/3);
+			readArray[i] = sumsauce/(bitproc.getHeight()/6);
 
 			//deprecated line... this samples just one line along the image in the very center
 //			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
