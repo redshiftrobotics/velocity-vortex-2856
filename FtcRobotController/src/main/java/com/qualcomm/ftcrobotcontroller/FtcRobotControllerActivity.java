@@ -333,6 +333,7 @@ public class FtcRobotControllerActivity extends Activity {
 
 				soc.accept();
 				mCamera.takePicture(null, null, mPicture);
+				Log.d("###############lol", "end");
 				soc.accept();
 				mCamera.takePicture(null, null, mPicture);
 				soc.accept();
@@ -459,12 +460,12 @@ public class FtcRobotControllerActivity extends Activity {
     callback.wifiDirectUpdate(WifiDirectAssistant.Event.DISCONNECTED);
 
     entireScreenLayout.setOnTouchListener(new View.OnTouchListener() {
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-      dimmer.handleDimTimer();
-      return false;
-      }
-    });
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			dimmer.handleDimTimer();
+			return false;
+		}
+	});
 
     wifiLock.acquire();
   }

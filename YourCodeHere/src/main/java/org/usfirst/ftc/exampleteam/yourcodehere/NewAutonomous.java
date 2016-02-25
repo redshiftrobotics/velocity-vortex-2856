@@ -55,6 +55,13 @@ public class NewAutonomous extends SynchronousOpMode {
 
 	public String TakePicture()
 	{
+		try {
+			console.log("started");
+			Trigger.takeImage();
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		// get the image here
 		String ImageSide = Trigger.determineSides();
 
