@@ -234,7 +234,12 @@ public class NewAutonomous extends SynchronousOpMode {
 			FinalTurnOffset = 20;
 		}
 
+		// turn to the correct position
 		Robot.Turn(180 + FinalTurnOffset, "Neither", 3);
+
+		Robot.Straight(-1.5f);
+
+		Robot.Stop();
 
 		idle();
 	}
