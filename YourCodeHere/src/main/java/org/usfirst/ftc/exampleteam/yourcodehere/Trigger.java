@@ -392,9 +392,24 @@ public class Trigger {
 			}
 		}
 
+		writeToFile(blueison);
 
 		return blueison;
 	}
 
+
+
+	public static void writeToFile (String string) {
+		try {
+			File file = new File("/sdcard/Pictures", "imageOutput");
+			FileOutputStream outputStream;
+			//outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+			outputStream = new FileOutputStream(file,false);
+			outputStream.write(string.getBytes());
+			outputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }
