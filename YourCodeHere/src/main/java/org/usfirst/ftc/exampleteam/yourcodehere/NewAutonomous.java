@@ -87,7 +87,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		leftWing.setPosition(.3);
 		rightWing.setPosition(.6);
 		hangLock.setPosition(.72);
-		hangingControl.setPosition(.8);
+		hangingControl.setPosition(.6);
 
 		//this is the initial rotation; it will be referenced through the entire program
 		double InitialRotation = Robot.Rotation();
