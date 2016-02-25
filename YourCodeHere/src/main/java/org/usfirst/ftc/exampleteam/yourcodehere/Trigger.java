@@ -166,7 +166,7 @@ public class Trigger {
 
 		int max = -999;
 		int min = -999;
-		int pointSample = 10;
+		int pointSample = 5;
 		int master = 0;
 		int redStart = -1;
 		int i = 0;
@@ -263,7 +263,7 @@ public class Trigger {
 
 		int max = -999;
 		int min = -999;
-		int pointSample = 10;
+		int pointSample = 5;
 		int master = 0;
 		int blueStart = -1;
 		int i = 0;
