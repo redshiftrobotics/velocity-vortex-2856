@@ -1,5 +1,6 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
+import android.media.Image;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
@@ -50,6 +51,26 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		// Provide in a more user friendly form.
 		side = text.toString();
+	}
+
+	public String TakePicture()
+	{
+		// get the image here
+		String ImageSide = Trigger.determineSides();
+
+		if (this.side == "red")
+		{
+			if(ImageSide == "right")
+			{
+				ImageSide = "left";
+			}
+			else if(ImageSide == "left")
+			{
+				ImageSide = "right";
+			}
+		}
+
+		return ImageSide;
 	}
 
 	@Override
@@ -137,7 +158,13 @@ public class NewAutonomous extends SynchronousOpMode {
 		int RedOffset = 5;
 		int BlueOffset = 10;
 
-		// turn to line up with
+		// turn to be at a 70 degree angle from the start, this is where we will take a picture
+		Robot.TurnToAngle((float) InitialRotation + 70, "Left", 5);
+
+		// get the image here
+		String ImageSide = TakePicture();
+
+		// turn the rest of the way
 		if (side.equals("blue")) {
 			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 5);
 		}
@@ -146,8 +173,7 @@ public class NewAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 5);
 		}
 
-		// get the image here
-		String ImageSide = Trigger.determineSides();
+		telemetry.log.add("side is " + ImageSide);
 
 		//setup the variables for the backup timeout
 		Date a = new Date();
