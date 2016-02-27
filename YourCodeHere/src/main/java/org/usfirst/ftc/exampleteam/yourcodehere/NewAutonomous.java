@@ -98,8 +98,14 @@ public class NewAutonomous extends SynchronousOpMode {
 		//we don't know which one to reverse yet
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
+		telemetry.log.add("starting imu setup");
+		idle();
+
 		//setup the PID stuff
 		Robot = new NewIMU(LeftMotor, RightMotor, colorSensor, hardwareMap, telemetry, this);
+
+		telemetry.log.add("imu setup");
+		idle();
 
 		//select the side
 		SelectSide();
@@ -241,11 +247,19 @@ public class NewAutonomous extends SynchronousOpMode {
 			FinalTurnOffset = 20;
 		}
 
+		Robot.Stop();
+
 		// turn to the correct position
-		Robot.Turn(180 + FinalTurnOffset, "Neither", 3);
+		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 2);
 
+		Robot.Stop();
+
+		Thread.sleep(1000);
+
+		Robot.Turn(180 + FinalTurnOffset, "Neither", 4);
+
+		// reverse into the button and hit it
 		Robot.Straight(-1.5f);
-
 		Robot.Stop();
 
 		idle();

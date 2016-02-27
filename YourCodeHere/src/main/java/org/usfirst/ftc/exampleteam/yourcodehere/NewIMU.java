@@ -178,10 +178,10 @@ public class NewIMU
 				telemetry.log.add("Timed Out");
 				break;
 			}
-			telemetry.addData("03", LightSensor.blue() + LightSensor.red() + LightSensor.green());
+
 			// if the light sensor value is above a certain threshold, stop the movement
 			int Threshold = 60;
-			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold)
+			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold && this.StopAtLight)
 			{
 				telemetry.log.add("stopped becuase of light.");
 				return 1;
@@ -269,11 +269,17 @@ public class NewIMU
 		float Error = 3;
 
 		//while the distance from the target is greater than the error
-		while ((ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error) && Math.abs(CurrentTime - StartTime) < Timeout * 1000)
+		while ((ValueStandardDeviation() > .1f || Math.abs(ComputedRotation - Target) > Error))
 		{
 			//get the time for the timeout
 			Date r = new Date();
 			CurrentTime = r.getTime();
+
+			if(Math.abs(CurrentTime - StartTime) > Timeout * 1000)
+			{
+				telemetry.log.add("turn timed out");
+				break;
+			}
 
 			if(ValueStandardDeviation() < .001 && Math.abs(ComputedRotation - Target) < 5)
 			{
