@@ -1,26 +1,14 @@
 package org.usfirst.ftc.exampleteam.yourcodehere;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import com.qualcomm.ftcrobotcontroller.FtcRobotControllerActivity;
-import com.qualcomm.ftcrobotcontroller.CustomSettingsActivity;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
-import java.beans.PropertyChangeEvent;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.concurrent.Callable;
 
 
 public class NewIMU
@@ -66,7 +54,7 @@ public class NewIMU
 	String StationaryWheel = "Right";
 
 	//declare the logger
-	Logger Logging;
+	org.usfirst.ftc.exampleteam.yourcodehere.Logging Logging;
 
 	//from 0 to 1
 	//.4 for test chassis
@@ -108,7 +96,7 @@ public class NewIMU
         CurrentTime = (float) ProgramTime.time() * 1000;
 
 		//setup the file logger
-		Logging = new Logger("TurnData.txt");
+		Logging = new Logging("TurnData.txt");
     }
 
 	public void ResetValues()
@@ -393,13 +381,13 @@ public class NewIMU
 
 			//make sure that the robot is moving the correct direction
 			if(MovingDirection == "Forward") {
-				Multiplier = Power / 2;
+				Multiplier = Power * 3 / 4.0f;
 				LeftMotor.setPower(Multiplier + (Direction / 200));
 				RightMotor.setPower(Multiplier - (Direction / 200));
 			}
 			else
 			{
-				Multiplier = Power / -2;
+				Multiplier = Power * -3 / 4.0f;
 				LeftMotor.setPower(Multiplier - (Direction / 200));
 				RightMotor.setPower(Multiplier + (Direction / 200));
 			}

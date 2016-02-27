@@ -53,8 +53,10 @@ public class NewAutonomous extends SynchronousOpMode {
 		side = text.toString();
 	}
 
-	public void TakeIsaacPicture()
+	public String TakePicture()
 	{
+		String ImageSide = "";
+
 		try {
 			Trigger.takeImage();
 			Thread.sleep(1000);
@@ -64,22 +66,18 @@ public class NewAutonomous extends SynchronousOpMode {
 		// get the image here
 		int[] Array = Trigger.IsaacDetermineSides();
 
-		telemetry.log.add("Blue" + Array[0]);
-		telemetry.log.add("Red" + Array[1]);
-	}
-
-	public String TakePicture()
-	{
-		try {
-			console.log("started");
-			Trigger.takeImage();
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		//blue on left
+		if (Array[0] < Array[1])
+		{
+			ImageSide = "left";
 		}
-		// get the image here
-		String ImageSide = Trigger.determineSides();
+		// blue on right
+		else if (Array[0] > Array[1])
+		{
+			ImageSide = "right";
+		}
 
+		// if we want red, flip it
 		if (this.side == "red")
 		{
 			if(ImageSide == "right")
@@ -91,6 +89,8 @@ public class NewAutonomous extends SynchronousOpMode {
 				ImageSide = "right";
 			}
 		}
+
+		telemetry.log.add("color on " + ImageSide + " side");
 
 		return ImageSide;
 	}
@@ -129,10 +129,6 @@ public class NewAutonomous extends SynchronousOpMode {
 		//wait for start
 		waitForStart();
 
-		TakeIsaacPicture();
-
-		Thread.sleep(10000);
-
 		//initialize the servos
 		blockConveyer.setPosition(.55);
 		climberDeploy.setPosition(.5);
@@ -157,7 +153,7 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		//turn so that blocks go away
 		int RedFirstTurnOffset = 11;
-		int BlueFirstTurnOffset = 6;
+		int BlueFirstTurnOffset = 0;
 
 		if (side.equals("blue")) {
 			Robot.TurnToAngle((float)InitialRotation + 45 - BlueFirstTurnOffset, "Left", 3);
@@ -189,29 +185,33 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		// this is the offset that each turn will have
 		int RedOffset = 5;
-		int BlueOffset = 10;
+		//used to be 10
+		int BlueOffset = 5;
+
+		//make this work for oth sides. here is where it breaks
 
 		// turn to be at a 70 degree angle from the start, this is where we will take a picture
 		Robot.TurnToAngle((float) InitialRotation + 70, "Left", 5);
 
+		// start scoring early
+		climberDeploy.setPosition(0);
+
 		// get the image here
 		String ImageSide = TakePicture();
 
-		for (int i = 0; i < 10; i++) {
-			TakePicture();
-			Thread.sleep(2000);
-		}
+		TakePicture();
+
+		// stop scoring
+		climberDeploy.setPosition(.5);
 
 		// turn the rest of the way
 		if (side.equals("blue")) {
-			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 5);
+			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 3);
 		}
 		else
 		{
-			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 5);
+			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 3);
 		}
-
-		telemetry.log.add("press button on the " + ImageSide);
 
 		//setup the variables for the backup timeout
 		Date a = new Date();
@@ -221,67 +221,66 @@ public class NewAutonomous extends SynchronousOpMode {
 		//set the light sensor threshold
 		int Threshold = 60;
 
-		// start scoring the climbers
-		climberDeploy.setPosition(0);
+		Robot.Straight(2, 2);
 
 		//do this for 3 seconds
-		while (Math.abs(BackupStartTime - BackupCurrentTime) < 4000)
-		{
-			Date b = new Date();
-			BackupCurrentTime = b.getTime();
-
-			if(side.equals("red")) {
-				if (colorSensor.green() < Threshold) {
-					LeftMotor.setPower(-.3);
-					RightMotor.setPower(.8);
-				} else {
-					LeftMotor.setPower(.8);
-					RightMotor.setPower(-.3);
-				}
-			}
-			else
-			{
-				if (colorSensor.green() < Threshold) {
-					RightMotor.setPower(-.3);
-					LeftMotor.setPower(.8);
-				} else {
-					RightMotor.setPower(.8);
-					LeftMotor.setPower(-.3);
-				}
-			}
-		}
+//		while (Math.abs(BackupStartTime - BackupCurrentTime) < 2000)
+//		{
+//			Date b = new Date();
+//			BackupCurrentTime = b.getTime();
+//
+//			if(side.equals("red")) {
+//				if (colorSensor.green() < Threshold) {
+//					LeftMotor.setPower(-.3);
+//					RightMotor.setPower(.8);
+//				} else {
+//					LeftMotor.setPower(.8);
+//					RightMotor.setPower(-.3);
+//				}
+//			}
+//			else
+//			{
+//				if (colorSensor.green() < Threshold) {
+//					RightMotor.setPower(-.3);
+//					LeftMotor.setPower(.8);
+//				} else {
+//					RightMotor.setPower(.8);
+//					LeftMotor.setPower(-.3);
+//				}
+//			}
+//		}
 
 		Robot.Stop();
 
+		// start scoring the climbers
+		climberDeploy.setPosition(0);
+
 		Thread.sleep(2000);
+
 		climberDeploy.setPosition(.5);
 
 		// use right wheel so it pulls away from edge
-		Robot.TurnToAngle((float) InitialRotation + 90f, "Right", 5);
-
-		//Robot.Straight(-1);
+		Robot.TurnToAngle((float) InitialRotation + 90f, "Right", 1);
 
 		// determine the offset based on the side
 		int FinalTurnOffset = 0;
 
 		if (ImageSide == "left")
 		{
-			FinalTurnOffset = -20;
+			FinalTurnOffset = -6;
 		}
 		else if (ImageSide == "right")
 		{
-			FinalTurnOffset = 10;
+			FinalTurnOffset = 6;
 		}
 
-		Robot.TurnToAngle((float)(InitialRotation), "Left", 4);
+		Robot.TurnToAngle((float) (InitialRotation), "Left", 4);
 		Robot.TurnToAngle((float)(InitialRotation)- 90 + FinalTurnOffset, "Right", 4);
 
 		Robot.Stop();
 
-		Thread.sleep(5000);
-
 		// start the collector to press the button, reverse into the button and hit it
-		Robot.Straight(-1.5f);
+		Robot.Straight(-2.0f);
 		Robot.Stop();
 
 		idle();

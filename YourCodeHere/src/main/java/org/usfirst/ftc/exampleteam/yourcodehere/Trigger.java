@@ -155,7 +155,7 @@ public class Trigger {
 		}
 
 		// Provide in a more user friendly form.
-		imageNumber = Integer.parseInt(text.toString()) + 1;
+		imageNumber = Integer.parseInt(text.toString());
 		return imageNumber;
 	}
 
@@ -321,11 +321,11 @@ public class Trigger {
 
 	public static int[] IsaacDetermineSides()
 	{
-		float[] BlueVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc.jpg", "Blue");
+		float[] BlueVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc"+ getImageNumber() +".jpg", "Blue");
 		float[] BlueSmoothedArray = SmoothArray(BlueVerticalArray, 15);
 		int HighestBlue = FindHighestPoint(BlueSmoothedArray);
 
-		float[] RedVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc.jpg", "Red");
+		float[] RedVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc"+ getImageNumber() +".jpg", "Red");
 		float[] RedSmoothedArray = SmoothArray(RedVerticalArray, 15);
 		int HighestRed = FindHighestPoint(RedSmoothedArray);
 

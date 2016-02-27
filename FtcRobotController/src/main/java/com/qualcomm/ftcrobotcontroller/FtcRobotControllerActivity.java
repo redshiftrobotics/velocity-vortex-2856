@@ -172,7 +172,11 @@ public class FtcRobotControllerActivity extends Activity {
 		}
 
 		// Provide in a more user friendly form.
-		imageNumber = Integer.parseInt(text.toString()) + 1;
+		if(text.toString() == "") {
+			imageNumber = 0;
+		} else {
+			imageNumber = Integer.parseInt(text.toString()) + 1;
+		}
 
 		try {
 			File imageNumberFile = new File("/sdcard/Pictures", "imageNumber");

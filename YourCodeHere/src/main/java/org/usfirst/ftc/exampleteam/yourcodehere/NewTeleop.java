@@ -30,7 +30,12 @@ public class NewTeleop extends SynchronousOpMode
 	int backBraceShouldBe;
 
 	//this is the default servo position
-	double HangingServoPosition = .7;
+	double HangingServoPosition = .5;
+
+
+	boolean CollectBlocks = false;
+
+	boolean PreviousFrameButtonPressed = false;
 
 	@Override
 	protected void main() throws InterruptedException
@@ -64,6 +69,7 @@ public class NewTeleop extends SynchronousOpMode
 		this.blockConveyer.setPosition(.50);
 		this.leftWing.setPosition(.2);
 		this.rightWing.setPosition(.6);
+		this.hangLock.setPosition(.9);
 
 		this.backBraceShouldBe = backBrace.getCurrentPosition();
 
@@ -92,17 +98,24 @@ public class NewTeleop extends SynchronousOpMode
 
 	void Blocks(Gamepad pad)
 	{
-		if (pad.x)
+		// if y wasn't pressed before but is now
+		if(!PreviousFrameButtonPressed && pad.y)
 		{
-			this.blockCollector.setPower(1);
+			CollectBlocks = !CollectBlocks;
 		}
-		else if(pad.y)
+
+		PreviousFrameButtonPressed = pad.y;
+
+		if(pad.x)
 		{
+			blockCollector.setPower(1);
+			CollectBlocks = false;
+		}
+		else if(CollectBlocks) {
 			this.blockCollector.setPower(-1);
 		}
-		else
-		{
-			this.blockCollector.setPower(0);
+		else {
+			blockCollector.setPower(0);
 		}
 	}
 
@@ -166,7 +179,7 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		//engage hang lock servo
 		if (pad.dpad_up) {
-			this.hangLock.setPosition(.9);
+			this.hangLock.setPosition(1);
 		}
 
 		//moves the arm up and down
