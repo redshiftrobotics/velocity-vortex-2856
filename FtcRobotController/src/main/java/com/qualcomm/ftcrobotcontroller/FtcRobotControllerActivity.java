@@ -83,11 +83,14 @@ import com.qualcomm.robotcore.util.Dimmer;
 import com.qualcomm.robotcore.util.ImmersiveMode;
 import com.qualcomm.robotcore.util.RobotLog;
 import com.qualcomm.robotcore.wifi.WifiDirectAssistant;
+
+import java.io.BufferedReader;
 import java.io.File;
 import static junit.framework.Assert.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
@@ -141,10 +144,46 @@ public class FtcRobotControllerActivity extends Activity {
 		}
 	};
 
+
+
 	/** Create a File for saving an image or video */
 	private static File getOutputMediaFile(){
 		// To be safe, you should check that the SDCard is mounted
 		// using Environment.getExternalStorageState() before doing this.
+
+		int imageNumber = 0;
+
+		// Retrieve file.
+		File file = new File("/sdcard/Pictures","imageNumber");
+		StringBuilder text = new StringBuilder();
+		// Attempt to load line from file into the buffer.
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			// Ensure that the first line is not null.
+			while ((line = br.readLine()) != null) {
+				text.append(line);
+			}
+			// Close the buffer reader
+			br.close();
+		}
+		// Catch exceptions... Or don't because that would require effort.
+		catch (IOException e) {
+		}
+
+		// Provide in a more user friendly form.
+		imageNumber = Integer.parseInt(text.toString()) + 1;
+
+		try {
+			File imageNumberFile = new File("/sdcard/Pictures", "imageNumber");
+			FileOutputStream outputStream;
+			//outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+			outputStream = new FileOutputStream(file,false);
+			outputStream.write(String.valueOf(imageNumber).getBytes());
+			outputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
 				Environment.DIRECTORY_PICTURES), "processing");
@@ -159,10 +198,9 @@ public class FtcRobotControllerActivity extends Activity {
 			}
 		}
 
-
 		// Create a media file name
 		File mediaFile;
-		mediaFile = new File(mediaStorageDir.getPath() + File.separator + "proc.jpg");
+		mediaFile = new File(mediaStorageDir.getPath() + File.separator + "proc" + imageNumber + ".jpg");
 		return mediaFile;
 	}
 

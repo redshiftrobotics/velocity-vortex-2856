@@ -135,10 +135,33 @@ public class Trigger {
 		return text;
 	}
 
+	public static int getImageNumber () {
+		int imageNumber = 0;
+		File file = new File("/sdcard/Pictures","imageNumber");
+		StringBuilder text = new StringBuilder();
+		// Attempt to load line from file into the buffer.
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			// Ensure that the first line is not null.
+			while ((line = br.readLine()) != null) {
+				text.append(line);
+			}
+			// Close the buffer reader
+			br.close();
+		}
+		// Catch exceptions... Or don't because that would require effort.
+		catch (IOException e) {
+		}
+
+		// Provide in a more user friendly form.
+		imageNumber = Integer.parseInt(text.toString()) + 1;
+		return imageNumber;
+	}
 
 	public static int[] determineRed () {
 
-		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
+		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc"+ getImageNumber() +".jpg");
 		int readArray[];
 		readArray = new int[bitproc.getWidth()];
 
@@ -315,7 +338,7 @@ public class Trigger {
 
 	public static int[] determineBlue() {
 
-		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc.jpg");
+		Bitmap bitproc = BitmapFactory.decodeFile("/sdcard/Pictures/processing/proc" + getImageNumber() + ".jpg");
 		int readArray[];
 		readArray = new int[bitproc.getWidth()];
 
