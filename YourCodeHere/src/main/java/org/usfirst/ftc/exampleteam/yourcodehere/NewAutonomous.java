@@ -53,6 +53,21 @@ public class NewAutonomous extends SynchronousOpMode {
 		side = text.toString();
 	}
 
+	public void TakeIsaacPicture()
+	{
+		try {
+			Trigger.takeImage();
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// get the image here
+		int[] Array = Trigger.IsaacDetermineSides();
+
+		telemetry.log.add("Blue" + Array[0]);
+		telemetry.log.add("Red" + Array[1]);
+	}
+
 	public String TakePicture()
 	{
 		try {
@@ -94,6 +109,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		Servo leftGate = hardwareMap.servo.get("left_ramp");
 		Servo hangLock = hardwareMap.servo.get("hang_stop");
 		Servo hangingControl = this.hardwareMap.servo.get("hang_adjust");
+		DcMotor blockCollector = this.hardwareMap.dcMotor.get("block_collector");
 
 		//we don't know which one to reverse yet
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -112,6 +128,10 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		//wait for start
 		waitForStart();
+
+		TakeIsaacPicture();
+
+		Thread.sleep(10000);
 
 		//initialize the servos
 		blockConveyer.setPosition(.55);
@@ -177,6 +197,11 @@ public class NewAutonomous extends SynchronousOpMode {
 		// get the image here
 		String ImageSide = TakePicture();
 
+		for (int i = 0; i < 10; i++) {
+			TakePicture();
+			Thread.sleep(2000);
+		}
+
 		// turn the rest of the way
 		if (side.equals("blue")) {
 			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 5);
@@ -186,7 +211,7 @@ public class NewAutonomous extends SynchronousOpMode {
 			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 5);
 		}
 
-		telemetry.log.add("side is " + ImageSide);
+		telemetry.log.add("press button on the " + ImageSide);
 
 		//setup the variables for the backup timeout
 		Date a = new Date();
@@ -231,9 +256,10 @@ public class NewAutonomous extends SynchronousOpMode {
 		Thread.sleep(2000);
 		climberDeploy.setPosition(.5);
 
-		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 5);
+		// use right wheel so it pulls away from edge
+		Robot.TurnToAngle((float) InitialRotation + 90f, "Right", 5);
 
-		Robot.Straight(-1);
+		//Robot.Straight(-1);
 
 		// determine the offset based on the side
 		int FinalTurnOffset = 0;
@@ -244,21 +270,17 @@ public class NewAutonomous extends SynchronousOpMode {
 		}
 		else if (ImageSide == "right")
 		{
-			FinalTurnOffset = 20;
+			FinalTurnOffset = 10;
 		}
 
-		Robot.Stop();
-
-		// turn to the correct position
-		Robot.TurnToAngle((float)InitialRotation + 90f, "Left", 2);
+		Robot.TurnToAngle((float)(InitialRotation), "Left", 4);
+		Robot.TurnToAngle((float)(InitialRotation)- 90 + FinalTurnOffset, "Right", 4);
 
 		Robot.Stop();
 
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 
-		Robot.Turn(180 + FinalTurnOffset, "Neither", 4);
-
-		// reverse into the button and hit it
+		// start the collector to press the button, reverse into the button and hit it
 		Robot.Straight(-1.5f);
 		Robot.Stop();
 

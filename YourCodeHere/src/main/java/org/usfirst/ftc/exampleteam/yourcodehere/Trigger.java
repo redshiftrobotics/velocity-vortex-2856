@@ -24,6 +24,8 @@ import java.util.Random;
  */
 public class Trigger {
 
+	public static int sampleSize = 4;
+
 	public static void takeImage() {
 
 		Socket soc = new Socket();
@@ -146,7 +148,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = 0; k < (bitproc.getHeight()/6); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/sampleSize); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.red(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.red(bitproc.getPixel(i, k));
@@ -154,7 +156,7 @@ public class Trigger {
 
 			}
 
-			readArray[i] = sumsauce/(bitproc.getHeight()/6);
+			readArray[i] = sumsauce/(bitproc.getHeight()/sampleSize);
 
 			//deprecated line... this samples just one line along the image in the very center
 //			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
@@ -227,7 +229,87 @@ public class Trigger {
 		return returner;
 	}
 
+	private static float[] BitmapToVerticalArray(String Filepath, String Color)
+	{
+		Bitmap Image = BitmapFactory.decodeFile(Filepath);
 
+		float ReturnArray[] = new float[Image.getWidth()];
+
+		float SampleHeight = .5f;
+
+		for (int x = 0; x < Image.getWidth(); x++)
+		{
+			for (int y = 0; y < (int)(Image.getHeight() * SampleHeight); y++)
+			{
+				int Pixel = 0;
+				if (Color == "Blue")
+				{
+					Pixel = android.graphics.Color.blue(Image.getPixel(x, y));
+				}
+				else if (Color == "Red")
+				{
+					Pixel = android.graphics.Color.red(Image.getPixel(x, y));
+				}
+
+				ReturnArray[x] += Pixel / (Image.getHeight() * SampleHeight);
+			}
+		}
+
+		return ReturnArray;
+	}
+
+	private static float[] SmoothArray(float[] Array, int SampleSize)
+	{
+		// length will be a bit shorter
+		float[] ReturnArray = new float[Array.length - SampleSize + 1];
+
+		// initialize the array with zeroes
+		for (int q = 0; q < ReturnArray.length; q++)
+		{
+			ReturnArray[q] = 0;
+		}
+
+		for (int i = 0; i < ReturnArray.length; i++)
+		{
+			for (int p = 0; p < SampleSize; p++) {
+				ReturnArray[i] += Array[i + p] / SampleSize;
+			}
+		}
+
+		return ReturnArray;
+	}
+
+	private static int FindHighestPoint(float[] Array)
+	{
+		float HighestValue = 0;
+		int HighestValueIndex = 0;
+
+		for (int i = 0; i < Array.length; i++)
+		{
+			if (Array[i] > HighestValue)
+			{
+				HighestValue = Array[i];
+				HighestValueIndex = i;
+			}
+		}
+
+		return HighestValueIndex;
+	}
+
+	public static int[] IsaacDetermineSides()
+	{
+		float[] BlueVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc.jpg", "Blue");
+		float[] BlueSmoothedArray = SmoothArray(BlueVerticalArray, 15);
+		int HighestBlue = FindHighestPoint(BlueSmoothedArray);
+
+		float[] RedVerticalArray = BitmapToVerticalArray("/sdcard/Pictures/processing/proc.jpg", "Red");
+		float[] RedSmoothedArray = SmoothArray(RedVerticalArray, 15);
+		int HighestRed = FindHighestPoint(RedSmoothedArray);
+
+		int[] Return = new int[] {HighestBlue, HighestRed};
+
+		return Return;
+	}
 
 
 
@@ -243,7 +325,7 @@ public class Trigger {
 
 			int sumsauce = 0;
 			//for int potassium = bananas
-			for(int k = 0; k < (bitproc.getHeight()/6); k++) {
+			for(int k = 0; k < (bitproc.getHeight()/sampleSize); k++) {
 				//isolate black and remove it so as not to skew average
 				if(Color.blue(bitproc.getPixel(i, k)) > 10) {
 					sumsauce += Color.blue(bitproc.getPixel(i, k));
@@ -251,7 +333,7 @@ public class Trigger {
 
 			}
 
-			readArray[i] = sumsauce/(bitproc.getHeight()/6);
+			readArray[i] = sumsauce/(bitproc.getHeight()/sampleSize);
 
 			//deprecated line... this samples just one line along the image in the very center
 //			readArray[i]=Color.blue(bitproc.getPixel(i, bitproc.getHeight() / 2));
