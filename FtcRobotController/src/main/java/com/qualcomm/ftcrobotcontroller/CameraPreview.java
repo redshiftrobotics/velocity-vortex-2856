@@ -1,6 +1,7 @@
 package com.qualcomm.ftcrobotcontroller;
 
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -59,6 +60,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
+
+		Camera.Parameters parameters = mCamera.getParameters();
+		parameters.setFocusMode("auto");
+		parameters.setPictureSize(640, 480);
+		mCamera.setParameters(parameters);
 
         // start preview with new settings
         try {
