@@ -110,6 +110,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		Servo hangLock = hardwareMap.servo.get("hang_stop");
 		Servo hangingControl = this.hardwareMap.servo.get("hang_adjust");
 		DcMotor blockCollector = this.hardwareMap.dcMotor.get("block_collector");
+		UltrasonicSensor ultrasonicSensor = this.hardwareMap.ultrasonicSensor.get("ultrasonic_sensor");
 
 		//we don't know which one to reverse yet
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
@@ -118,13 +119,15 @@ public class NewAutonomous extends SynchronousOpMode {
 		idle();
 
 		//setup the PID stuff
-		Robot = new NewIMU(LeftMotor, RightMotor, colorSensor, hardwareMap, telemetry, this);
+		Robot = new NewIMU(LeftMotor, RightMotor, colorSensor, ultrasonicSensor, hardwareMap, telemetry, this);
 
 		telemetry.log.add("imu setup");
 		idle();
 
 		//select the side
 		SelectSide();
+
+
 
 		//wait for start
 		waitForStart();
@@ -188,7 +191,7 @@ public class NewAutonomous extends SynchronousOpMode {
 		//used to be 10
 		int BlueOffset = 5;
 
-		//make this work for oth sides. here is where it breaks
+		//make this work for both sides. here is where it breaks
 
 		// turn to be at a 70 degree angle from the start, this is where we will take a picture
 		Robot.TurnToAngle((float) InitialRotation + 70, "Left", 5);
@@ -198,7 +201,6 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		// get the image here
 		String ImageSide = TakePicture();
-
 		TakePicture();
 
 		// stop scoring
@@ -206,77 +208,39 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		// turn the rest of the way
 		if (side.equals("blue")) {
-			Robot.TurnToAngle((float) InitialRotation + 90 + BlueOffset, "Left", 3);
+			Robot.TurnToAngle((float) InitialRotation + 90, "Left", 3);
 		}
 		else
 		{
-			Robot.TurnToAngle((float) InitialRotation - 90 - RedOffset, "Right", 3);
+			Robot.TurnToAngle((float) InitialRotation - 90, "Right", 3);
 		}
 
-		//setup the variables for the backup timeout
-		Date a = new Date();
-		long BackupStartTime = a.getTime();
-		long BackupCurrentTime = BackupStartTime;
-
-		//set the light sensor threshold
-		int Threshold = 60;
-
+		Robot.StopAtUltrasonic = true;
 		Robot.Straight(2, 2);
-
-		//do this for 3 seconds
-//		while (Math.abs(BackupStartTime - BackupCurrentTime) < 2000)
-//		{
-//			Date b = new Date();
-//			BackupCurrentTime = b.getTime();
-//
-//			if(side.equals("red")) {
-//				if (colorSensor.green() < Threshold) {
-//					LeftMotor.setPower(-.3);
-//					RightMotor.setPower(.8);
-//				} else {
-//					LeftMotor.setPower(.8);
-//					RightMotor.setPower(-.3);
-//				}
-//			}
-//			else
-//			{
-//				if (colorSensor.green() < Threshold) {
-//					RightMotor.setPower(-.3);
-//					LeftMotor.setPower(.8);
-//				} else {
-//					RightMotor.setPower(.8);
-//					LeftMotor.setPower(-.3);
-//				}
-//			}
-//		}
+		Robot.StopAtUltrasonic = false;
 
 		Robot.Stop();
 
 		// start scoring the climbers
 		climberDeploy.setPosition(0);
-
 		Thread.sleep(2000);
-
 		climberDeploy.setPosition(.5);
 
-		// use right wheel so it pulls away from edge
-		Robot.TurnToAngle((float) InitialRotation + 90f, "Right", 1);
+		Robot.Straight(-1);
 
 		// determine the offset based on the side
 		int FinalTurnOffset = 0;
 
 		if (ImageSide == "left")
 		{
-			FinalTurnOffset = -6;
+			FinalTurnOffset = -5;
 		}
 		else if (ImageSide == "right")
 		{
-			FinalTurnOffset = 6;
+			FinalTurnOffset = 5;
 		}
 
-		Robot.TurnToAngle((float) (InitialRotation), "Left", 4);
-		Robot.TurnToAngle((float)(InitialRotation)- 90 + FinalTurnOffset, "Right", 4);
-
+		Robot.TurnToAngle((float) InitialRotation + 90 + FinalTurnOffset, "Right", 3);
 		Robot.Stop();
 
 		// start the collector to press the button, reverse into the button and hit it
