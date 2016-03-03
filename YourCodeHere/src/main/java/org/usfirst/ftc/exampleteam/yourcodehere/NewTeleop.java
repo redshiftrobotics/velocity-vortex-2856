@@ -26,6 +26,7 @@ public class NewTeleop extends SynchronousOpMode
 	Servo rightWing = null;
 	Servo hangLock = null;
 	Servo allClear = null;
+	Servo otherAllClear = null;
 	Servo climberDeploy = null;
 	int backBraceShouldBe;
 
@@ -56,6 +57,7 @@ public class NewTeleop extends SynchronousOpMode
 		this.hangLock = this.hardwareMap.servo.get("hang_stop");
 		this.allClear = this.hardwareMap.servo.get("all_clear");
 		this.climberDeploy = this.hardwareMap.servo.get("climber_deploy");
+		this.otherAllClear = this.hardwareMap.servo.get("other_all_clear");
 
 		this.backWheel.setDirection(DcMotor.Direction.REVERSE);
 		this.leftDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -65,11 +67,11 @@ public class NewTeleop extends SynchronousOpMode
 
 		this.leftGate.setPosition(0); //close
 		this.rightGate.setPosition(1); //close
-		this.hangLock.setPosition(0);
 		this.blockConveyer.setPosition(.50);
 		this.leftWing.setPosition(.2);
 		this.rightWing.setPosition(.6);
-		this.hangLock.setPosition(.9);
+		this.hangLock.setPosition(.63);
+		this.otherAllClear.setPosition(.19);
 
 		this.backBraceShouldBe = backBrace.getCurrentPosition();
 
@@ -179,7 +181,7 @@ public class NewTeleop extends SynchronousOpMode
 	{
 		//engage hang lock servo
 		if (pad.dpad_up) {
-			this.hangLock.setPosition(1);
+			this.hangLock.setPosition(.87f);
 		}
 
 		//moves the arm up and down
@@ -216,11 +218,12 @@ public class NewTeleop extends SynchronousOpMode
 	}
 
 	void allClear(Gamepad pad) {
-		if(pad.y) {
+		if(pad.a) {
 			this.allClear.setPosition(0); //engaged
-
-		} else if(pad.a) {
+			this.otherAllClear.setPosition(1);
+		} else {
 			this.allClear.setPosition(1); //disengaged
+			this.otherAllClear.setPosition(0);
 		}
 	}
 

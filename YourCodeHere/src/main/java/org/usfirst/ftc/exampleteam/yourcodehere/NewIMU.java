@@ -3,6 +3,7 @@ package org.usfirst.ftc.exampleteam.yourcodehere;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
@@ -45,6 +46,7 @@ public class NewIMU
 
 	//causes the robot to stop at a white light
 	boolean StopAtLight = false;
+	boolean StopAtUltrasonic = true;
 
 	//can be "Straight" or "Turn"
 	String Motion = "Turn";
@@ -67,9 +69,11 @@ public class NewIMU
 	HardwareMap hardwareMap;
 	TelemetryDashboardAndLog telemetry;
 	NewAutonomous MainOpMode;
+	UltrasonicSensor Ultrasonic;
 
-	public NewIMU(DcMotor LeftMotor, DcMotor RightMotor, ColorSensor lightSensor, HardwareMap map, TelemetryDashboardAndLog tel, NewAutonomous Auto)
+	public NewIMU(DcMotor LeftMotor, DcMotor RightMotor, ColorSensor lightSensor, UltrasonicSensor Ultrasonic, HardwareMap map, TelemetryDashboardAndLog tel, NewAutonomous Auto)
 	{
+		this.Ultrasonic = Ultrasonic;
 		this.LeftMotor = LeftMotor;
 		this.RightMotor = RightMotor;
 		this.LightSensor = lightSensor;
@@ -172,6 +176,12 @@ public class NewIMU
 			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold && this.StopAtLight)
 			{
 				telemetry.log.add("stopped becuase of light.");
+				return 1;
+			}
+
+			if (StopAtUltrasonic == true && this.Ultrasonic.getUltrasonicLevel() < 15 && this.Ultrasonic.getUltrasonicLevel() != 0)
+			{
+				telemetry.log.add("stopped becuase of ultrasonic.");
 				return 1;
 			}
 
