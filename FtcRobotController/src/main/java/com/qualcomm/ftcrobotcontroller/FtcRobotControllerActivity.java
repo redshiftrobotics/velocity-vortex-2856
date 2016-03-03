@@ -39,6 +39,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
@@ -110,6 +111,10 @@ public class FtcRobotControllerActivity extends Activity {
 	///////////////////////////////////////////////////////////
 	/////////               MODDED           //////////////////
 	///////////////////////////////////////////////////////////
+
+
+
+
 
 	private Camera mCamera;
 	private CameraPreview mPreview;
@@ -359,9 +364,43 @@ public class FtcRobotControllerActivity extends Activity {
 	  ///////////////////////////////////////////////////////////
 	  /////////               MODDED           //////////////////
 	  ///////////////////////////////////////////////////////////
+		String side;
+
+		  // Retrieve file.
+		  File file = new File("/sdcard/Pictures","prefs");
+		  StringBuilder text = new StringBuilder();
+		  // Attempt to load line from file into the buffer.
+		  try {
+			  BufferedReader br = new BufferedReader(new FileReader(file));
+			  String line;
+			  // Ensure that the first line is not null.
+			  while ((line = br.readLine()) != null) {
+				  text.append(line);
+			  }
+			  // Close the buffer reader
+			  br.close();
+		  }
+		  // Catch exceptions... Or don't because that would require effort.
+		  catch (IOException e) {
+		  }
+
+		  // Provide in a more user friendly form.
+		  side = text.toString();
 
 
-	Thread thread = new Thread(new Runnable(){
+	  Button sideColor = (Button) findViewById(R.id.sideColor);
+
+	  if (side == "blue") {
+		  sideColor.setBackgroundColor(Color.BLUE);
+	  } else if (side == "red") {
+		  sideColor.setBackgroundColor(Color.RED);
+	  } else {
+		  sideColor.setBackgroundColor(Color.WHITE);
+	  }
+
+
+
+	  Thread thread = new Thread(new Runnable(){
 		@Override
 		public void run() {
 			ServerSocket soc;

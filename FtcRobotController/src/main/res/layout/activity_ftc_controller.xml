@@ -181,6 +181,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 		  android:layout_alignEnd="@+id/textGamepad1"
 		  android:layout_alignTop="@+id/camera_preview" />
 
+	  <Button
+		  style="?android:attr/buttonStyleSmall"
+		  android:layout_width="wrap_content"
+		  android:layout_height="wrap_content"
+		  android:id="@+id/sideColor"
+		  android:layout_below="@+id/camera_preview"
+		  android:layout_toRightOf="@+id/camera_preview"
+		  android:layout_toEndOf="@+id/camera_preview" />
+
 
   </RelativeLayout>
 </LinearLayout>
