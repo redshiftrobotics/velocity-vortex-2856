@@ -7,7 +7,7 @@
         <Motor name="left_drive" port="1" />
         <Motor name="right_drive" port="2" />
     </MotorController>
-    <MotorController name="collector_controller" serialNumber="AL00UYQ6">
+    <MotorController name="collector_controller" serialNumber="AL00XT15">
         <Motor name="block_collector" port="1" />
         <Motor name="hanging_motor" port="2" />
     </MotorController>

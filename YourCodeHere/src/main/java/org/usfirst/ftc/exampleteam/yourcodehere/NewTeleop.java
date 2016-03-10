@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.util.*;
 import org.swerverobotics.library.*;
 import org.swerverobotics.library.interfaces.*;
 
+import java.lang.reflect.Array;
+
 /**
  * An example of a synchronous opmode that implements a simple drive-a-bot. 
  */
@@ -30,9 +32,15 @@ public class NewTeleop extends SynchronousOpMode
 	Servo climberDeploy = null;
 	int backBraceShouldBe;
 
-	//this is the default servo position
-	double HangingServoPosition = .5;
+	//open, closed
+	double LeftGatePositions[] = new double[]{1, .27};
+	double RightGatePositions[] = new double[]{.36, 1};
 
+	// down, up
+	double HangingServoPositions[] = new double[]{.10, .55};
+
+	//this is the default servo position
+	double HangingServoPosition = HangingServoPositions[1];
 
 	boolean CollectBlocks = false;
 
@@ -65,8 +73,8 @@ public class NewTeleop extends SynchronousOpMode
 		// Wait until we've been given the ok to go
 		this.waitForStart();
 
-		this.leftGate.setPosition(0); //close
-		this.rightGate.setPosition(1); //close
+		this.leftGate.setPosition(LeftGatePositions[1]); //close
+		this.rightGate.setPosition(RightGatePositions[1]); //close
 		this.blockConveyer.setPosition(.50);
 		this.leftWing.setPosition(.2);
 		this.rightWing.setPosition(.6);
@@ -200,10 +208,15 @@ public class NewTeleop extends SynchronousOpMode
 			HangingServoPosition  += pad.right_stick_y / 150;
 		}
 
-		if(HangingServoPosition <= 0) {
-			HangingServoPosition = 0;
-		} else if (HangingServoPosition > 1) {
-			HangingServoPosition = 1;
+		if(HangingServoPosition <= HangingServoPositions[0]) {
+			HangingServoPosition = HangingServoPositions[0];
+		} else if (HangingServoPosition > HangingServoPositions[1]) {
+			HangingServoPosition = HangingServoPositions[1];
+		}
+
+		if(this.gamepad1.b)
+		{
+			HangingServoPosition = HangingServoPositions[0];
 		}
 
 		hangingControl.setPosition(HangingServoPosition);
@@ -229,6 +242,7 @@ public class NewTeleop extends SynchronousOpMode
 
 	void BlockDeploy(Gamepad pad)
 	{
+		//generate random numbers for bumpers
 		double LeftRandom;
 		if (pad.left_bumper) {
 			LeftRandom = (Math.random() - .5) / 5;
@@ -237,7 +251,6 @@ public class NewTeleop extends SynchronousOpMode
 		{
 			LeftRandom = 0;
 		}
-
 		double RightRandom;
 		if (pad.right_bumper) {
 			RightRandom = (Math.random() - .5) / 5;
@@ -265,21 +278,21 @@ public class NewTeleop extends SynchronousOpMode
 
 		if(pad.left_bumper)
 		{
-			this.leftGate.setPosition(.73 + LeftRandom); //open
-			this.rightGate.setPosition(.9); //close
+			this.leftGate.setPosition(LeftGatePositions[0] + LeftRandom); //open
+			this.rightGate.setPosition(RightGatePositions[1]); //close
 		}
 
 		if(pad.right_bumper)
 		{
-			this.leftGate.setPosition(0); //close
-			this.rightGate.setPosition(.10 + RightRandom); //open
+			this.leftGate.setPosition(LeftGatePositions[1]); //close
+			this.rightGate.setPosition(RightGatePositions[0] + RightRandom); //open
 		}
 
 		// close both gates for collection
 		if(pad.y)
 		{
-			this.leftGate.setPosition(0); //close
-			this.rightGate.setPosition(.9); //close
+			this.leftGate.setPosition(LeftGatePositions[1]); //close
+			this.rightGate.setPosition(RightGatePositions[1]); //close
 		}
 	}
 
