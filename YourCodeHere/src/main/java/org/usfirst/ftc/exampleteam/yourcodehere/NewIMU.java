@@ -46,7 +46,7 @@ public class NewIMU
 
 	//causes the robot to stop at a white light
 	boolean StopAtLight = false;
-	boolean StopAtUltrasonic = true;
+	boolean StopAtUltrasonic = false;
 
 	//can be "Straight" or "Turn"
 	String Motion = "Turn";
@@ -161,6 +161,8 @@ public class NewIMU
 
 		while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
 		{
+			telemetry.addData("7", Ultrasonic.getUltrasonicLevel());
+
 			//see if it has passed the timeout
 			Date a = new Date();
 			long Time = a.getTime();
@@ -276,6 +278,14 @@ public class NewIMU
 			if(Math.abs(CurrentTime - StartTime) > Timeout * 1000)
 			{
 				telemetry.log.add("turn timed out");
+				break;
+			}
+
+			// if the light sensor value is above a certain threshold, stop the movement
+			int Threshold = 60;
+			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold && this.StopAtLight)
+			{
+				telemetry.log.add("stopped becuase of light.");
 				break;
 			}
 
