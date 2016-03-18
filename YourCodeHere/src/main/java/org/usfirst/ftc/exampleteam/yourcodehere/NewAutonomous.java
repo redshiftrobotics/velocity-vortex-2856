@@ -177,22 +177,19 @@ public class NewAutonomous extends SynchronousOpMode {
 		if (side.equals("blue")) {
 			Robot.Turn(-50, "Right", 2);
 		}
+		else if (side.equals("red"))
+		{
+			Robot.Turn(50, "Left", 2);
+		}
 
-		//make this work for both sides. here is where it breaks
-		Robot.TurnToAngle((float) InitialRotation + 60, "Right", 3);
-
-		// start scoring early
-		climberDeploy.setPosition(0);
-
-		// get the image here
-		String ImageSide = TakePicture();
-		TakePicture();
-
-		// stop scoring
-		climberDeploy.setPosition(.5);
-
-		//get straight
-		Robot.TurnToAngle((float) InitialRotation + 90, "Left", 3);
+		if (side.equals("blue")) {
+			//get straight
+			Robot.TurnToAngle((float) InitialRotation + 90, "Right", 5);
+		}
+		else if (side.equals("red"))
+		{
+			Robot.TurnToAngle((float) InitialRotation - 90, "Left", 5);
+		}
 
 		// go until we're close
 		Robot.StopAtUltrasonic = true;
@@ -204,54 +201,54 @@ public class NewAutonomous extends SynchronousOpMode {
 
 		// start scoring the climbers
 		climberDeploy.setPosition(0);
-		Thread.sleep(2000);
+		Thread.sleep(4000);
 		climberDeploy.setPosition(.5);
-
-		//turn so that we're straight
-		Robot.TurnToAngle((float) InitialRotation + 90, "Right", 1);
-
-		//reverse
-		Robot.Straight(-1.0f);
-
-		//line up with the light before we go in
-		Robot.StopAtLight = true;
-		Robot.Turn(20, "Left", 2);
-		Robot.Turn(-40, "Left", 2);
-		Robot.StopAtLight = false;
-
-		Thread.sleep(2000);
-
-		// determine the offset based on the side
-		int FinalTurnOffset = 0;
-
-		if (ImageSide == "left")
-		{
-			FinalTurnOffset = -25;
-		}
-		else if (ImageSide == "right")
-		{
-			FinalTurnOffset = 0;
-		}
-
-		Robot.Stop();
-
-		Thread.sleep(2000);
-
-		//turn to the appropriate angle
-		Robot.TurnToAngle((float) InitialRotation + 90 + FinalTurnOffset, "Left", 3);
-		Robot.Stop();
-
-		//put the back brace down
-		int BackBraceInitialPosition = BackBrace.getCurrentPosition();
-		while(Math.abs(BackBrace.getCurrentPosition() - BackBraceInitialPosition) < 1500)
-		{
-			BackBrace.setPower(-1);
-		}
-		BackBrace.setPower(0);
-
-		// reverse into the button and hit it
-		Robot.Straight(2.0f, 2);
-		Robot.Stop();
+//
+//		//turn so that we're straight
+//		Robot.TurnToAngle((float) InitialRotation + 90, "Right", 1);
+//
+//		//reverse
+//		Robot.Straight(-1.0f);
+//
+//		//line up with the light before we go in
+//		Robot.StopAtLight = true;
+//		Robot.Turn(20, "Left", 2);
+//		Robot.Turn(-40, "Left", 2);
+//		Robot.StopAtLight = false;
+//
+//		Thread.sleep(2000);
+//
+//		// determine the offset based on the side
+//		int FinalTurnOffset = 0;
+//
+//		if (ImageSide == "left")
+//		{
+//			FinalTurnOffset = -25;
+//		}
+//		else if (ImageSide == "right")
+//		{
+//			FinalTurnOffset = 0;
+//		}
+//
+//		Robot.Stop();
+//
+//		Thread.sleep(2000);
+//
+//		//turn to the appropriate angle
+//		Robot.TurnToAngle((float) InitialRotation + 90 + FinalTurnOffset, "Left", 3);
+//		Robot.Stop();
+//
+//		//put the back brace down
+//		int BackBraceInitialPosition = BackBrace.getCurrentPosition();
+//		while(Math.abs(BackBrace.getCurrentPosition() - BackBraceInitialPosition) < 1500)
+//		{
+//			BackBrace.setPower(-1);
+//		}
+//		BackBrace.setPower(0);
+//
+//		// reverse into the button and hit it
+//		Robot.Straight(2.0f, 2);
+//		Robot.Stop();
 
 		idle();
 	}
