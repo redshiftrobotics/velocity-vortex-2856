@@ -1,0 +1,1 @@
+adb pull /storage/emulated/legacy/FIRST/NewTeleop.xml "C:\Users\SAAS Student\Documents\Robotics\2856\RobotConfigFiles\NewTeleop.xml" 
