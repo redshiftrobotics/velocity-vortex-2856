@@ -3,7 +3,7 @@
     <DeviceInterfaceModule name="device_interface_module" serialNumber="AL00VF84">
         <I2cDevice name="imu" port="0" />
     </DeviceInterfaceModule>
-    <MotorController name="drive_controller" serialNumber="AL00VBVM">
+    <MotorController name="drive_controller" serialNumber="AL00UYPG">
         <Motor name="left_drive" port="1" />
         <Motor name="right_drive" port="2" />
     </MotorController>

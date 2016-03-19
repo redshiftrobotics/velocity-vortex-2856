@@ -112,6 +112,9 @@ public class NewAutonomous extends SynchronousOpMode {
 		DcMotor blockCollector = this.hardwareMap.dcMotor.get("block_collector");
 		UltrasonicSensor ultrasonicSensor = this.hardwareMap.ultrasonicSensor.get("ultrasonic_sensor");
 
+		Servo allClear = this.hardwareMap.servo.get("all_clear");
+		Servo otherAllClear = this.hardwareMap.servo.get("other_all_clear");
+
 		//we don't know which one to reverse yet
 		LeftMotor.setDirection(DcMotor.Direction.REVERSE);
 
@@ -139,13 +142,15 @@ public class NewAutonomous extends SynchronousOpMode {
 		rightWing.setPosition(.6);
 		hangLock.setPosition(.72);
 		hangingControl.setPosition(.6);
+		allClear.setPosition(0); //disengaged
+		otherAllClear.setPosition(1);
 
 		//this is the initial rotation; it will be referenced through the entire program
 		double InitialRotation = Robot.Rotation();
 
 		Robot.Power = 1f;
 
-		Robot.Straight(1, 3);
+		Robot.Straight(1.5f, 3);
 
 		Robot.Stop();
 
@@ -153,102 +158,63 @@ public class NewAutonomous extends SynchronousOpMode {
 		Robot.TurningPower = 1f;
 
 		//turn so that blocks go away
-		int RedFirstTurnOffset = 11;
-		int BlueFirstTurnOffset = 3;
+		int RedFirstTurnOffset = 6;
+		int BlueFirstTurnOffset = 7;
 
 		if (side.equals("blue")) {
-			Robot.TurnToAngle((float)InitialRotation + 45 - BlueFirstTurnOffset, "Left", 3);
+			Robot.TurnToAngle((float)InitialRotation + 45 - BlueFirstTurnOffset, "Left", 4);
 		}
 		else
 		{
-			Robot.TurnToAngle((float)InitialRotation -45 + RedFirstTurnOffset, "Right", 3);
+			Robot.TurnToAngle((float)InitialRotation -45 + RedFirstTurnOffset, "Right", 4);
 		}
 
 		//set the robot to stop when it hits the white line
 		Robot.StopAtLight = true;
 
 		// move backwards, the encoder count is arbitrary
-		Robot.Straight(10f, 15);
+		Robot.Straight(11f, 15);
 		Robot.Stop();
 
 		//prevent the robot from stopping at the light again
 		Robot.StopAtLight = false;
 
 		if (side.equals("blue")) {
-			Robot.Turn(-50, "Right", 2);
+			Robot.Turn(-70, "Right", 5);
 		}
 		else if (side.equals("red"))
 		{
-			Robot.Turn(50, "Left", 2);
+			Robot.Turn(70, "Left", 5);
 		}
 
 		if (side.equals("blue")) {
 			//get straight
-			Robot.TurnToAngle((float) InitialRotation + 90, "Right", 5);
+			Robot.TurnToAngle((float) InitialRotation + 45, "Right", 5);
+			Robot.Stop();
+			Robot.TurnToAngle((float) InitialRotation + 90, "Left", 5);
 		}
 		else if (side.equals("red"))
 		{
-			Robot.TurnToAngle((float) InitialRotation - 90, "Left", 5);
+			Robot.TurnToAngle((float) InitialRotation - 25, "Left", 5);
+			Robot.Stop();
+			Robot.TurnToAngle((float) InitialRotation - 90, "Right", 5);
 		}
 
 		// go until we're close
-		Robot.StopAtUltrasonic = true;
-		Robot.Straight(2, 2);
-		Robot.StopAtUltrasonic = false;
+		if(side.equals("blue")) {
+			Robot.Straight(2, 3);
+		}
+		else{
+			Robot.Straight(3, 3);
+		}
 		Robot.Stop();
 
 		//we need to somehow straighten here
 
 		// start scoring the climbers
 		climberDeploy.setPosition(0);
-		Thread.sleep(4000);
+		Thread.sleep(5000);
 		climberDeploy.setPosition(.5);
-//
-//		//turn so that we're straight
-//		Robot.TurnToAngle((float) InitialRotation + 90, "Right", 1);
-//
-//		//reverse
-//		Robot.Straight(-1.0f);
-//
-//		//line up with the light before we go in
-//		Robot.StopAtLight = true;
-//		Robot.Turn(20, "Left", 2);
-//		Robot.Turn(-40, "Left", 2);
-//		Robot.StopAtLight = false;
-//
-//		Thread.sleep(2000);
-//
-//		// determine the offset based on the side
-//		int FinalTurnOffset = 0;
-//
-//		if (ImageSide == "left")
-//		{
-//			FinalTurnOffset = -25;
-//		}
-//		else if (ImageSide == "right")
-//		{
-//			FinalTurnOffset = 0;
-//		}
-//
-//		Robot.Stop();
-//
-//		Thread.sleep(2000);
-//
-//		//turn to the appropriate angle
-//		Robot.TurnToAngle((float) InitialRotation + 90 + FinalTurnOffset, "Left", 3);
-//		Robot.Stop();
-//
-//		//put the back brace down
-//		int BackBraceInitialPosition = BackBrace.getCurrentPosition();
-//		while(Math.abs(BackBrace.getCurrentPosition() - BackBraceInitialPosition) < 1500)
-//		{
-//			BackBrace.setPower(-1);
-//		}
-//		BackBrace.setPower(0);
-//
-//		// reverse into the button and hit it
-//		Robot.Straight(2.0f, 2);
-//		Robot.Stop();
 
 		idle();
 	}

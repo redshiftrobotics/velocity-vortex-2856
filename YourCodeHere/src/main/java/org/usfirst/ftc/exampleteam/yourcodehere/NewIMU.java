@@ -151,7 +151,7 @@ public class NewIMU
 		}
 
         //start position
-        long StartPosition = RightMotor.getCurrentPosition();
+        long StartPosition = LeftMotor.getCurrentPosition();
 
         //update the angles
         UpdateAngles();
@@ -159,9 +159,11 @@ public class NewIMU
         //set the target to the current position
         Target = ComputedRotation;
 
-		while(Math.abs(StartPosition - RightMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
+		while(Math.abs(StartPosition - LeftMotor.getCurrentPosition()) < Math.abs(Rotations) * 1400)
 		{
 			telemetry.addData("7", Ultrasonic.getUltrasonicLevel());
+			telemetry.addData("8", RightMotor.getCurrentPosition());
+			telemetry.addData("9", LeftMotor.getCurrentPosition());
 
 			//see if it has passed the timeout
 			Date a = new Date();
@@ -169,7 +171,7 @@ public class NewIMU
 
 			if(Math.abs(StartTime - Time) > Timeout * 1000)
 			{
-				telemetry.log.add("Timed Out");
+				telemetry.log.add("straight timed out");
 				break;
 			}
 
@@ -177,13 +179,13 @@ public class NewIMU
 			int Threshold = 60;
 			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold && this.StopAtLight)
 			{
-				telemetry.log.add("stopped becuase of light.");
+				telemetry.log.add("straight stopped becuase of light.");
 				return 1;
 			}
 
-			if (StopAtUltrasonic == true && this.Ultrasonic.getUltrasonicLevel() < 15 && this.Ultrasonic.getUltrasonicLevel() != 0)
+			if (StopAtUltrasonic == true && this.Ultrasonic.getUltrasonicLevel() < 10 && this.Ultrasonic.getUltrasonicLevel() != 0)
 			{
-				telemetry.log.add("stopped becuase of ultrasonic.");
+				telemetry.log.add("straight stopped becuase of ultrasonic.");
 				return 1;
 			}
 
@@ -197,6 +199,10 @@ public class NewIMU
 
 			//idle using the reference to the instance of the main opmode
 			MainOpMode.idle();
+		}
+
+		if (Math.abs(StartPosition - LeftMotor.getCurrentPosition()) > Math.abs(Rotations) * 1400) {
+			telemetry.log.add("straight stopped becuase of encoders.");
 		}
 
 		return 1;
@@ -355,9 +361,9 @@ public class NewIMU
             D = (ComputedRotation - DerivativeAverage) / ((UpdateTime / 1000) * (1 + (DerivativeData.size() / 2)));
 
 			//constants for the real chassis
-			PConstant = 4f;
-			IConstant = 0f;
-			DConstant = .7f;
+			PConstant = 10f; ///7f
+			IConstant = 2f; //.5
+			DConstant = 1f;
         }
         else if (Motion == "Turn")
         {
