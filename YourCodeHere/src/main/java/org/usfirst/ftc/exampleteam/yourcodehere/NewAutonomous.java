@@ -158,15 +158,14 @@ public class NewAutonomous extends SynchronousOpMode {
 		Robot.TurningPower = 1f;
 
 		//turn so that blocks go away
-		int RedFirstTurnOffset = 6;
-		int BlueFirstTurnOffset = 7;
-
+		int RedFirstTurnOffset = 7; // before matt old 6
+		int BlueFirstTurnOffset = 10; // before matt old 7
 		if (side.equals("blue")) {
 			Robot.TurnToAngle((float)InitialRotation + 45 - BlueFirstTurnOffset, "Left", 4);
 		}
 		else
 		{
-			Robot.TurnToAngle((float)InitialRotation -45 + RedFirstTurnOffset, "Right", 4);
+			Robot.TurnToAngle((float)InitialRotation - 45 + RedFirstTurnOffset, "Right", 4);
 		}
 
 		//set the robot to stop when it hits the white line
@@ -215,6 +214,60 @@ public class NewAutonomous extends SynchronousOpMode {
 		climberDeploy.setPosition(0);
 		Thread.sleep(5000);
 		climberDeploy.setPosition(.5);
+		Thread.sleep(70);
+		Robot.Straight(-2f, 2);
+		Robot.Stop();
+
+		if(side.equals("blue")) {
+			Robot.TurnToAngle((float) InitialRotation + 80, "Left", 1);
+			Robot.Stop();
+		} else {
+			Robot.TurnToAngle((float) InitialRotation - 100, "Left", 2);
+			Robot.Stop();
+		}
+
+		Trigger.takeImage();
+		Thread.sleep(100);
+		int [] sidez = Trigger.IsaacDetermineSides();
+		telemetry.log.add("Blue: " + String.valueOf(sidez[0]) + " Red: " + String.valueOf(sidez[1]));
+
+		otherAllClear.setPosition(0.2);
+
+		if(side.equals("blue")) {
+			if(sidez[0] > sidez[1] /*blue position is higher than red position*/) {
+				//turn towards right
+				Robot.TurnToAngle((float) InitialRotation + 105, "Left", 3);
+				Robot.Stop();
+				Robot.Straight(0.8f, 2);
+				Robot.Stop();
+				allClear.setPosition(1);
+			} else if (sidez[1] > sidez[0] /*red position is higher than blue position*/) {
+				//maintain position to hit the left button
+				Robot.TurnToAngle((float) InitialRotation + 90, "Left", 3);
+				Robot.Stop();
+				Robot.Straight(0.8f, 2);
+				Robot.Stop();
+				otherAllClear.setPosition(1);
+			} else {
+				//do not act, didn't detect color
+			}
+		} else {
+			if(sidez[0] > sidez[1] /*blue position is higher than red position*/) {
+				Robot.TurnToAngle((float) InitialRotation - 80, "Left", 3);
+				Robot.Stop();
+				Robot.Straight(0.8f, 2);
+				Robot.Stop();
+				allClear.setPosition(1);
+			} else if (sidez[1] < sidez[0] /*red position is higher than blue position*/) {
+				Robot.TurnToAngle((float) InitialRotation - 60, "Left", 3);
+				Robot.Stop();
+				Robot.Straight(0.8f, 2);
+				Robot.Stop();
+				allClear.setPosition(1);
+			} else {
+				//do not act, didn't detect color
+			}
+		}
 
 		idle();
 	}
