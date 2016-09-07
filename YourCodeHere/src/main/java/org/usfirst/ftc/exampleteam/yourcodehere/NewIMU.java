@@ -176,7 +176,7 @@ public class NewIMU
 			}
 
 			// if the light sensor value is above a certain threshold, stop the movement
-			int Threshold = 60;
+			int Threshold = 75;
 			if (this.LightSensor.blue() > Threshold && this.LightSensor.red() > Threshold && this.LightSensor.green() > Threshold && this.StopAtLight)
 			{
 				telemetry.log.add("straight stopped becuase of light.");
