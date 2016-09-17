@@ -1,3 +1,0 @@
-include ':SwerveRoboticsLibrary', ':YourCodeHere'
-// FTC Apps
-include (':FtcRobotController')

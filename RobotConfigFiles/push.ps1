@@ -1,1 +1,0 @@
-adb push "C:\Users\isaaczinda\Documents\Robotics\2856\RobotConfigFiles\NewTeleop.xml" /storage/emulated/legacy/FIRST/NewTeleop.xml
