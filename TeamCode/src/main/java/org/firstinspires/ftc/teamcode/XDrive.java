@@ -66,31 +66,42 @@ public class XDrive extends OpMode {
         power[2] = -pitch;
         power[3] = pitch;*/
 
+        //quickly initialize array to zero
         for (int i = 0; i < power.length; i++) power[i] = 0.0;
 
+        //set pitch
         for (int i = 0; i < power.length; i++) {
+            //if motor 1 or motor 4...
             if (i == 0 || i == 3) {
                 power[i] += pitch;
             }
+            //if motor 2 or motor 3 ...
             if (i == 1 || i == 2) {
                 power[i] -= pitch;
             }
         }
 
+        //set roll
         for (int i = 0; i < power.length; i++) {
            switch (i) {
+               //if motors 3 or 4...
                case 2:
                case 3:
+                   //increase power
                    power[i] += roll;
                    break;
+               //if motors 1 or 2...
                case 0:
                case 1:
+                   //decrease power
                    power[i] -= roll;
                    break;
            }
+            //yaw is added to all motors regardless, they all turn the same direction
             power[i] += yaw;
         }
 
+        //set power
         for (int i = 0; i < power.length; i++) {
             motors[i].setPower(power[i]);
         }
