@@ -4,21 +4,17 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * Created by matt on 9/17/16.
  */
 
-@TeleOp(name="Mechanum", group="TestChassis")
-public class TestChassis extends OpMode {
+@TeleOp(name="Omni", group="TestChassis")
+public class TestChassisOmni extends OpMode {
     public DcMotor m1   = null;
     public DcMotor  m2  = null;
     public DcMotor  m3  = null;
@@ -34,10 +30,10 @@ public class TestChassis extends OpMode {
         Log.e("OPMODE STATUS:", "started");
         hwMap = hardwareMap;
 
-        m1   = hwMap.dcMotor.get("motor1");
-        m2 = hwMap.dcMotor.get("motor2");
-        m3   = hwMap.dcMotor.get("motor3");
-        m4 = hwMap.dcMotor.get("motor4");
+        m1   = hwMap.dcMotor.get("m0");
+        m2 = hwMap.dcMotor.get("m1");
+        m3   = hwMap.dcMotor.get("m2");
+        m4 = hwMap.dcMotor.get("m3");
 
         motors = new DcMotor[]{m1, m2, m3, m4};
 
@@ -83,16 +79,19 @@ public class TestChassis extends OpMode {
         yaw = gamepad1.left_stick_x; //turning
 
         for (int i = 0; i < power.length; i++) {
-            if(i == 1 || i == 2) { //on motors 1 and 2
+            if(i == 2 || i == 3) {
                 power[i] -= pitch;
             } else {
                 power[i] += pitch;
             }
-            power[i] -= yaw;
+            power[i] += yaw;
             if(i < 2) { //on the first two motors (0 and 1)
                 power[i] += roll;
             } else {
                 power[i] -= roll;
+            }
+            if(i == 1 || i == 3) {
+                power[i] = -power[i];
             }
             //power[i] /= 128; //scalar
             telemetry.addData("Motor", power[i]);
