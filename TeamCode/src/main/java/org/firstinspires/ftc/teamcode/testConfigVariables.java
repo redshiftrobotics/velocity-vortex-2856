@@ -13,7 +13,7 @@ import org.firstinspires.ftc.redshiftrobotics.config.ConfigVariable;
  * Created by adam on 10/1/16.
  */
 @TeleOp(name="testconfig", group = "test")
-public class testOp extends OpMode {
+public class testConfigVariables extends OpMode {
     public Config<Double> conf = new Config<>();
 
     @Override
