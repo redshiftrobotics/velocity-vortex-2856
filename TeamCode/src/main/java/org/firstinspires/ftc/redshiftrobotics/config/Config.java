@@ -63,20 +63,17 @@ public class Config <E extends Number>  { //template class can be used with any 
         E value, min, max; //the min, max, and value data extracted from the current object
 
         while (keys.hasNext()) {
-
             String key = keys.next();
             if (vars.get(key) instanceof JSONObject) {
                 current =  vars.getJSONObject(key);
                 try {
                     value = (E) current.get("val");
-                    min = (E) current.get("min");
-                    max = (E) current.get("max");
                 } catch (Exception e) {
                     e.printStackTrace();
                     return;
                 }
                 String name = key;
-                ConfigVariable<E> c = new ConfigVariable<>(value, min, max);
+                ConfigVariable<E> c = new ConfigVariable<>(value);
                 this.variables.put(name, c);
             }
         }
