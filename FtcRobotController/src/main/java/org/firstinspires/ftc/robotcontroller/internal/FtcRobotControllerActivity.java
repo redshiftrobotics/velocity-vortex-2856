@@ -54,6 +54,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+
 import com.google.blocks.ftcrobotcontroller.BlocksActivity;
 import com.google.blocks.ftcrobotcontroller.ProgrammingModeActivity;
 import com.google.blocks.ftcrobotcontroller.ProgrammingModeControllerImpl;
@@ -94,6 +95,11 @@ import org.firstinspires.inspection.RcInspectionActivity;
 import java.io.File;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+/// modified code for image processing
+import android.hardware.Camera;
+///
+
 
 public class FtcRobotControllerActivity extends Activity {
 
@@ -514,6 +520,42 @@ public class FtcRobotControllerActivity extends Activity {
     requestRobotShutdown();
     requestRobotSetup();
   }
+
+
+  /// modified for image processingpublic Camera camera;
+  public Camera camera = openCamera();
+  private Camera openCamera() {
+    int cameraId = -1;
+    Camera cam = null;
+    int numberOfCameras = Camera.getNumberOfCameras();
+    for (int i = 0; i < numberOfCameras; i++) {
+      Camera.CameraInfo info = new Camera.CameraInfo();
+      Camera.getCameraInfo(i, info);
+      if (info.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {
+        cameraId = i;
+        break;
+      }
+    }
+    try {
+      cam = Camera.open(cameraId);
+    } catch (Exception e) {
+
+    }
+    return cam;
+  }
+
+  public void initPreview(final Camera camera, final CameraOp context, final Camera.PreviewCallback previewCallback) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
+        LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
+        previewLayout.addView(context.preview);
+      }
+    });
+  }
+
+  ///
 
   protected void hittingMenuButtonBrightensScreen() {
     ActionBar actionBar = getActionBar();
