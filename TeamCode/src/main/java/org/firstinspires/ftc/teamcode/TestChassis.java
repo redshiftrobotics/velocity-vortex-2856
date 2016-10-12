@@ -83,16 +83,16 @@ public class TestChassis extends OpMode {
         yaw = gamepad1.left_stick_x; //turning
 
         for (int i = 0; i < power.length; i++) {
-            if(i == 1 || i == 2) { //on motors 1 and 2
-                power[i] -= pitch;
-            } else {
+            if(i == 0 || i == 2) {
                 power[i] += pitch;
-            }
-            power[i] -= yaw;
-            if(i < 2) { //on the first two motors (0 and 1)
-                power[i] += roll;
             } else {
-                power[i] -= roll;
+                power[i] -= pitch;
+            }
+            power[i] += roll;
+            if(i < 2) { //on the first two motors (0 and 1)
+                power[i] += yaw;
+            } else {
+                power[i] -= yaw;
             }
             //power[i] /= 128; //scalar
             telemetry.addData("Motor", power[i]);
