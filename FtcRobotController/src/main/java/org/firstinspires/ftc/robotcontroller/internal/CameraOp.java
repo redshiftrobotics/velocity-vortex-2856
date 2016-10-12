@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Vector;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
+import android.util.Log;
 
 @TeleOp(name = "center vortex", group = "Image Proc")
 public class CameraOp extends OpMode {
@@ -47,6 +49,7 @@ public class CameraOp extends OpMode {
      */
     @Override
     public void init() {
+        Log.d("BLUE: ", Integer.toString( Color.BLUE ));
         camera = ((FtcRobotControllerActivity)hardwareMap.appContext).camera;
         camera.setPreviewCallback(previewCallback);
 
@@ -68,38 +71,85 @@ public class CameraOp extends OpMode {
         if (yuvImage != null) {
             convertImage();
 
-            //assume on blue alliance
-            int threshold = 40; // how much farther above the average the blue value has to be to be tagged as blue
-            int totalBlue = 0;
-
-            for (int h = 0; h < height; h++){
-                for (int w = 0; w < width; w++) {
-                    totalBlue += Color.blue(image.getPixel(w, h));
-                }
-            }
-
-            int blueAvg = totalBlue/(width*height); // take
-            int[][] columnPixels = new int[width][2];
-            for (int w = 0; w < width; w++){
-                for (int h = 0; h < height; h++) {
-                    if (Color.blue(image.getPixel(w, h)) > blueAvg + threshold) {
-                        
-                        break;
-                    }
-                }
-                for (int h = height; h > height; h--) {
-                    break;
-                }
-
-
-            }
-
-            String colorString = "";
-
-            telemetry.addData("Color:", "Color detected is: " + colorString);
+           int offset = determineOffset(ColorOption.BLUE);
+            telemetry.addData("Blue Offset: ", Integer.toString(offset));
         }
         telemetry.addData("Looped","Looped " + Integer.toString(looped) + " times");
-        //Log.d("DEBUG:", data);
         telemetry.update();
     }
+
+    //options for the potential alliance color.
+    public enum ColorOption {
+        BLUE,
+        RED,
+    }
+
+    public int determineOffset(ColorOption c) {
+
+        int threshold = 40;
+        int totalBlue = 0;
+        int totalRed = 0;
+        int blueAverage;
+        int redAverage;
+        for (int w = 0; w < width; w++) {
+            for (int h = 0; h < height; h++) {
+                totalBlue += Color.blue(image.getPixel(w, h));
+                totalRed += Color.red(image.getPixel(w, h));
+            }
+        }
+
+
+        blueAverage = totalBlue / (width * height);
+        redAverage = totalRed / (width * height);
+
+        Vector<int[]> coloredPixels = new Vector<>();
+
+        if (c == ColorOption.BLUE) {
+            for (int w = 0; w < width; w++) {
+                for (int h = 0; h < height; h++) {
+                    if (Color.blue(image.getPixel(w, h)) >= blueAverage + threshold) {
+                        coloredPixels.add(new int[] {w, h});
+                    }
+                }
+            }
+        } else {
+            for (int w = 0; w < width; w++) {
+                for (int h = 0; h < height; h++) {
+                    if (Color.red(image.getPixel(w, h)) >= redAverage + threshold) {
+                        coloredPixels.add(new int[] {w, h});
+                    }
+                }
+            }
+        }
+
+        int xSum = 0;
+        int ySum = 0;
+
+        for (int[] point : coloredPixels) {
+            xSum += point[0];
+            ySum += point[1];
+        }
+
+       // telemetry.addData("xSum is:" , Integer.toString(xSum));
+
+      //  telemetry.addData("xSum / pixels.size()", Float.toString(Math.round(xSum / coloredPixels.size())));
+        int xAvg = 0;
+        int yAvg = 0;
+        if (coloredPixels.size() == 0) {
+            xAvg = Math.round(xSum / coloredPixels.size());
+            yAvg = Math.round(ySum / coloredPixels.size());
+        }
+        //center x coordinate...
+        int centerX = Math.round(width / 2);
+      //  telemetry.addData("Image center:", "" + centerX);
+        //offset from rounded
+        //if value is negative,
+        // center is to the right of the center,
+        //otherwise, it's on the left.
+
+        int offset =  centerX - xAvg;
+       // telemetry.addData("Offset is: ", "" + offset);
+        return offset;
+    }
+
 }
