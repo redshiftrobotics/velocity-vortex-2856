@@ -21,8 +21,8 @@ apply plugin: 'com.android.application'
 
 android {
 
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.2'
 
     signingConfigs {
         debug {
@@ -36,7 +36,7 @@ android {
     defaultConfig {
         applicationId 'com.qualcomm.ftcrobotcontroller'
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 23
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
@@ -65,6 +65,9 @@ android {
         //
         versionCode vCode
         versionName vName
+        jackOptions {
+            enabled true
+        }
     }
 
     // Advanced user code might just want to use Vuforia directly, so we set up the libs as needed
@@ -84,14 +87,15 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_7
-        targetCompatibility JavaVersion.VERSION_1_7
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     sourceSets.main {
         jni.srcDirs = []
         jniLibs.srcDir "../libs"
     }
+
 }
 
 repositories {
