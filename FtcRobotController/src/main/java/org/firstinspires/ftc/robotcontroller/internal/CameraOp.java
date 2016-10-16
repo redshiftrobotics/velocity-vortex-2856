@@ -64,8 +64,8 @@ public class CameraOp extends OpMode {
      */
 
     //algorithms
-    public boolean Red;
-    public boolean Blue;
+    public boolean Red = false;
+    public boolean Blue = false;
 
     @Override
     public void loop() {
