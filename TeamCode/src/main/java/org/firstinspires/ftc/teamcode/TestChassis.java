@@ -23,6 +23,7 @@ public class TestChassis extends OpMode {
     public DcMotor  m2  = null;
     public DcMotor  m3  = null;
     public DcMotor  m4  = null;
+    public DcMotor  capMotor  = null;
     public DcMotor[] motors;
 
     HardwareMap hwMap =  null;
@@ -33,6 +34,7 @@ public class TestChassis extends OpMode {
     public void init() {
         Log.e("OPMODE STATUS:", "started");
         hwMap = hardwareMap;
+        capMotor = hwMap.dcMotor.get("capMotor");
 
         m1   = hwMap.dcMotor.get("motor1");
         m2 = hwMap.dcMotor.get("motor2");
@@ -81,6 +83,15 @@ public class TestChassis extends OpMode {
         roll = gamepad1.right_stick_x; //forward
         pitch = -gamepad1.right_stick_y; //side to side
         yaw = gamepad1.left_stick_x; //turning
+
+        //controls to drive the capBall motor
+        if(gamepad1.y) { //up on Y
+            capMotor.setPower(1);
+        } else if (gamepad1.a) { //down on A
+            capMotor.setPower(-1);
+        } else {
+            capMotor.setPower(0);
+        }
 
         for (int i = 0; i < power.length; i++) {
             if(i == 0 || i == 2) {
