@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.swerverobotics.library.*;
-import org.swerverobotics.library.interfaces.*;
+import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 
 import java.util.ArrayList;
 
@@ -18,17 +19,22 @@ public class Robot {
 
     public RobotData Data;
 
-    public Robot(I2cDevice imu, DcMotor LeftDrive, DcMotor RightDrive) {
+    //changed from I2cDevice
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3) {
         // Initialize the IMU & its parameters. We will always be using Degrees for angle
         // measurement and Meters per sec per sec for acceleration.
-        Data.imuParameters = new IBNO055IMU.Parameters();
-        Data.imuParameters.angleUnit = IBNO055IMU.ANGLEUNIT.DEGREES;
-        Data.imuParameters.accelUnit = IBNO055IMU.ACCELUNIT.METERS_PERSEC_PERSEC;
-        Data.imu = ClassFactory.createAdaFruitBNO055IMU(imu, Data.imuParameters);
+        Data.imuParameters = new BNO055IMU.Parameters();
+        Data.imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        Data.imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+
+        Data.imu = new AdafruitBNO055IMU(imu);
+        Data.imu.initialize(Data.imuParameters);
 
         // Store the Robot Hardware
-        Data.Drive.LeftDrive = LeftDrive;
-        Data.Drive.RightDrive = RightDrive;
+        Data.Drive.m0 = m0;
+        Data.Drive.m1 = m1;
+        Data.Drive.m2 = m2;
+        Data.Drive.m3 = m3;
         Data.Drive.EncoderCount = 1400;
 
         // Start the program clock
@@ -36,7 +42,7 @@ public class Robot {
 
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
-        Data.PID.Headings[1] = (float) Data.imu.getAngularOrientation().heading;
+        Data.PID.Headings[1] = (float) Data.imu.getAngularOrientation().firstAngle;
     }
 
     // Public Interface Methods:
@@ -46,20 +52,23 @@ public class Robot {
     public void Straight(float Rotations, int Timeout){
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
-        float StartPosition = Data.Drive.LeftDrive.getCurrentPosition();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         Data.PID.IntegralData.clear();
         Data.PID.DerivativeData.clear();
+
+        // Manually calculate our first target
+        Data.PID.Target = Data.PID.Headings[1] * (Rotations * 360);
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(StartPosition - Data.Drive.LeftDrive.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
+        while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
             // First we check if we have exceeded our timeout and...
-            if(StartTime + Timeout > Data.Time.CurrentTime()){
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
                 break;
             }
@@ -84,17 +93,23 @@ public class Robot {
             // movement. We can use the sign of Rotations to determine this
             if(Rotations > 0) {
                 // We are moving forwards.
-                Data.Drive.LeftDrive.setPower(Drive.POWER_CONSTANT + (Direction / 200));
-                Data.Drive.RightDrive.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m0.setPower(Drive.POWER_CONSTANT + (Direction / 200));
+                Data.Drive.m1.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction / 200));
+                Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction / 200));
             } else {
                 // We are moving backwards
-                Data.Drive.LeftDrive.setPower(-Drive.POWER_CONSTANT + (Direction / 200));
-                Data.Drive.RightDrive.setPower(-Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction / 200));
+                Data.Drive.m2.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m3.setPower(Drive.POWER_CONSTANT + (Direction / 200));
             }
         }
         // Our drive loop has completed! Stop the motors.
-        Data.Drive.LeftDrive.setPower(0);
-        Data.Drive.RightDrive.setPower(0);
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
     }
 
     // Private Methods
@@ -104,14 +119,14 @@ public class Robot {
         // First we will move the current angle heading into the previous angle heading slot.
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = (float) Data.imu.getAngularOrientation().heading;
+        Data.PID.Headings[1] = (float) Data.imu.getAngularOrientation().firstAngle;
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (Rotations * 360);
 
         // Now we determine if we need to re-calculate the angles.
         if(Data.PID.Headings[0] > 300 && Data.PID.Headings[1] < 60) {
             Rotations++;
-            CalculateAngles(Rotations);
+            return CalculateAngles(Rotations);
         } else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
             Rotations--;
             CalculateAngles(Rotations);
@@ -144,7 +159,7 @@ public class Robot {
         for(float value : Data.PID.IntegralData){
             IntegralAverage += value;
         }
-        Data.PID.I /= Data.PID.IntegralData.size();
+        Data.PID.I = IntegralAverage / Data.PID.IntegralData.size();
 
         // `D` will be the difference of the ComputedTarget and the Derivative average divided by
         // the time since the last loop in seconds multiplied by one plus half of the size of
@@ -156,7 +171,7 @@ public class Robot {
         }
         DerivativeAverage /= Data.PID.DerivativeData.size();
 
-        Data.PID.D = (Data.PID.ComputedTarget - DerivativeAverage) / (LoopTime * (1 + (Data.PID.DerivativeData.size() / 2)));
+        Data.PID.D = (Data.PID.ComputedTarget - DerivativeAverage) / ((LoopTime/1000) * (1 + (Data.PID.DerivativeData.size() / 2)));
     }
 }
 
@@ -166,11 +181,16 @@ public class Robot {
 // The PID, RobotTime, and Drive Classes act as child data containers for neater organization.
 
 class RobotData {
-    IBNO055IMU imu;
-    IBNO055IMU.Parameters imuParameters;
+    BNO055IMU imu;
+    BNO055IMU.Parameters imuParameters;
     PID PID;
     RobotTime Time;
     Drive Drive;
+    RobotData(){
+        PID = new PID();
+        Time = new RobotTime();
+        Drive = new Drive();
+    }
 }
 // PID data
 class PID {
@@ -181,6 +201,12 @@ class PID {
     float[] Headings = new float[2];
     ArrayList<Float> DerivativeData;
     ArrayList<Float> IntegralData;
+    // Constructor
+    PID(){
+        // Init non-primitives
+        DerivativeData = new ArrayList<>();
+        IntegralData = new ArrayList<>();
+    }
 }
 // Time data
 class RobotTime {
@@ -191,17 +217,31 @@ class RobotTime {
     }
 
     public float CurrentTime(){
-        return (float) ProgramTime.time() * 1000;
+        return (float) ProgramTime.seconds();
     }
 
     public float TimeFrom(float PreviousTime){
-        return (float) (ProgramTime.time() * 1000) - PreviousTime;
+        return (float) (ProgramTime.seconds() - PreviousTime);
     }
 }
 // Robot hardware data.
 class Drive {
-    DcMotor LeftDrive;
-    DcMotor RightDrive;
+    //motors indexing around the robot like the quadrants in a graph or like the motors on a drone
+    // for example
+    /*
+    Front
+    ________
+    |3    0|
+    |      |
+    |2    1|
+    --------
+    Rear
+    */
+    DcMotor m0;
+    DcMotor m1;
+    DcMotor m2;
+    DcMotor m3;
+
     int EncoderCount;
     final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
 }
