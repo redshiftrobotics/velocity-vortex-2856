@@ -15,8 +15,10 @@ import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.util.Log;
 
-@TeleOp(name = "center vortex", group = "Image Proc")
+@TeleOp(name = "center vortex dbg", group = "Image Proc")
 public class CameraOp extends OpMode {
+
+    //globals
     private Camera camera;
     public CameraPreview preview;
     public Bitmap image;
@@ -43,153 +45,51 @@ public class CameraOp extends OpMode {
         byte[] imageBytes = out.toByteArray();
         image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
-    /*
-     * Code to run when the op mode is first enabled goes here
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
-     */
-    @Override
-    public void init() {
+
+    @Override public void init_loop() {}
+
+    @Override public void init() {
+        telemetry.addData("Status: ", "Initialized");
         camera = ((FtcRobotControllerActivity)hardwareMap.appContext).camera;
         camera.setPreviewCallback(previewCallback);
 
         Camera.Parameters parameters = camera.getParameters();
         data = parameters.flatten();
-
         ((FtcRobotControllerActivity) hardwareMap.appContext).initPreview(camera, this, previewCallback);
     }
 
-    /*
-     * This method will be called repeatedly in a loop
-     * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#loop()
-     */
-
-    //algorithms
-    public boolean Red = false;
-    public boolean Blue = false;
-
-    @Override
-    public void loop() {
-        if (gamepad1.x) {
-            Blue = true;
-            Red = false;
-        }
-
-        if (gamepad1.b) {
-            Red = true;
-            Blue = false;
-        }
+    @Override public void loop() {
+        int averageRed;
+        telemetry.addData("Status: ", "Running...");
         if (yuvImage != null) {
+            telemetry.addData("Status: ", "Converting image");
             convertImage();
-
-           int offset = 0;
-
-            if (this.Blue) {
-                offset = determineOffset(ColorOption.BLUE);
-            }
-            if (this.Red) {
-                offset = determineOffset(ColorOption.RED);
-            }
-            if (!this.Red && !this.Blue) {
-                telemetry.addData("Color Status:" ," not set");
-                return;
-            }
-
-            telemetry.addData( (Red) ? "Red Offset: " : "Blue Offset: ", Integer.toString(offset));
+            if (this.image != null) telemetry.addData("Image: ", "Image != null");
+            telemetry.addData("Image Dimensions: ", "Width: " + Integer.toString(width) + "Height: " + Integer.toString(height));
+            averageRed = averageRed();
+            //telemetry.addData("Average Red: ", Integer.toString(averageRed));
         }
-        telemetry.addData("Looped","Looped " + Integer.toString(looped) + " times");
-        telemetry.update();
+
     }
 
-    //options for the potential alliance color.
-    public enum ColorOption {
-        BLUE,
-        RED,
-    }
-
-    public int determineOffset(ColorOption c) {
-
-        int threshold;
-
-        if (c == ColorOption.RED) {
-            threshold = 0;
-        } else {
-            threshold = 40;
-        }
-        int blueAverage = this.averageBlue();
-        int redAverage = this.averageRed();
-        Vector<int[]> coloredPixels = new Vector<>(); //vector of all tagged pixels...
-
-        if (c == ColorOption.BLUE) { //if we're testing for blue
-            for (int w = 0; w < width; w++) {
-                for (int h = 0; h < height; h++) {
-                    if (Color.blue(image.getPixel(w, h)) >= blueAverage + threshold) {
-                        coloredPixels.add(new int[] {w, h});
-                    }
-                }
-            }
-        } else { // if we're testing for red
-            for (int w = 0; w < width; w++) {
-                for (int h = 0; h < height; h++) {
-                    if (Color.red(image.getPixel(w, h)) >= redAverage + threshold) {
-                        coloredPixels.add(new int[] {w, h});
-                    }
-                }
-            }
-        }
-        int xSum = 0;
-        int ySum = 0;
-
-        for (int[] point : coloredPixels) {
-            xSum += point[0];
-            ySum += point[1];
-        }
-
-       // telemetry.addData("xSum is:" , Integer.toString(xSum));
-
-      //  telemetry.addData("xSum / pixels.size()", Float.toString(Math.round(xSum / coloredPixels.size())));
-        int xAvg = 0;
-        int yAvg = 0; // not necessary right now, but may be necessary later for determining distance.
-        if (coloredPixels.size() != 0) {
-            xAvg = Math.round(xSum / coloredPixels.size());
-            yAvg = Math.round(ySum / coloredPixels.size());
-        }
-        //center x coordinate...
-        int centerX = Math.round(width / 2);
-      //  telemetry.addData("Image center:", "" + centerX);
-        //offset from rounded
-        //if value is negative,
-        // center is to the right of the center,
-        //otherwise, it's on the left.
-
-
-       // telemetry.addData("Offset is: ", "" + offset);
-        telemetry.addData("center should be: ", "(" + Integer.toString(xAvg) + ")");
-        telemetry.addData("actual center is: ", Integer.toString(centerX));
-        return centerX - xAvg;
-    }
+    @Override public void stop() {}
 
     public int averageRed() {
         int totalRed = 0;
         for (int w = 0; w < width; w++) {
-            for (int h = 0; h < height; h++) {
-                totalRed += Color.red(this.image.getPixel(w, h));
-            }
+                for (int h = 0; h < height; h++) {
+                    if (h % 2 == 0) {
+                        totalRed += Color.red(image.getPixel(w, h));
+                    }
+                }
         }
 
-        int averageRed = Math.round(totalRed / (this.width * this.height));
+        telemetry.addData("Red sum: ", Integer.toString(totalRed));
+        int averageRed = Math.round(totalRed / ((this.width/2) * this.height));
         telemetry.addData("average red: ", Integer.toString(averageRed));
+       // return averageRed;
         return averageRed;
     }
 
-    public int averageBlue() {
-        int totalBlue = 0;
-        for (int w = 0; w < width; w++) {
-            for (int h = 0; h < height; h++) {
-                totalBlue += Color.blue(image.getPixel(w, h));
-            }
-        }
-        int averageBlue = Math.round(totalBlue / (this.width * this.height));
-        telemetry.addData("average blue: ", Integer.toString(averageBlue));
-        return averageBlue;
-    }
+
 }
