@@ -544,7 +544,7 @@ public class FtcRobotControllerActivity extends Activity {
     return cam;
   }
 
-  public void initPreview(final Camera camera, final CameraOp context, final Camera.PreviewCallback previewCallback) {
+  public void initPreview(final Camera camera, final VortexProcessor context, final Camera.PreviewCallback previewCallback) {
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
