@@ -17,7 +17,7 @@ import java.util.ArrayList;
  */
 public class Robot {
 
-    public RobotData Data;
+    public RobotData Data = new RobotData();
 
     //changed from I2cDevice
     public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3) {
