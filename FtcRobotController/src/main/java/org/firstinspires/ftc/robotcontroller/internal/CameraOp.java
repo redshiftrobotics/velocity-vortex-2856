@@ -22,23 +22,12 @@ public class CameraOp extends OpMode {
 
     @Override public void init() {
         this.vortexProc = new VortexProcessor(hardwareMap.appContext, ColorOption.BLUE);
-        this.vortexProc.start();
-      try {
-          comm = new Socket(InetAddress.getLocalHost(), VortexProcessor.COMMUNICATION_PORT);
-          //SocketAddress addr = comm.getRemoteSocketAddress();
+        vortexProc.start();
 
-          out = new DataOutputStream(comm.getOutputStream());
-          in = new DataInputStream(comm.getInputStream());
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
     }
 
    // public boolean determineRed = false;
    // public boolean determineBlue = false;
-    private Socket comm;
-    private DataInputStream in;
-    private DataOutputStream out;
 
     public VortexProcessor vortexProc;
 
@@ -55,7 +44,9 @@ public class CameraOp extends OpMode {
             e.printStackTrace();
         }*/
 
-        telemetry.addData("Offset: ", Integer.toString(offset));
+        //do shit
+
+        telemetry.addData("Opmode: ", "Thread Running Concurrently");
     }
 
     public enum ColorOption {
@@ -64,11 +55,6 @@ public class CameraOp extends OpMode {
     }
 
     @Override public void stop() {
-        try {
-            out.writeBoolean(true);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-        }
+       this.vortexProc.interrupt();
     }
-
 }

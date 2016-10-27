@@ -45,6 +45,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -548,9 +549,12 @@ public class FtcRobotControllerActivity extends Activity {
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
-        LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
-        previewLayout.addView(context.preview);
+          synchronized (context) {
+              Log.d("Lock: ", "Acquired for context");
+              context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
+              LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
+              previewLayout.addView(context.preview);
+          }
       }
     });
   }

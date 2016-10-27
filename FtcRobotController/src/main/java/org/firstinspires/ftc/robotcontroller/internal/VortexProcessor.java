@@ -11,73 +11,34 @@ import android.hardware.Camera;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+
 
 /**
  * Created by adam on 10/12/16.
  */
 
-public class VortexProcessor  {
-
-    static int COMMUNICATION_PORT = 2856;
-    public Thread thread;
-    public ServerSocket serverSocket;
-
-    Runnable vortexRunnable =  new Runnable() {
-        @Override
-        public void run() {
-            while (true) {
-                Log.d("running", "running");
-                int offset = 0;
-                try (
-                        Socket client = serverSocket.accept();
-                        DataOutputStream outputStream = new DataOutputStream(client.getOutputStream());
-                        DataInputStream inputStream = new DataInputStream(client.getInputStream())
-                ) {
-                    boolean stop = inputStream.read() > 0;
-                    if (stop) {
-                        Log.d("Thread Status: ", "interrupting thread");
-
-                        //camera.release();
-                        Thread.currentThread().stop();
-                        return;
-                    }
-
-                    if (yuvImage != null) {
-                        Log.d("Converting Image: ", "");
-                        convertImage();
-                        offset = determineOffset();
-                    }
-
-                    Log.d("Offset: ", Integer.toString(offset));
-                    outputStream.write(offset);
-
-                } catch (java.io.IOException e) {
-                    Log.d("Exception", "Exception");
-                    e.printStackTrace();
+public class VortexProcessor  extends Thread {
+    @Override
+    public void run() {
+        while (true) {
+            Log.d("running", "running");
+            int offset = 0;
+            synchronized (VortexProcessor.this) {
+                if (yuvImage != null) {
+                    Log.d("NOT", "NULL");
+                    Log.d("Converting Image: ", "");
+                    convertImage();
+                    offset = determineOffset();
+                    Log.d("offset: ", "determined");
                 }
-
+                Log.d("Offset: ", Integer.toString(offset));
             }
         }
-    };
+    }
 
     public VortexProcessor(Context context, CameraOp.ColorOption color) {
-
-
-
-        try {
-            this.serverSocket = new ServerSocket(COMMUNICATION_PORT);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
         this.color = color;
         camera = ((FtcRobotControllerActivity)context).camera;
@@ -86,8 +47,6 @@ public class VortexProcessor  {
         Camera.Parameters parameters = camera.getParameters();
         data = parameters.flatten();
         ((FtcRobotControllerActivity) context).initPreview(camera, this, previewCallback);
-
-        this.thread = new Thread(vortexRunnable);
         /**
          * Check this one out!!! Some of the references might need to be Atomic.
          */
@@ -102,61 +61,75 @@ public class VortexProcessor  {
     private AtomicInteger width = new AtomicInteger();
     private AtomicInteger height = new AtomicInteger();
     //private int height;
-    private AtomicReference<YuvImage> yuvImage = new AtomicReference<>();
+    private YuvImage yuvImage = null;
     private String data;
 
     private Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
-        public void onPreviewFrame(byte[] data, Camera camera) {
-            Camera.Parameters parameters = camera.getParameters();
-            width.set(parameters.getPreviewSize().width);
-            height.set(parameters.getPreviewSize().height);
-            yuvImage.set(new YuvImage(data, ImageFormat.NV21, width.get(), height.get(), null));
+        public void onPreviewFrame ( byte[] data, Camera camera) {
+            synchronized (VortexProcessor.this) {
+                Camera.Parameters parameters = camera.getParameters();
+                width.set(parameters.getPreviewSize().width);
+                height.set(parameters.getPreviewSize().height);
+                Log.d("dimensions: ", "Width: " + Integer.toString(width.get()) + " Height: " + Integer.toString(height.get()));
+
+                yuvImage = new YuvImage(data, ImageFormat.NV21, width.get(), height.get(), null);
+            }
         }
     };
 
     private void convertImage() {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        yuvImage.get().compressToJpeg(new Rect(0, 0, width.get(), height.get()), 0, out);
+        yuvImage.compressToJpeg(new Rect(0, 0, width.get(), height.get()), 0, out);
         byte[] imageBytes = out.toByteArray();
         image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
-
     public int determineOffset() {
-        int width = this.width.get();
+        Log.d("Determining offset ", "determining");
+       int width = this.width.get();
         int height = this.height.get();
         int threshold;
+
         if (this.color == CameraOp.ColorOption.RED) {
             threshold = 0;
         } else {
             threshold = 40;
         }
-        int blueAverage = this.averageBlue();
-        int redAverage = this.averageRed();
+       // int blueAverage = this.averageBlue();
+     //   int redAverage = this.averageRed();
+
+       int average = (color == CameraOp.ColorOption.BLUE) ? this.averageBlue() : this.averageRed();
+
+        //int average = 250;
+        Log.d("Determining offset", "Averages finished");
         // int redAverage = this.averageRed();
         Vector<int[]> coloredPixels = new Vector<>(); //vector of all tagged pixels...
 
-        if (color == CameraOp.ColorOption.BLUE) { //if we're testing for blue
+        if (color == CameraOp.ColorOption.BLUE) {
+            Log.d("pixels", "iterating");//if we're testing for blue
             for (int w = 0; w < width; w++) {
                 for (int h = 0; h < height; h++) {
                     if (h % 2 == 0) {
-                        if (Color.blue(image.getPixel(w, h)) >= blueAverage + threshold) {
+                        if (Color.blue(image.getPixel(w, h)) >= average + threshold) {
                             coloredPixels.add(new int[]{w, h});
                         }
                     }
                 }
             }
+            Log.d("pixels:", "done");
         } else { // if we're testing for red
             for (int w = 0; w < width; w++) {
+                Log.d("Pixels: ", "iterating");
                 for (int h = 0; h < height; h++) {
                     if (h % 2 == 0) {
-                        if (Color.red(image.getPixel(w, h)) >= redAverage + threshold) {
+                        if (Color.red(image.getPixel(w, h)) >= average + threshold) {
                             coloredPixels.add(new int[]{w, h});
                         }
                     }
                 }
             }
         }
+
         int xSum = 0;
         int ySum = 0;
 
@@ -167,12 +140,14 @@ public class VortexProcessor  {
 
         int xAvg = 0;
         int yAvg = 0; // not necessary right now, but may be necessary later for determining distance.
+
         if (coloredPixels.size() != 0) {
             xAvg = Math.round(xSum / coloredPixels.size());
             yAvg = Math.round(ySum / coloredPixels.size());
         }
         //center x coordinate...
         int centerX = Math.round(width / 2);
+        Log.d("Thang", Integer.toString(centerX - xAvg));
         return centerX - xAvg;
     }
 
@@ -181,7 +156,9 @@ public class VortexProcessor  {
         int totalRed = 0;
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < height; h++) {
+                if (h % 2 == 0) {
                     totalRed += Color.red(image.getPixel(w, h));
+                }
             }
         }
 
@@ -192,18 +169,16 @@ public class VortexProcessor  {
     public int averageBlue() {
         int width = this.width.get(), height = this.height.get();
         int totalBlue = 0;
+
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < height; h++) {
+                if (h % 2 == 0) {
                     totalBlue += Color.blue(image.getPixel(w, h));
+                }
             }
         }
 
         int averageBlue = Math.round(totalBlue / (width * height));
         return averageBlue;
-    }
-
-    public void start() {
-        Log.d("Thread: ", "Starting...");
-        this.thread.start();
     }
 }

@@ -55,7 +55,7 @@ public class CameraOpOld extends OpMode {
         Camera.Parameters parameters = camera.getParameters();
         data = parameters.flatten();
 
-     //   ((FtcRobotControllerActivity) hardwareMap.appContext).initPreview(camera, this, previewCallback);
+        //((FtcRobotControllerActivity) hardwareMap.appContext).initPreview(camera, this, previewCallback);
     }
 
     /*
@@ -69,6 +69,8 @@ public class CameraOpOld extends OpMode {
 
     @Override
     public void loop() {
+        Blue = true;
+        Red = false;
         if (gamepad1.x) {
             Blue = true;
             Red = false;
@@ -82,8 +84,9 @@ public class CameraOpOld extends OpMode {
             convertImage();
 
            int offset = 0;
+            offset = (Blue) ? determineOffset(ColorOption.RED) : determineOffset(ColorOption.BLUE);
 
-            if (this.Blue) {
+          /*  if (this.Blue) {
                 offset = determineOffset(ColorOption.BLUE);
             }
             if (this.Red) {
@@ -92,10 +95,12 @@ public class CameraOpOld extends OpMode {
             if (!this.Red && !this.Blue) {
                 telemetry.addData("Color Status:" ," not set");
                 return;
-            }
+            }*/
 
             telemetry.addData( (Red) ? "Red Offset: " : "Blue Offset: ", Integer.toString(offset));
         }
+
+
         telemetry.addData("Looped","Looped " + Integer.toString(looped) + " times");
         telemetry.update();
     }
