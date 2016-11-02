@@ -545,19 +545,36 @@ public class FtcRobotControllerActivity extends Activity {
     return cam;
   }
 
-  public void initPreview(final Camera camera, final VortexProcessor context, final Camera.PreviewCallback previewCallback) {
+    //changed for concurrent use...
+
+ public void initPreviewConcurrent(final Camera camera, final VortexProcessor context, final Camera.PreviewCallback previewCallback) {
     runOnUiThread(new Runnable() {
       @Override
       public void run() {
-          synchronized (context) {
-              Log.d("Lock: ", "Acquired for context");
-              context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
-              LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
-              previewLayout.addView(context.preview);
-          }
+        synchronized (context) {
+          Log.d("Lock: ", "Acquired for context");
+          context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
+          LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
+          previewLayout.addView(context.preview);
+        }
       }
     });
   }
+
+
+
+    public void initPreview(final Camera camera, final CameraOp context, final Camera.PreviewCallback previewCallback) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                    Log.d("Lock: ", "Acquired for context");
+                    context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
+                    LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
+                    previewLayout.addView(context.preview);
+
+            }
+        });
+    }
 
   ///
 

@@ -38,7 +38,7 @@ public class VortexProcessor  extends Thread {
         }
     }
 
-    public VortexProcessor(Context context, CameraOp.ColorOption color) {
+    public VortexProcessor(Context context, CameraOpConcurrent.ColorOption color) {
 
         this.color = color;
         camera = ((FtcRobotControllerActivity)context).camera;
@@ -46,13 +46,13 @@ public class VortexProcessor  extends Thread {
 
         Camera.Parameters parameters = camera.getParameters();
         data = parameters.flatten();
-        ((FtcRobotControllerActivity) context).initPreview(camera, this, previewCallback);
+        ((FtcRobotControllerActivity) context).initPreviewConcurrent(camera, this, previewCallback);
         /**
          * Check this one out!!! Some of the references might need to be Atomic.
          */
     }
 
-   CameraOp.ColorOption color;
+   CameraOpConcurrent.ColorOption color;
 
     private Camera camera;
     public CameraPreview preview;
@@ -90,7 +90,7 @@ public class VortexProcessor  extends Thread {
         int height = this.height.get();
         int threshold;
 
-        if (this.color == CameraOp.ColorOption.RED) {
+        if (this.color == CameraOpConcurrent.ColorOption.RED) {
             threshold = 0;
         } else {
             threshold = 40;
@@ -98,14 +98,14 @@ public class VortexProcessor  extends Thread {
        // int blueAverage = this.averageBlue();
      //   int redAverage = this.averageRed();
 
-       int average = (color == CameraOp.ColorOption.BLUE) ? this.averageBlue() : this.averageRed();
+       int average = (color == CameraOpConcurrent.ColorOption.BLUE) ? this.averageBlue() : this.averageRed();
 
         //int average = 250;
         Log.d("Determining offset", "Averages finished");
         // int redAverage = this.averageRed();
         Vector<int[]> coloredPixels = new Vector<>(); //vector of all tagged pixels...
 
-        if (color == CameraOp.ColorOption.BLUE) {
+        if (color == CameraOpConcurrent.ColorOption.BLUE) {
             Log.d("pixels", "iterating");//if we're testing for blue
             for (int w = 0; w < width; w++) {
                 for (int h = 0; h < height; h++) {
@@ -156,7 +156,7 @@ public class VortexProcessor  extends Thread {
         int totalRed = 0;
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < height; h++) {
-                if (h % 2 == 0) {
+                if (h % 10 == 0) {
                     totalRed += Color.red(image.getPixel(w, h));
                 }
             }
@@ -172,7 +172,7 @@ public class VortexProcessor  extends Thread {
 
         for (int w = 0; w < width; w++) {
             for (int h = 0; h < height; h++) {
-                if (h % 2 == 0) {
+                if (h % 10 == 0) {
                     totalBlue += Color.blue(image.getPixel(w, h));
                 }
             }
