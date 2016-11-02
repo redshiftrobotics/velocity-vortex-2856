@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 
@@ -20,7 +21,10 @@ public class Robot {
     public RobotData Data = new RobotData();
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, Telemetry tm) {
+
+        tm.addData("IMU ", "Innitializing");
+        tm.update();
         // Initialize the IMU & its parameters. We will always be using Degrees for angle
         // measurement and Meters per sec per sec for acceleration.
         Data.imuParameters = new BNO055IMU.Parameters();
@@ -49,7 +53,7 @@ public class Robot {
 
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
     // corrected by PID control.
-    public void Straight(float Rotations, int Timeout){
+    public void Straight(float Rotations, int Timeout, Telemetry tm){
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
         float StartPosition = Data.Drive.m0.getCurrentPosition();
@@ -57,6 +61,7 @@ public class Robot {
         // Reset our Integral and Derivative data.
         Data.PID.IntegralData.clear();
         Data.PID.DerivativeData.clear();
+
 
         // Manually calculate our first target
         Data.PID.Target = Data.PID.Headings[1] * (Rotations * 360);
@@ -76,7 +81,7 @@ public class Robot {
             // Record the time since the previous loop.
             LoopTime = Data.Time.TimeFrom(LoopTime);
             // Calculate our angles. This method may modify the input Rotations.
-            Rotations = CalculateAngles(Rotations);
+            Rotations = CalculateAngles(Rotations, tm);
             // Calculate our PID
             CalculatePID(LoopTime);
 
@@ -94,14 +99,14 @@ public class Robot {
             if(Rotations > 0) {
                 // We are moving forwards.
                 Data.Drive.m0.setPower(Drive.POWER_CONSTANT + (Direction / 200));
-                Data.Drive.m1.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m1.setPower(-Drive.POWER_CONSTANT + (Direction / 200));
                 Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction / 200));
-                Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m3.setPower(-Drive.POWER_CONSTANT + (Direction / 200));
             } else {
                 // We are moving backwards
-                Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m0.setPower(-Drive.POWER_CONSTANT + (Direction / 200));
                 Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction / 200));
-                Data.Drive.m2.setPower(Drive.POWER_CONSTANT - (Direction / 200));
+                Data.Drive.m2.setPower(-Drive.POWER_CONSTANT + (Direction / 200));
                 Data.Drive.m3.setPower(Drive.POWER_CONSTANT + (Direction / 200));
             }
         }
@@ -115,23 +120,27 @@ public class Robot {
     // Private Methods
 
     // Method that grabs the IMU data and calculates a new ComputedTarget.
-    private float CalculateAngles(float Rotations){
+    private float CalculateAngles(float Rotations, Telemetry tm){
         // First we will move the current angle heading into the previous angle heading slot.
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
         Data.PID.Headings[1] = (float) Data.imu.getAngularOrientation().firstAngle;
+
+        tm.addData("Andgles ", Float.toString(Data.imu.getAngularOrientation().firstAngle) + " " +  Float.toString(Data.imu.getAngularOrientation().secondAngle) + " " + Float.toString(Data.imu.getAngularOrientation().thirdAngle));
+        tm.update();
+
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (Rotations * 360);
 
         // Now we determine if we need to re-calculate the angles.
         if(Data.PID.Headings[0] > 300 && Data.PID.Headings[1] < 60) {
             Rotations++;
-            return CalculateAngles(Rotations);
+            return CalculateAngles(Rotations, tm);
         } else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
             Rotations--;
-            CalculateAngles(Rotations);
+            CalculateAngles(Rotations, tm);
         }
-    return Rotations;
+        return Rotations;
     }
 
     // Method that calculates P, I, and D. Requires the time
@@ -192,6 +201,7 @@ class RobotData {
         Drive = new Drive();
     }
 }
+
 // PID data
 class PID {
     float ComputedTarget;

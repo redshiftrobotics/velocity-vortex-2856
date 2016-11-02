@@ -26,7 +26,7 @@ public class ExampleAutonomous extends LinearOpMode {
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
 
-        robot = new Robot(imu, m0, m1, m2, m3);
+        robot = new Robot(imu, m0, m1, m2, m3, telemetry);
 
 
 
@@ -36,7 +36,7 @@ public class ExampleAutonomous extends LinearOpMode {
         robot.Data.PID.DTuning = 1f;
 
         // Lets drive straight ten rotations or 10 seconds.
-        robot.Straight(10f, 3);
+        robot.Straight(10f, 3, telemetry);
     }
 
 }
