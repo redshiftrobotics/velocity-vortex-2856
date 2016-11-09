@@ -64,7 +64,7 @@ public class Robot {
     public void Straight(float Rotations, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
+        CalculateAngles(tm);
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -121,10 +121,10 @@ public class Robot {
                 //Log.e("############# m2", Float.toString(Drive.POWER_CONSTANT + Direction));
                 //Log.e("############# m3", Float.toString(Drive.POWER_CONSTANT - Direction));
                 // We are moving forwards.
-                Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
-                Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
-                Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
-                Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+                Data.Drive.m0.setPower(Drive.POWER_CONSTANT + (Direction));
+                Data.Drive.m1.setPower(Drive.POWER_CONSTANT - (Direction));
+                Data.Drive.m2.setPower(Drive.POWER_CONSTANT - (Direction));
+                Data.Drive.m3.setPower(Drive.POWER_CONSTANT + (Direction));
             //} else {
             //    // We are moving backwards
             //    Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
