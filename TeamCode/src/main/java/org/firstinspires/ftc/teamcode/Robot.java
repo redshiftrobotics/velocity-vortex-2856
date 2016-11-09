@@ -55,10 +55,6 @@ public class Robot {
 
         // Start the program clock
         Data.Time = new RobotTime();
-
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
-        // and put it into our "current" headings slot.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
     }
 
     // Public Interface Methods:
@@ -66,6 +62,10 @@ public class Robot {
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
     // corrected by PID control.
     public void Straight(float Rotations, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
+
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
         float StartPosition = Data.Drive.m0.getCurrentPosition();
