@@ -567,11 +567,10 @@ public class FtcRobotControllerActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                    Log.d("Lock: ", "Acquired for context");
+                    //Log.d("Lock: ", "Acquired for context");
                     context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
                     LinearLayout previewLayout = (LinearLayout) findViewById(R.id.cameraMonitorViewId);
                     previewLayout.addView(context.preview);
-
             }
         });
     }

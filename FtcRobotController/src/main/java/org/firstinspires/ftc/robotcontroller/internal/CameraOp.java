@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.robotcontroller.internal;
-
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -33,6 +34,7 @@ public class CameraOp extends OpMode {
     private Camera.PreviewCallback previewCallback = new Camera.PreviewCallback() {
         public void onPreviewFrame(byte[] data, Camera camera)
         {
+            Log.d("Picture: ", "TAKEN");
             Camera.Parameters parameters = camera.getParameters();
             width = parameters.getPreviewSize().width;
             height = parameters.getPreviewSize().height;
@@ -42,6 +44,7 @@ public class CameraOp extends OpMode {
     };
 
     private void convertImage() {
+        count++;
         telemetry.addData("Image:", "Converting");
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         yuvImage.compressToJpeg(new Rect(0, 0, width, height), 0, out);
@@ -53,6 +56,8 @@ public class CameraOp extends OpMode {
      * Code to run when the op mode is first enabled goes here
      * @see com.qualcomm.robotcore.eventloop.opmode.OpMode#start()
      */
+    int timeCounter = 0;
+
     @Override
     public void init() {
         camera = ((FtcRobotControllerActivity)hardwareMap.appContext).camera;
@@ -70,20 +75,35 @@ public class CameraOp extends OpMode {
      */
 
     //algorithms
-    public boolean Red = false;
-    public boolean Blue = false;
-
+  //  public boolean Red = false;
+   // public boolean Blue = false;
     @Override
     public void loop() {
-        int offset;
+
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                Log.d("Counter: ", Integer.toString(timeCounter));
+                timeCounter++;
+            }
+        };
+
+
+        int offset = 0;
         if (yuvImage != null) {
+            telemetry.addData("starting timer", " now");
+            Timer t = new Timer("image proc timer");
+            t.scheduleAtFixedRate(timerTask, 0, 250);
             convertImage();
-            offset = determineOffset(ColorOption.BLUE);
-            telemetry.addData("Offset for Blue", Integer.toString(offset));
+             offset = determineOffset(ColorOption.BLUE);
+            timerTask.cancel();
+            t.cancel();
+            telemetry.addData("Took: ", Float.toString(timeCounter / 1000) + " seconds");
         }
 
+        Log.d("offset", Integer.toString(offset));
+        telemetry.addData("offset: ", Integer.toString(offset));
         telemetry.addData("Looped","Looped " + Integer.toString(looped) + " times");
-       // telemetry.update();
     }
 
     //options for the potential alliance color.
@@ -94,9 +114,8 @@ public class CameraOp extends OpMode {
 
     public int determineOffset(ColorOption c) {
        int threshold = 40;
-        int blueAverage = this.averageBlue();
-        //int redAverage = this.averageRed();
-
+       int blueAverage = this.averageBlue();
+        //int redAverage = this.averageRed();;
         telemetry.addData("Averages: " , "Blue: " + Integer.toString(blueAverage));
         Vector<int[]> coloredPixels = new Vector<>(); //vector of all tagged pixels...
 
@@ -110,7 +129,7 @@ public class CameraOp extends OpMode {
                     }
                 }
             }
-        } /*else { // if we're testing for red
+        }/* else { // if we're testing for red
             for (int w = 0; w < width; w++) {
                 for (int h = 0; h < height; h++) {
                     if (h % 2 == 0) {
@@ -128,9 +147,6 @@ public class CameraOp extends OpMode {
             xSum += point[0];
             ySum += point[1];
         }
-
-
-
          telemetry.addData("xSum is:" , Integer.toString(xSum));
          telemetry.addData("num pixels is: ", Integer.toString(coloredPixels.size()));
         //  telemetry.addData("xSum / pixels.size()", Float.toString(Math.round(xSum / coloredPixels.size())));
@@ -184,7 +200,4 @@ public class CameraOp extends OpMode {
         telemetry.addData("average blue: ", Integer.toString(averageBlue));
         return averageBlue;
     }
-
-
-
 }
