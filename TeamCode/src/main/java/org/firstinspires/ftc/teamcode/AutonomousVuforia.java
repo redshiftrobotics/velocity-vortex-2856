@@ -38,7 +38,7 @@ public class AutonomousVuforia extends LinearOpMode {
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
 
-        Tracking.Setup(Tracking.ImageType.Wheels);
+        Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.BACK);
         waitForStart();
         while(opModeIsActive()) {
             while (!Tracking.listener.isVisible()) {

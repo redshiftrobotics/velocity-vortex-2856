@@ -39,10 +39,10 @@ public class Tracking {
     }
 
 
-    public static void Setup(ImageType image){
+    public static void Setup(ImageType image, VuforiaLocalizer.CameraDirection direction){
         parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = VuforiaLocalizer.CameraDirection.BACK;
+        parameters.cameraDirection = direction;
         parameters.useExtendedTracking = true;
         vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
 
