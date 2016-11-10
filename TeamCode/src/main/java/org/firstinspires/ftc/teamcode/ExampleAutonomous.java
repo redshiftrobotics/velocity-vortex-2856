@@ -57,7 +57,11 @@ public class ExampleAutonomous extends LinearOpMode {
                     state = TuneState.D;
                 } else if (gamepad1.back) {
                     // Start the auto drive. Functionality should halt until the drive stops
-                    robot.Straight(7f, 4, telemetry);
+                    //forward and right are positive
+                    //back and left are negative
+                    //pick values using a unit circle: https://www.desmos.com/calculator/qmzx2skkzy
+                    //robot.Straight(7f, new Float[]{1f,0f}, 4, telemetry);
+                    robot.AngleTurn(90, 5, telemetry);
                 }
 
                 // Allow tuning of the values
