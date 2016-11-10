@@ -42,8 +42,8 @@ public class Tracking {
     public static void Setup(ImageType image, VuforiaLocalizer.CameraDirection direction){
         parameters = new VuforiaLocalizer.Parameters(R.id.cameraMonitorViewId);
         parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection = direction;
-        parameters.useExtendedTracking = true;
+        parameters.cameraDirection = direction; //sets the camera used by vuforia
+        parameters.useExtendedTracking = true; //sets the vuforia camera preview to display on the screen
         vuforiaLocalizer = ClassFactory.createVuforiaLocalizer(parameters);
 
         visionTargets = vuforiaLocalizer.loadTrackablesFromAsset("FTC_2016-17");
