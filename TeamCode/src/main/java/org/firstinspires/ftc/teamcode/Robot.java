@@ -202,22 +202,13 @@ public class Robot {
         // Then, we assign the new angle heading.
         Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
 
-        appendLog("Raw IMU: " + Data.imu.getAngularOrientation().firstAngle + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
-
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
-
-        Log.e("#####################", "About to increment IMURotations");
-        // Now we determine if we need to re-calculate the angles.
-        Log.e("############### current", Float.toString(Data.PID.Headings[1]));
-        Log.e("############### past", Float.toString(Data.PID.Headings[0]));
         if(Data.PID.Headings[0] > Math.abs(300) && Data.PID.Headings[1] < Math.abs(60)) {
-            Log.e("#####################", "Adding to IMURotations");
             IMURotations--; //rotations of 360 degrees
             CalculateAngles(tm);
         //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
         } else if(Data.PID.Headings[0] < Math.abs(60) && Data.PID.Headings[1] > Math.abs(300)) {
-            Log.e("#####################", "Subtracting from IMURotations");
             IMURotations++;
             CalculateAngles(tm);
         }
@@ -275,13 +266,6 @@ public class Robot {
         // Set our P, I, and D values.
         // `P` will be the ComputedTarget - Target
         Data.PID.P = Data.PID.ComputedTarget - Data.PID.Target;
-
-        appendLog("Computed P: " + Float.toString(Data.PID.P));
-        appendLog("Target: " + Float.toString(Data.PID.Target));
-        appendLog("Computed Target: " + Float.toString(Data.PID.ComputedTarget));
-        appendLog("Is truth? " + Float.toString(Data.PID.ComputedTarget) + " - " + Float.toString(Data.PID.Target) + " = " + Float.toString(Data.PID.ComputedTarget - Data.PID.Target));
-        appendLog("IMURotations: " + IMURotations);
-        appendLog("-===========" + "=========================================");
 
         // `I` will be the average of the IntegralData (Cries softly at the lack of Java8 streams)
 

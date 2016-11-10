@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -8,7 +9,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 /**
  * Created by matt on 10/15/16.
  */
-@Autonomous(name = "ExampleAutonomous", group = "pid-test")
+@Disabled @Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
@@ -33,6 +34,7 @@ public class ExampleAutonomous extends LinearOpMode {
         //P: 100
         //I: 30
         //D: 0
+
         //loop
         robot.Data.PID.PTuning = 100f;
         robot.Data.PID.ITuning = 30f;
