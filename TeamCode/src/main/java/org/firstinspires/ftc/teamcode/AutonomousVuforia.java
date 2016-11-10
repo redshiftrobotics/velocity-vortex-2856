@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
@@ -10,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
  * Created by Duncan on 11/5/2016.
  */
 
-@Autonomous(name = "VuforiaAuto")
+@Disabled @Autonomous(name = "VuforiaAuto")
 public class AutonomousVuforia extends LinearOpMode {
 
     DcMotor m0;
