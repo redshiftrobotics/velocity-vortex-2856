@@ -201,6 +201,8 @@ public class Robot {
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
         Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
+        tm.addData("firstAngle ", Float.toString(Data.imu.getAngularOrientation().firstAngle));
+        tm.update();
 
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
