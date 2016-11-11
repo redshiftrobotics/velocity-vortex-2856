@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 /**
  * Created by matt on 11/10/16.
  */
-@Autonomous(name = "RedAutonomous")
-public class RedAutonomous extends LinearOpMode {
+@Autonomous(name = "2856 Blue Autonomous")
+public class BlueAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -28,11 +28,15 @@ public class RedAutonomous extends LinearOpMode {
 
         robot = new Robot(imu, m0, m1, m2, m3, telemetry);
 
+        robot.Data.PID.PTuning = 100f;
+        robot.Data.PID.ITuning = 30f;
+        robot.Data.PID.DTuning = 0f;
+
         waitForStart();
 
-        robot.Straight(1f, new Float[]{1f,0f}, 1, telemetry);
-        robot.AngleTurn(45, 2, telemetry);
-        robot.Straight(3f, new Float[]{1f,0f}, 4, telemetry);
-        robot.AngleTurn(-45, 1, telemetry);
+        robot.Straight(2.6f, new Float[]{1f,0f}, 10, telemetry);
+        //robot.AngleTurn(-45, 2, telemetry);
+        //robot.Straight(3f, new Float[]{1f,0f}, 20, telemetry);
+        //robot.AngleTurn(-45, 1, telemetry);
     }
 }
