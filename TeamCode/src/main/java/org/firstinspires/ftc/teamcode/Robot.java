@@ -204,11 +204,11 @@ public class Robot {
 
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
-        if(Data.PID.Headings[0] > Math.abs(300) && Data.PID.Headings[1] < Math.abs(60)) {
+        if(Data.PID.Headings[0] > 300 && Data.PID.Headings[1] < 60) {
             IMURotations--; //rotations of 360 degrees
             CalculateAngles(tm);
         //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
-        } else if(Data.PID.Headings[0] < Math.abs(60) && Data.PID.Headings[1] > Math.abs(300)) {
+        } else if(Data.PID.Headings[0] < 60 && Data.PID.Headings[1] > 300) {
             IMURotations++;
             CalculateAngles(tm);
         }
