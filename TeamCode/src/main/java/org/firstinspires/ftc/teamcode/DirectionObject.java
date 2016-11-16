@@ -12,9 +12,9 @@ public class DirectionObject {
     public float zAngle;
 
     public DirectionObject(float x, float y, float z){
-        xSpeed = x;
+        xSpeed = -x;
         ySpeed = y;
-        zAngle = z;
+        zAngle = -z;
     }
 
     public float frontLeftSpeed(){

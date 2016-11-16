@@ -19,64 +19,61 @@ public class MecanumTeleop extends OpMode {
     DcMotor collector;
     //DcMotor capballLift
     Servo hopper;
-    int shooting = 0;
     int collecting = 0;
-    boolean shootSwitch = false;
     boolean collectSwitch = false;
     @Override
     public void init() {
-        motors[0] = hardwareMap.dcMotor.get("leftFront");
-        motors[1] = hardwareMap.dcMotor.get("rightFront");
-        motors[2] = hardwareMap.dcMotor.get("rightBack");
-        motors[3] = hardwareMap.dcMotor.get("leftBack");
+        motors[0] = hardwareMap.dcMotor.get("m0");
+        motors[1] = hardwareMap.dcMotor.get("m1");
+        motors[2] = hardwareMap.dcMotor.get("m2");
+        motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
         hopper = hardwareMap.servo.get("hopper");
         motors[0].setDirection(DcMotor.Direction.REVERSE);
         motors[1].setDirection(DcMotor.Direction.REVERSE);
+        hopper.setDirection(Servo.Direction.REVERSE);
     }
 
     @Override
     public void loop() {
         Move(gamepad1);
-        Shoot(gamepad2);
-        Sweep(gamepad2);
+        Shoot(gamepad1);
+        Sweep(gamepad1);
+        Hop(gamepad2);
     }
 
     void Move(Gamepad pad){
         DirectionObject direction = new DirectionObject(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
-        
+
         motors[0].setPower(direction.frontLeftSpeed());
         motors[1].setPower(direction.frontRightSpeed());
         motors[2].setPower(direction.backRightSpeed());
         motors[3].setPower(direction.backLeftSpeed());
     }
+
+    void Hop(Gamepad pad){
+//        if(pad.left_trigger>0.1){
+//            hopper.setPosition(1.0);
+//        }else if(pad.right_trigger>0.1){
+//            hopper.setPosition(0.0);
+//        }else if(shooting!=0){
+//            hopper.setPosition(0.55);
+//        }
+    }
+
     void Shoot(Gamepad pad){
 
-        if(shooting!=1&&pad.left_trigger>0.1&&shootSwitch){
+        if(pad.left_trigger>0.1){
             shooter.setPower(-1.0);
+            hopper.setPosition(0.0);
+        }else if(pad.left_bumper) {
+            shooter.setPower(1.0);
             hopper.setPosition(1.0);
-            shooting = 1;
-        }else if(shooting==1&&pad.left_trigger>0.1&&shootSwitch){
-            shooter.setPower(0.0);
-            hopper.setPosition(0.0);
-            shooting = 0;
-        }
-        if(shooting!=-1&&pad.left_bumper&&shootSwitch){
-            //shooter.setPower(1.0);
-            hopper.setPosition(0.0);
-            shooting = -1;
-        }else if(shooting==-1&&pad.left_bumper&&shootSwitch){
-            shooter.setPower(0.0);
-            hopper.setPosition(0.0);
-            shooting = 0;
-        }
-
-        if(pad.left_bumper||pad.left_trigger>0.1){
-            shootSwitch = false;
         }else{
-            shootSwitch = true;
+            shooter.setPower(0.0);
+            hopper.setPosition(0.48);
         }
 
 
