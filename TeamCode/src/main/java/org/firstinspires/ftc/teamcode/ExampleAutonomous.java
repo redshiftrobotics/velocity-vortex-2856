@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 /**
  * Created by matt on 10/15/16.
  */
-@Disabled @Autonomous(name = "ExampleAutonomous", group = "pid-test")
+@Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
