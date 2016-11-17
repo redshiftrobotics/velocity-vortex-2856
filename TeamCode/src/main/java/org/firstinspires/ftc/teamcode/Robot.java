@@ -210,10 +210,10 @@ public class Robot {
                 break;
             }
 
-            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT + (Direction));
-            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT - (Direction));
-            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT  - (Direction));
-            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT  + (Direction));
+            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT - (Direction));
+            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT  + (Direction));
+            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT  - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
