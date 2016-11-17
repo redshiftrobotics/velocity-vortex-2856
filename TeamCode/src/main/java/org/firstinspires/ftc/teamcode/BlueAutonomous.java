@@ -34,9 +34,9 @@ public class BlueAutonomous extends LinearOpMode {
 
         waitForStart();
 
-        robot.Straight(2.6f, new Float[]{1f,0f}, 10, telemetry);
-        //robot.AngleTurn(-45, 2, telemetry);
-        //robot.Straight(3f, new Float[]{1f,0f}, 20, telemetry);
-        //robot.AngleTurn(-45, 1, telemetry);
+        robot.Straight(.6f, new Float[]{1f,0f}, 10, telemetry);
+        robot.AngleTurn(45, 2, telemetry);
+        robot.Straight(3f, new Float[]{1f,0f}, 20, telemetry);
+        robot.AngleTurn(-45, 1, telemetry);
     }
 }
