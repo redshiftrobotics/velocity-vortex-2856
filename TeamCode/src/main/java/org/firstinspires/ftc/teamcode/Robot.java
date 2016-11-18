@@ -298,6 +298,49 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
+
+    public void moveInBlue(int Timeout){
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+        float LoopTime = Data.Time.CurrentTime();
+        while(StartTime + Timeout > Data.Time.CurrentTime()){
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+
+            Data.Drive.m0.setPower(-Data.Drive.POWER_CONSTANT);
+            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT);
+            Data.Drive.m2.setPower(-Data.Drive.POWER_CONSTANT);
+            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT);
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+    public void moveInRed(int Timeout){
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+        float LoopTime = Data.Time.CurrentTime();
+        while(StartTime + Timeout > Data.Time.CurrentTime()){
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+
+            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT);
+            Data.Drive.m1.setPower(-Data.Drive.POWER_CONSTANT);
+            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT);
+            Data.Drive.m3.setPower(-Data.Drive.POWER_CONSTANT);
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
     // Private Methods
 
     // Method that grabs the IMU data and calculates a new ComputedTarget.
