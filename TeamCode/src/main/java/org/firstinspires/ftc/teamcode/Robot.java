@@ -25,6 +25,8 @@ import java.util.ArrayList;
  */
 public class Robot {
 
+    public float startDegrees;
+
     public RobotData Data = new RobotData();
 
     public float IMURotations = 0;
@@ -42,6 +44,8 @@ public class Robot {
 
         Data.imu = new AdafruitBNO055IMU(imu);
         Data.imu.initialize(Data.imuParameters);
+
+        startDegrees = Data.imu.getAngularOrientation().firstAngle * -1;
 
         // Store the Robot Hardware
         Data.Drive.m0 = m0;
@@ -64,6 +68,15 @@ public class Robot {
     public void Straight(float Rotations, Float[] movement, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
         CalculateAngles(tm);
 
         // Get the current program time and starting encoder position before we start our drive loop
@@ -79,7 +92,7 @@ public class Robot {
 
 
         // Manually calculate our first target
-        Data.PID.Target = CalculateAngles(tm) + (IMURotations * 360);
+        Data.PID.Target = CalculateAngles(tm); // returns Data.PID.Headings[1]
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
@@ -110,18 +123,29 @@ public class Robot {
 
             // Define our motor power multiplier
 
-            tm.addData("Direction ", Direction);
-            tm.update();
+            //tm.addData("Direction ", Direction);
+            //tm.update();
 
-//            Data.Drive.m0.setPower(Drive.POWER_CONSTANT + (Direction));
-//            Data.Drive.m1.setPower(Drive.POWER_CONSTANT - (Direction));
-//            Data.Drive.m2.setPower(Drive.POWER_CONSTANT - (Direction));
-//            Data.Drive.m3.setPower(Drive.POWER_CONSTANT + (Direction));
-
-            Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
-            Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
-            Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
-            Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+            Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
+            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+//            tm.addData("P", Data.PID.P);
+//            if(Data.PID.P > 180) {
+//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+//                tm.addData("DIRECTION IS", "NEGATIVE");
+//            } else {
+//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+//                tm.addData("DIRECTION IS", "POSITIVE");
+//            }
+//
+//            tm.update();
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -147,8 +171,17 @@ public class Robot {
         //Calculate PIDS again because Isaac Zinda only knows
 
 
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+
         // Manually calculate our first target
-        Data.PID.Target = (CalculateAngles(tm) + (IMURotations * 360)) + angle;
+        Data.PID.Target = CalculateAngles(tm) + angle;
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
@@ -174,17 +207,89 @@ public class Robot {
 
             // Define our motor power multiplier
 
-            tm.addData("Direction ", Direction);
-            tm.update();
+            //tm.addData("Direction ", Direction);
+            //tm.update();
 
             if(Math.abs(Direction) <= 0.03f) {
                 break;
             }
 
-            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT + (Direction));
-            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT - (Direction));
-            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT  - (Direction));
-            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT  + (Direction));
+            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT - (Direction));
+            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT  + (Direction));
+            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT  - (Direction));
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+    public void recenter(int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+
+        // Manually calculate our first target
+        Data.PID.Target = startDegrees;
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while(StartTime + Timeout > Data.Time.CurrentTime()){
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            // Constrain our direction from being too intense.
+
+            //if(Direction > 50){ Direction = 50; }
+            //if(Direction < -50){ Direction = -50; }
+
+            // Define our motor power multiplier
+
+            //tm.addData("Direction ", Direction);
+            //tm.update();
+
+            if(Math.abs(Direction) <= 0.03f) {
+                break;
+            }
+
+            Data.Drive.m0.setPower(Data.Drive.POWER_CONSTANT - (Direction));
+            Data.Drive.m1.setPower(Data.Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m2.setPower(Data.Drive.POWER_CONSTANT  + (Direction));
+            Data.Drive.m3.setPower(Data.Drive.POWER_CONSTANT  - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -200,16 +305,26 @@ public class Robot {
         // First we will move the current angle heading into the previous angle heading slot.
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle;
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+
+        appendLog("Raw IMU: " + Math.abs(Data.imu.getAngularOrientation().firstAngle) + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
 
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
-        if(Data.PID.Headings[0] > Math.abs(300) && Data.PID.Headings[1] < Math.abs(60)) {
-            IMURotations--; //rotations of 360 degrees
+
+        Log.e("#####################", "About to increment IMURotations");
+        // Now we determine if we need to re-calculate the angles.
+        Log.e("############### current", Float.toString(Data.PID.Headings[1]));
+        Log.e("############### past", Float.toString(Data.PID.Headings[0]));
+        if(Data.PID.Headings[0] > 300 && Data.PID.Headings[1] < 60) {
+            Log.e("################# ####", "Adding to IMURotations");
+            IMURotations++; //rotations of 360 degrees
             CalculateAngles(tm);
         //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
-        } else if(Data.PID.Headings[0] < Math.abs(60) && Data.PID.Headings[1] > Math.abs(300)) {
-            IMURotations++;
+        } else if(Data.PID.Headings[0] < 60 && Data.PID.Headings[1] > 300) {
+            Log.e("#####################", "Subtracting from IMURotations");
+            IMURotations--;
             CalculateAngles(tm);
         }
         return Data.PID.Headings[1];
