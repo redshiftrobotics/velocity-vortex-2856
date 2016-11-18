@@ -42,8 +42,10 @@ public class BlueAutonomous extends LinearOpMode {
         robot.recenter(5, telemetry);
         //center to vision target
         //process beacon
-        robot.moveInBlue(4);
-        robot.moveInRed(4);
+        //move in and center to vision target
+        //robot.moveInRed(4); //back out
+        //robot.recenter(5, telemetry);
+        //robot.Straight();
 
 
     }
