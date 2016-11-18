@@ -36,7 +36,16 @@ public class BlueAutonomous extends LinearOpMode {
 
         robot.Straight(.6f, new Float[]{1f,0f}, 10, telemetry);
         robot.AngleTurn(45, 2, telemetry);
-        robot.Straight(3f, new Float[]{1f,0f}, 20, telemetry);
+        robot.recenter(5, telemetry);
+        robot.Straight(2.7f, new Float[]{1f,0f}, 20, telemetry);
         robot.AngleTurn(-45, 1, telemetry);
+        robot.recenter(5, telemetry);
+        //center to vision target
+        //process beacon
+        //move in and center to vision target
+        //robot.moveInRed(4); //back out
+        //robot.recenter(5, telemetry);
+        //robot.Straight();
+        
     }
 }
