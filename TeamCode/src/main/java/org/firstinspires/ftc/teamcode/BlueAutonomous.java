@@ -42,18 +42,20 @@ public class BlueAutonomous extends LinearOpMode {
         hopper.setPosition(0.48);
 
         waitForStart();
-        robot.Straight(.2f, new Float[]{1f,0f}, 10, telemetry);
+        robot.Straight(.5f, new Float[]{1f,0f}, 10, telemetry);
         Thread.sleep(1000);
         hopper.setPosition(0);
         shooter.setPower(1);
         Thread.sleep(3000);
         hopper.setPosition(0.48);
         shooter.setPower(0);
-        robot.Straight(4f, new Float[]{1f,0f}, 10, telemetry);
+        m1.setPower(1);
+        m2.setPower(1);
+        Thread.sleep(300);
+        m1.setPower(0);
+        m2.setPower(0);
         Thread.sleep(1000);
-        robot.AngleTurn(-67f, 10, telemetry);
-        Thread.sleep(1000);
-        robot.Straight(0.1f, new Float[]{1f,0f}, 10, telemetry);
-
+        robot = new Robot(imu, m0, m1, m2, m3, telemetry);
+        robot.Straight(3.5f, new Float[]{1f,0f}, 10, telemetry);
     }
 }

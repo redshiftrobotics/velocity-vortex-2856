@@ -41,7 +41,7 @@ public class RedAutonomous extends LinearOpMode {
         hopper.setPosition(0.48);
 
         waitForStart();
-        robot.Straight(.2f, new Float[]{1f,0f}, 10, telemetry);
+        robot.Straight(.4f, new Float[]{1f,0f}, 10, telemetry);
         Thread.sleep(1000);
         hopper.setPosition(1);
         shooter.setPower(1);
@@ -49,7 +49,8 @@ public class RedAutonomous extends LinearOpMode {
         hopper.setPosition(0.48);
         shooter.setPower(0);
         Thread.sleep(3000);
-        robot.Straight(2f, new Float[]{1f,0f}, 10, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, telemetry);
+        robot.Straight(1.85f, new Float[]{1f,0f}, 10, telemetry);
         Thread.sleep(2000);
         m1.setPower(1);
         m2.setPower(1);
