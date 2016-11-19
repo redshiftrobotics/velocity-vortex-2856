@@ -3,15 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by matt on 11/10/16.
  */
-@Autonomous(name = "2856 Blue Autonomous")
-public class BlueAutonomous extends LinearOpMode {
+@Autonomous(name = "2856 Red Autonomous")
+public class RedAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -44,16 +43,19 @@ public class BlueAutonomous extends LinearOpMode {
         waitForStart();
         robot.Straight(.2f, new Float[]{1f,0f}, 10, telemetry);
         Thread.sleep(1000);
-        hopper.setPosition(0);
+        hopper.setPosition(1);
         shooter.setPower(1);
         Thread.sleep(3000);
         hopper.setPosition(0.48);
         shooter.setPower(0);
-        robot.Straight(4f, new Float[]{1f,0f}, 10, telemetry);
-        Thread.sleep(1000);
-        robot.AngleTurn(-67f, 10, telemetry);
-        Thread.sleep(1000);
-        robot.Straight(0.1f, new Float[]{1f,0f}, 10, telemetry);
+        Thread.sleep(3000);
+        robot.Straight(2f, new Float[]{1f,0f}, 10, telemetry);
+        Thread.sleep(2000);
+        m1.setPower(1);
+        m2.setPower(1);
+        Thread.sleep(2000);
+        m1.setPower(0);
+        m2.setPower(0);
 
     }
 }
