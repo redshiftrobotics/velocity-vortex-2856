@@ -57,13 +57,17 @@ public class MecanumTeleop extends OpMode {
     void StopShoot(Gamepad pad){
         if(pad.a){
             shooter.setPower(0);
+            hopper.setPosition(0.48);
+        }
+        if(pad.b){
             collecting = 0;
             collector.setPower(0.0);
-            hopper.setPosition(0.48);
         }
         if(pad.left_trigger>0.1){
             shooter.setPower(-1.0);
             num2 = true;
+        }else{
+            num2 = false;
         }
     }
 
