@@ -21,6 +21,7 @@ public class MecanumTeleop extends OpMode {
     Servo hopper;
     int collecting = 0;
     boolean collectSwitch = false;
+    boolean num2 = false;
     @Override
     public void init() {
         motors[0] = hardwareMap.dcMotor.get("m0");
@@ -41,7 +42,7 @@ public class MecanumTeleop extends OpMode {
         Move(gamepad1);
         Shoot(gamepad1);
         Sweep(gamepad1);
-        Hop(gamepad2);
+        StopShoot(gamepad2);
     }
 
     void Move(Gamepad pad){
@@ -53,14 +54,17 @@ public class MecanumTeleop extends OpMode {
         motors[3].setPower(direction.backLeftSpeed());
     }
 
-    void Hop(Gamepad pad){
-//        if(pad.left_trigger>0.1){
-//            hopper.setPosition(1.0);
-//        }else if(pad.right_trigger>0.1){
-//            hopper.setPosition(0.0);
-//        }else if(shooting!=0){
-//            hopper.setPosition(0.55);
-//        }
+    void StopShoot(Gamepad pad){
+        if(pad.a){
+            shooter.setPower(0);
+            collecting = 0;
+            collector.setPower(0.0);
+            hopper.setPosition(0.48);
+        }
+        if(pad.left_trigger>0.1){
+            shooter.setPower(-1.0);
+            num2 = true;
+        }
     }
 
     void Shoot(Gamepad pad){
@@ -71,7 +75,7 @@ public class MecanumTeleop extends OpMode {
         }else if(pad.left_bumper) {
             shooter.setPower(1.0);
             hopper.setPosition(1.0);
-        }else{
+        }else if(!num2){
             shooter.setPower(0.0);
             hopper.setPosition(0.48);
         }

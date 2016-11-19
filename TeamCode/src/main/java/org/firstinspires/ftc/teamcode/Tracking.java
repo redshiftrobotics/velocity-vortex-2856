@@ -106,9 +106,44 @@ public class Tracking {
             //moveVert(Range.clip(location.robotX/100,-1,1), m0, m1, m2, m3);
 
             if(location.robotY>=20+offSet||location.robotY<=(-20)+offSet){
-                robot.Straight(30f, new Float[]{1f,0f}, 6, telemetry);
+                robot.Straight(location.robotY/1000, new Float[]{1f,0f}, 6, telemetry);
 //                moveVert(Range.clip(location.robotY/100,-1,1), m0, m1, m2, m3);
             }else if(location.robotX>=50||location.robotX<=-50){
+                robot.moveInBlue(1);
+//                moveHor(Range.clip(location.robotX/100,-1,1), m0, m1, m2, m3);
+            }/*else if(robotAngle>=95||robotAngle<=85){
+                rotate((float) Range.clip((90-robotAngle)/90,-1.0,1.0));
+            }*/else{
+                alligned = true;
+            }
+        }
+        return;
+    }
+
+
+    public static void Center(Robot robot, Telemetry telemetry, float offSet) {
+
+        while(!alligned){
+            OpenGLMatrix latestLocation = listener.getUpdatedRobotLocation();
+
+            if(latestLocation != null)
+                lastKnownLocation = latestLocation;
+
+            float[] coordinates = lastKnownLocation.getTranslation().getData();
+
+            location.robotX = coordinates[0];
+            location.robotY = coordinates[1];
+            location.robotAngle = Orientation.getOrientation(lastKnownLocation, AxesReference.EXTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES).thirdAngle;
+
+            //move(location, m0, m1, m2, m3);
+
+            //moveHor(Range.clip(location.robotY/100,-1,1), m0, m1, m2, m3);
+            //moveVert(Range.clip(location.robotX/100,-1,1), m0, m1, m2, m3);
+
+            if(location.robotY>=20+offSet||location.robotY<=(-20)+offSet){
+                robot.Straight(location.robotY/1000, new Float[]{1f,0f}, 6, telemetry);
+//                moveVert(Range.clip(location.robotY/100,-1,1), m0, m1, m2, m3);
+//            }else if(location.robotX>=50||location.robotX<=-50){
 
 //                moveHor(Range.clip(location.robotX/100,-1,1), m0, m1, m2, m3);
             }/*else if(robotAngle>=95||robotAngle<=85){
