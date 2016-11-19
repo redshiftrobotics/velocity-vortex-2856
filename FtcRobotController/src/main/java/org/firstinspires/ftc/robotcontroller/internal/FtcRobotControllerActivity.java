@@ -38,18 +38,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.hardware.Camera;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -91,11 +95,170 @@ import com.qualcomm.robotcore.wifi.WifiDirectAssistant;
 import org.firstinspires.ftc.robotcore.internal.AppUtil;
 import org.firstinspires.inspection.RcInspectionActivity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class FtcRobotControllerActivity extends Activity {
+
+
+
+  ///////////////////////////////////////////////////////////
+  /////////               MODDED           //////////////////
+  ///////////////////////////////////////////////////////////
+
+
+
+
+
+  private Camera mCamera;
+  private CameraPreview mPreview;
+
+
+  private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+      camera.startPreview();
+      File pictureFile = getOutputMediaFile();
+      if (pictureFile == null) {
+//                Log.d(TAG, "Error creating media file, check storage permissions: " +
+//                        e.getMessage());
+        return;
+      }
+
+      try {
+        FileOutputStream fos = new FileOutputStream(pictureFile);
+        fos.write(data);
+        fos.close();
+
+
+      } catch (FileNotFoundException e) {
+        Log.d("FileNotFounc", "File not found: " + e.getMessage());
+      } catch (IOException e) {
+        Log.d("IOException", "Error accessing file: " + e.getMessage());
+      }
+
+
+
+    }
+  };
+
+
+
+  /** Create a File for saving an image or video */
+  private static File getOutputMediaFile(){
+    // To be safe, you should check that the SDCard is mounted
+    // using Environment.getExternalStorageState() before doing this.
+
+    int imageNumber = 0;
+
+    // Retrieve file.
+    File file = new File("/sdcard/Pictures","imageNumber");
+    StringBuilder text = new StringBuilder();
+    // Attempt to load line from file into the buffer.
+    try {
+      BufferedReader br = new BufferedReader(new FileReader(file));
+      String line;
+      // Ensure that the first line is not null.
+      while ((line = br.readLine()) != null) {
+        text.append(line);
+      }
+      // Close the buffer reader
+      br.close();
+    }
+    // Catch exceptions... Or don't because that would require effort.
+    catch (IOException e) {
+    }
+
+    // Provide in a more user friendly form.
+    if(text.toString() == "") {
+      imageNumber = 0;
+    } else {
+      imageNumber = Integer.parseInt(text.toString()) + 1;
+    }
+
+    try {
+      File imageNumberFile = new File("/sdcard/Pictures", "imageNumber");
+      FileOutputStream outputStream;
+      //outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+      outputStream = new FileOutputStream(file,false);
+      outputStream.write(String.valueOf(imageNumber).getBytes());
+      outputStream.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES), "processing");
+    // This location works best if you want the created images to be shared
+    // between applications and persist after your app has been uninstalled.
+
+    // Create the storage directory if it does not exist
+    if (! mediaStorageDir.exists()){
+      if (! mediaStorageDir.mkdirs()){
+        Log.d("processing", "failed to create directory");
+        return null;
+      }
+    }
+
+    // Create a media file name
+    File mediaFile;
+    mediaFile = new File(mediaStorageDir.getPath() + File.separator + "proc" + imageNumber + ".jpg");
+    return mediaFile;
+  }
+
+
+  private static int getFrontCameraId(){
+    int camId = -1;
+    int numberOfCameras = Camera.getNumberOfCameras();
+    Camera.CameraInfo ci = new Camera.CameraInfo();
+
+    for(int i = 0;i < numberOfCameras;i++){
+      Camera.getCameraInfo(i,ci);
+      if(ci.facing == Camera.CameraInfo.CAMERA_FACING_FRONT){
+        camId = i;
+      }
+    }
+
+    return camId;
+  }
+  /** A safe way to get an instance of the Camera object. */
+  public static Camera getCameraInstance() {
+    Camera c = null;
+    try {
+      c = Camera.open(getFrontCameraId()); // attempt to get a Camera instance
+    } catch (Exception e) {
+      // Camera is not available (in use or does not exist)
+      Log.d("uhhh", "yep couldnt get camera");
+    }
+    return c; // returns null if camera is unavailable
+  }
+
+  private void releaseCamera(){
+    if (mCamera != null){
+      mCamera.release();        // release the camera for other applications
+      mCamera = null; // Create an instance of Camera
+      mCamera = getCameraInstance();
+
+      // Create our Preview view and set it as the content of our activity.
+      mPreview = new CameraPreview(this, mCamera);
+      FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
+      preview.addView(mPreview);
+    }
+  }
+
+
+
+  ///////////////////////////////////////////////////////////
+  /////////             END MODDED         //////////////////
+  ///////////////////////////////////////////////////////////
+
 
   public static final String TAG = "RCActivity";
 
