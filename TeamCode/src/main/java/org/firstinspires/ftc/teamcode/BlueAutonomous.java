@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by matt on 11/10/16.
@@ -17,6 +19,8 @@ public class BlueAutonomous extends LinearOpMode {
     DcMotor m3;
     Robot robot;
 
+    DcMotor shooter;
+    Servo hopper;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -25,27 +29,29 @@ public class BlueAutonomous extends LinearOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
+        shooter = hardwareMap.dcMotor.get("shooter");
+        shooter.setDirection(DcMotor.Direction.REVERSE);
+
+        hopper = hardwareMap.servo.get("hopper");
 
         robot = new Robot(imu, m0, m1, m2, m3, telemetry);
 
         robot.Data.PID.PTuning = 100f;
         robot.Data.PID.ITuning = 30f;
         robot.Data.PID.DTuning = 0f;
+        hopper.setPosition(0.48);
 
         waitForStart();
 
-        robot.Straight(.6f, new Float[]{1f,0f}, 10, telemetry);
-        robot.AngleTurn(45, 2, telemetry);
-        robot.recenter(5, telemetry);
-        robot.Straight(2.7f, new Float[]{1f,0f}, 20, telemetry);
-        robot.AngleTurn(-45, 1, telemetry);
-        robot.recenter(5, telemetry);
-        //center to vision target
-        //process beacon
-        //move in and center to vision target
-        //robot.moveInRed(4); //back out
-        //robot.recenter(5, telemetry);
-        //robot.Straight();
-        
+        robot.Straight(0.2f, new Float[]{1f,0f}, 10, telemetry);
+        hopper.setPosition(0);
+        shooter.setPower(1);
+        Thread.sleep(3000);
+        hopper.setPosition(0.48);
+        shooter.setPower(0);
+        robot.Straight(4f, new Float[]{1f,0f}, 10, telemetry);
+        //robot.AngleTurn(-45f, 10, telemetry);
+        robot.Straight(0.5f, new Float[]{1f,0f}, 10, telemetry);
+
     }
 }
