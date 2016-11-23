@@ -51,7 +51,7 @@ public class Robot {
         Data.Drive.m1 = m1;
         Data.Drive.m2 = m2;
         Data.Drive.m3 = m3;
-        Data.Drive.m1.setDirection(DcMotorSimple.Direction.REVERSE);
+        Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Data.Drive.cs = cs;
@@ -132,10 +132,14 @@ public class Robot {
             //tm.update();
 
             //Might actually be - + + -
-            Data.Drive.m0.setPower(((movementVector[0] - movementVector[1]) * 0.65) + (Direction));
-            Data.Drive.m1.setPower(((movementVector[0] + movementVector[1]) * 0.65) - (Direction));
-            Data.Drive.m2.setPower(((movementVector[0] - movementVector[1]) * 0.65) - (Direction));
-            Data.Drive.m3.setPower(((movementVector[0] + movementVector[1]) * 0.65) + (Direction));
+            Data.Drive.m0.setPower(Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
+            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+//            Data.Drive.m0.setPower(((movementVector[0] - movementVector[1]) * 0.65) + (Direction));
+//            Data.Drive.m1.setPower(((movementVector[0] + movementVector[1]) * 0.65) - (Direction));
+//            Data.Drive.m2.setPower(((movementVector[0] - movementVector[1]) * 0.65) - (Direction));
+//            Data.Drive.m3.setPower(((movementVector[0] + movementVector[1]) * 0.65) + (Direction));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -280,6 +284,7 @@ public class Robot {
 
         appendLog("Raw IMU: " + Math.abs(Data.imu.getAngularOrientation().firstAngle) + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
 
+        Data.PID.Headings[0] = Data.PID.Headings[1];
 
         // Finally we calculate a ComputedTarget from the current angle heading.
         Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
