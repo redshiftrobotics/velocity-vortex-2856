@@ -32,7 +32,15 @@ public class FollowLineTest extends LinearOpMode{
                 telemetry.addData("Blue: ", colorSensor.blue());
             }
 
-            telemetry.addData("Average: ", (colorSensor.red() + colorSensor.blue() + colorSensor.green())/3);
+            int average = (colorSensor.red() + colorSensor.blue() + colorSensor.green())/3;
+
+            if(average>100){
+                telemetry.addData("Line!", 1);
+            }else{
+                telemetry.addData("No Line!", 0);
+            }
+
+            telemetry.addData("Average: ", average);
 
             telemetry.update();
         }
