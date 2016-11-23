@@ -25,14 +25,13 @@ import java.util.ArrayList;
  */
 public class Robot {
 
-    public float startDegrees;
-
     public RobotData Data = new RobotData();
 
     public float IMURotations = 0;
 
     //changed from I2cDevice
     public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, Telemetry tm) {
+
 
         tm.addData("IMU ", "Innitializing");
         tm.update();
@@ -45,7 +44,7 @@ public class Robot {
         Data.imu = new AdafruitBNO055IMU(imu);
         Data.imu.initialize(Data.imuParameters);
 
-        startDegrees = Data.imu.getAngularOrientation().firstAngle * -1;
+        Data.PID.Target = Data.imu.getAngularOrientation().firstAngle*-1;
 
         // Store the Robot Hardware
         Data.Drive.m0 = m0;
@@ -90,9 +89,6 @@ public class Robot {
 
         //Calculate PIDS again because Isaac Zinda only knows
 
-
-        // Manually calculate our first target
-        Data.PID.Target = CalculateAngles(tm); // returns Data.PID.Headings[1]
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
@@ -181,7 +177,7 @@ public class Robot {
 
 
         // Manually calculate our first target
-        Data.PID.Target = CalculateAngles(tm) + angle;
+        Data.PID.Target += angle;
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
