@@ -52,7 +52,7 @@ public class Robot {
         Data.Drive.m1 = m1;
         Data.Drive.m2 = m2;
         Data.Drive.m3 = m3;
-        Data.Drive.m1.setDirection(DcMotorSimple.Direction.REVERSE);
+        Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
 
         Data.Drive.EncoderCount = 1400;
