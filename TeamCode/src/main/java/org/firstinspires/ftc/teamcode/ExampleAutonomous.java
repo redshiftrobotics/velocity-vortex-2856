@@ -36,10 +36,11 @@ public class ExampleAutonomous extends LinearOpMode {
         //D: 0
 
         //loop
-
-        robot.setConstants(100f, 30f, 0f);
+        robot.Data.PID.PTuning = 100f;
+        robot.Data.PID.ITuning = 30f;
+        robot.Data.PID.DTuning = 0f;
         waitForStart();
-        robot.linearMove(30f, 6, telemetry);
+        robot.Straight(30f, new Float[]{1f,0f}, 6, telemetry);
 
 //        boolean driving = false;
 //        TuneState state;

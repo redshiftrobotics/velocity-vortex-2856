@@ -35,11 +35,14 @@ public class BlueAutonomous extends LinearOpMode {
         hopper = hardwareMap.servo.get("hopper");
 
         robot = new Robot(imu, m0, m1, m2, m3, telemetry);
-        robot.setConstants(100f, 30f, 0f);
+
+        robot.Data.PID.PTuning = 100f;
+        robot.Data.PID.ITuning = 30f;
+        robot.Data.PID.DTuning = 0f;
         hopper.setPosition(0.48);
 
         waitForStart();
-        robot.linearMove(.5f, 10, telemetry);
+        robot.Straight(.5f, new Float[]{1f,0f}, 10, telemetry);
         Thread.sleep(1000);
         hopper.setPosition(0);
         shooter.setPower(1);
@@ -52,6 +55,7 @@ public class BlueAutonomous extends LinearOpMode {
         m1.setPower(0);
         m2.setPower(0);
         Thread.sleep(1000);
-        robot.linearMove(3.5f, 10, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, telemetry);
+        robot.Straight(3.5f, new Float[]{1f,0f}, 10, telemetry);
     }
 }
