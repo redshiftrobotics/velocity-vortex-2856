@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -30,7 +31,7 @@ public class Robot {
     public float IMURotations = 0;
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -53,7 +54,7 @@ public class Robot {
         Data.Drive.m3 = m3;
         Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        Data.Drive.colorSensor = cs; //instantiate color sensor
         Data.Drive.EncoderCount = 1400;
 
         // Start the program clock
@@ -96,6 +97,92 @@ public class Robot {
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
         while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
+            // First we check if we have exceeded our timeout and...
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
+                // ... stop our loop if we have.
+                break;
+            }
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            // Constrain our direction from being too intense.
+
+            //if(Direction > 50){ Direction = 50; }
+            //if(Direction < -50){ Direction = -50; }
+
+            // Define our motor power multiplier
+
+            //tm.addData("Direction ", Direction);
+            //tm.update();
+
+//            Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
+//            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
+//            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
+//            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+//            tm.addData("P", Data.PID.P);
+//            if(Data.PID.P > 180) {
+                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                tm.addData("DIRECTION IS", "NEGATIVE");
+//            } else {
+//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+//                tm.addData("DIRECTION IS", "POSITIVE");
+//            }
+//
+//            tm.update();
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+    public void MoveToLine(Float[] movement, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 100){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -397,7 +484,7 @@ class Drive {
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
-
+    ColorSensor colorSensor;
     int EncoderCount;
     final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
 }
