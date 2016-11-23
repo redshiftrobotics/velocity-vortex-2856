@@ -151,7 +151,7 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
-    public void MoveToLine(Float[] movement, int Timeout, Telemetry tm){
+    public void MoveToLine(Float[] movement, float speed, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
@@ -182,7 +182,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 100){
+        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 70){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -209,10 +209,10 @@ public class Robot {
             //tm.addData("Direction ", Direction);
             //tm.update();
 
-            Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
-            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
-            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
-            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+            Data.Drive.m0.setPower(((movement[0] - movement[1]) * speed) - (Direction));
+            Data.Drive.m1.setPower(((movement[0] + movement[1]) * speed) + (Direction));
+            Data.Drive.m2.setPower(((movement[0] - movement[1]) * speed) + (Direction));
+            Data.Drive.m3.setPower(((movement[0] + movement[1]) * speed) - (Direction));
 //            tm.addData("P", Data.PID.P);
 //            if(Data.PID.P > 180) {
 //                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
