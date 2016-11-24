@@ -28,6 +28,8 @@ public class BlueAutonomous extends LinearVisionOpMode {
     Robot robot;
     ColorSensor cs;
 
+    private int side = 1; //1 for blue, -1 for red because everything will be flipped
+
     DcMotor shooter;
     Servo hopper;
 
@@ -37,8 +39,11 @@ public class BlueAutonomous extends LinearVisionOpMode {
         initVision();
         initDevices();
 
-        Float[] forward = new Float[]{1f,0f};
-        Float[] backward = new Float[]{-1f,0f};
+        Float[] forward = new Float[]{1f*side,0f};
+        Float[] backward = new Float[]{-1f*side,0f};
+
+        //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
+        String colorTargetIsRight = "red, blue";
 
         robot.Data.PID.PTuning = 100f;
         robot.Data.PID.ITuning = 30f;
@@ -53,9 +58,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //hopper.setPosition(0.48);
         //shooter.setPower(0);
         robot.Straight(1f, forward, 10, telemetry);
-        robot.AngleTurn(45f, 10, telemetry);
+        robot.AngleTurn(45f*side, 10, telemetry);
         robot.Straight(3f, forward, 10, telemetry);
-        robot.AngleTurn(-45f, 10, telemetry);
+        robot.AngleTurn(-45f*side, 10, telemetry);
         //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
 
         robot.MoveToLine(backward, .65f, 10, telemetry);
@@ -68,8 +73,8 @@ public class BlueAutonomous extends LinearVisionOpMode {
         } else { //blue is left
             robot.Straight(0.3f, forward, 10, telemetry);
         }
-        robot.Straight(1f, new Float[]{0f, -1f}, 10, telemetry);
-        robot.Straight(1f, new Float[]{0f, 1f}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f}, 10, telemetry); // MAY NEED TO MULTIPLY BY side
+        robot.Straight(1f, new Float[]{0f, 1f}, 10, telemetry); // MAY NEED TO MULTIPLY BY side
 
         //straight to clear existing line
         robot.Straight(1f, forward, 10, telemetry);
@@ -78,13 +83,13 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.MoveToLine(backward, .2f, 10, telemetry);
 
         //in front of second beacon: decide color, shift accordingly, and move in
-        if(beacon.getAnalysis().getColorString().equals("red, blue")) { //blue is right
+        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
             robot.Straight(0.3f, backward, 10, telemetry);
         } else { //blue is left
             robot.Straight(0.3f, forward, 10, telemetry);
         }
-        robot.Straight(1f, new Float[]{0f, -1f}, 10, telemetry);
-        robot.Straight(1f, new Float[]{0f, 1f}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f}, 10, telemetry); // MAY NEED TO MULTIPLY BY side
+        robot.Straight(1f, new Float[]{0f, 1f}, 10, telemetry); // MAY NEED TO MULTIPLY BY side
 
         //go backwards because who cares
         robot.Straight(3f, backward, 10, telemetry);
