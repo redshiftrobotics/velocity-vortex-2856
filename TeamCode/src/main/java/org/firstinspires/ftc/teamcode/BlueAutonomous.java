@@ -15,6 +15,11 @@ import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Size;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Created by matt on 11/10/16.
  */
@@ -28,13 +33,41 @@ public class BlueAutonomous extends LinearVisionOpMode {
     Robot robot;
     ColorSensor cs;
 
-    private int side = -1; //1 for blue, -1 for red because everything will be flipped
+    private String sideText;
+
+    private int side; //1 for blue, -1 for red because everything will be flipped this is now determined by a file... see the beginning of runOpMode()
 
     DcMotor shooter;
     Servo hopper;
 
     @Override
     public void runOpMode() throws InterruptedException {
+        // Retrieve file.
+        File file = new File("/sdcard/Pictures", "prefs");
+        StringBuilder text = new StringBuilder();
+        // Attempt to load line from file into the buffer.
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            // Ensure that the first line is not null.
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+            }
+            // Close the buffer reader
+            br.close();
+        }
+        // Catch exceptions... Or don't because that would require effort.
+        catch (IOException e) {
+        }
+
+        // Provide in a more user friendly form.
+        sideText = text.toString();
+        if(sideText.equals("red")) {
+            side = -1;
+        } else if (sideText.equals("blue")) {
+            side = 1;
+        }
+
         waitForVisionStart();
         initVision();
         initDevices();
