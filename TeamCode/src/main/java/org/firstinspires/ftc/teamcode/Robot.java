@@ -45,7 +45,7 @@ public class Robot {
         Data.imu = new AdafruitBNO055IMU(imu);
         Data.imu.initialize(Data.imuParameters);
 
-        Data.PID.Target = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Target = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         // Store the Robot Hardware
         Data.Drive.m0 = m0;
@@ -71,11 +71,11 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         CalculateAngles(tm);
 
@@ -157,11 +157,11 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         CalculateAngles(tm);
 
@@ -256,11 +256,11 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
 
         // Manually calculate our first target
@@ -317,7 +317,7 @@ public class Robot {
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
 
-        Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
 
         appendLog("Raw IMU: " + Math.abs(Data.imu.getAngularOrientation().firstAngle) + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
