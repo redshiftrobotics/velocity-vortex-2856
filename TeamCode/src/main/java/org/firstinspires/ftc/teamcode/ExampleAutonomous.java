@@ -43,8 +43,7 @@ public class ExampleAutonomous extends LinearOpMode {
         robot.Data.PID.ITuning = 30f;
         robot.Data.PID.DTuning = 0f;
         waitForStart();
-        robot.Straight(5f, new Float[]{0f,1f}, 7, telemetry);
-        robot.AngleTurn(90f, 10, telemetry);
+        robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
 
     }
 
