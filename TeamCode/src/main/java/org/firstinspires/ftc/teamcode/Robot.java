@@ -10,8 +10,11 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -57,8 +60,83 @@ public class Robot {
         Data.Drive.colorSensor = cs; //instantiate color sensor
         Data.Drive.EncoderCount = 1400;
 
+        Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
+
         // Start the program clock
         Data.Time = new RobotTime();
+    }
+
+    public void Push(float Rotations, Float[] movement, int Timeout, Telemetry tm) {
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
+            // First we check if we have exceeded our timeout and...
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
+                // ... stop our loop if we have.
+                break;
+            }
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+
+            float offset = Tracking.getOffset();
+
+            Data.Drive.m0.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/    - movement[1]) * 0.65) - (Direction));
+            Data.Drive.m1.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/  + movement[1]) * 0.65) + (Direction));
+            Data.Drive.m2.setPower(((  (movement[0])  /*+ Range.clip((offset / 200), -.2, .2)*/  - movement[1]) * 0.65) + (Direction));
+            Data.Drive.m3.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/   + movement[1]) * 0.65) - (Direction));
+//                tm.addData("DIRECTION IS", "NEGATIVE");
+//            } else {
+//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+//                tm.addData("DIRECTION IS", "POSITIVE");
+//            }
+//
+//            tm.update();
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
     }
 
     // Public Interface Methods:
