@@ -22,6 +22,8 @@ public class MecanumTeleop extends OpMode {
     int collecting = 0;
     boolean collectSwitch = false;
     boolean num2 = false;
+    DirectionObject direction;
+
     @Override
     public void init() {
         motors[0] = hardwareMap.dcMotor.get("m0");
@@ -37,6 +39,7 @@ public class MecanumTeleop extends OpMode {
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         hopper.setDirection(Servo.Direction.REVERSE);
+        direction = new DirectionObject(0, 0, 0);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class MecanumTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        DirectionObject direction = new DirectionObject(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
+        direction.setValues(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
 
         motors[0].setPower(direction.frontLeftSpeed());
         motors[1].setPower(direction.frontRightSpeed());
