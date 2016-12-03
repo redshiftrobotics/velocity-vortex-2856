@@ -60,7 +60,7 @@ public class Robot {
         Data.Drive.colorSensor = cs; //instantiate color sensor
         Data.Drive.EncoderCount = 1400;
 
-        Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
+        //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
 
         // Start the program clock
         Data.Time = new RobotTime();

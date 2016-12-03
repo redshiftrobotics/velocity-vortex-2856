@@ -78,8 +78,8 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
         String colorTargetIsRight = "red, blue";
 
-        robot.Data.PID.PTuning = 100f;
-        robot.Data.PID.ITuning = 30f;
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 31f;
         robot.Data.PID.DTuning = 0f;
         //hopper.setPosition(0.48);
         waitForStart();
