@@ -34,17 +34,17 @@ public class ExampleAutonomous extends LinearOpMode {
 
 
         //working PIDs
-        //P: 100
-        //I: 30
-        //D: 0
+        //P tuning: 100
+        //I tuning : 30
+        //D tuning: 0
 
         //loop
-        robot.Data.PID.PTuning = 100f;
-        robot.Data.PID.ITuning = 30f;
-        robot.Data.PID.DTuning = 0f;
-        waitForStart();
-        robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
 
+        robot.setTuning(100f, 30f, 0f);
+        waitForStart();
+        //robot.Push(5f, new Float[]{0f,-1f}, 7);
+        robot.AngleTurn(90f, 10);
+        robot.Straight(5f, 0f, 7);
     }
 
     enum TuneState {

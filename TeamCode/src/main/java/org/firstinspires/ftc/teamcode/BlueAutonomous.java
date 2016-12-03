@@ -72,18 +72,16 @@ public class BlueAutonomous extends LinearVisionOpMode {
         initVision();
         initDevices();
 
-        Float[] forward = new Float[]{1f,0f};
-        Float[] backward = new Float[]{-1f,0f};
+        Float forward = 0f;
+        Float backward = 180f;
 
         //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
         String colorTargetIsRight = "red, blue";
 
-        robot.Data.PID.PTuning = 100f;
-        robot.Data.PID.ITuning = 30f;
-        robot.Data.PID.DTuning = 0f;
+        robot.setTuning(100, 30, 0);
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(1.25f, forward, 10, telemetry);
+        robot.Straight(1.25f, forward, 10);
 
         //Thread.sleep(1000);
         //hopper.setPosition(0);
@@ -91,42 +89,42 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //Thread.sleep(3000);
         //hopper.setPosition(0.48);
         //shooter.setPower(0);
-        robot.Straight(1f, forward, 10, telemetry);
-        robot.AngleTurn(55f*side, 10, telemetry);
-        robot.Straight(3.2f, forward, 10, telemetry);
-        robot.AngleTurn(-55f*side, 10, telemetry);
+        robot.Straight(1f, forward, 10);
+        robot.AngleTurn(55f*side, 10);
+        robot.Straight(3.2f, forward, 10);
+        robot.AngleTurn(-55f*side, 10);
         //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
 
-        robot.MoveToLine(forward, .65f, 10, telemetry);
+        robot.MoveToLine(forward, .65f, 10);
         Thread.sleep(1000);
-        robot.MoveToLine(backward, .2f, 10, telemetry);
+        robot.MoveToLine(backward, .2f, 10);
 
         //in front of first beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals("red, blue")) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
+            robot.Straight(0.3f, backward, 10);
         } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+            robot.Straight(0.3f, forward, 10);
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(.7f, 270, 10);
+        robot.Straight(.7f, 90, 10);
 
         //straight to clear existing line
-        robot.Straight(1f, backward, 10, telemetry);
-        robot.MoveToLine(backward, .4f, 10, telemetry);
+        robot.Straight(1f, backward, 10);
+        robot.MoveToLine(backward, .4f, 10);
         Thread.sleep(1000);
-        robot.MoveToLine(forward, .2f, 10, telemetry);
+        robot.MoveToLine(forward, .2f, 10);
 
         //in front of second beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
+            robot.Straight(0.3f, backward, 10);
         } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+            robot.Straight(0.3f, forward, 10);
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(.7f, 270, 10);
+        robot.Straight(.7f, 90, 10);
 
         //go backwards because who cares
-        robot.Straight(5f, backward, 10, telemetry);
+        robot.Straight(5f, backward, 10);
 
     }
 
