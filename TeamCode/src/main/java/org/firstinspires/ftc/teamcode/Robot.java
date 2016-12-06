@@ -54,14 +54,13 @@ public class Robot {
     }
 
     public void Push(float Rotations, Float[] movement, int Timeout) {
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
-        // and put it into our "current" headings slot.
+        // We need two points of data from the IMU to do our calculation. So, we take two and update PID.headings
         pid.UpdateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
         CalculateAngles();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = time.Now();
-        float StartPosition = hardware.m0.getCurrentPosition();
+        float StartPosition = hardware.Motor(0).getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         pid.clearData();
@@ -74,7 +73,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(StartPosition - hardware.m0.getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
+        while(Math.abs(StartPosition - hardware.Motor(0).getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < time.Now()){
                 // ... stop our loop if we have.
@@ -94,16 +93,16 @@ public class Robot {
 
            // float offset = Tracking.getOffset();
 
-            hardware.m0.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/    - movement[1]) * 0.65) - (Direction));
-            hardware.m1.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/  + movement[1]) * 0.65) + (Direction));
-            hardware.m2.setPower(((  (movement[0])  /*+ Range.clip((offset / 200), -.2, .2)*/  - movement[1]) * 0.65) + (Direction));
-            hardware.m3.setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/   + movement[1]) * 0.65) - (Direction));
+            hardware.Motor(0).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/    - movement[1]) * 0.65) - (Direction));
+            hardware.Motor(1).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/  + movement[1]) * 0.65) + (Direction));
+            hardware.Motor(2).setPower(((  (movement[0])  /*+ Range.clip((offset / 200), -.2, .2)*/  - movement[1]) * 0.65) + (Direction));
+            hardware.Motor(3).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/   + movement[1]) * 0.65) - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
-        hardware.m0.setPower(0);
-        hardware.m1.setPower(0);
-        hardware.m2.setPower(0);
-        hardware.m3.setPower(0);
+        hardware.Motor(0).setPower(0);
+        hardware.Motor(1).setPower(0);
+        hardware.Motor(2).setPower(0);
+        hardware.Motor(3).setPower(0);
     }
 
     // Public Interface Methods:
@@ -127,7 +126,7 @@ public class Robot {
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = time.Now();
-        float StartPosition = hardware.m0.getCurrentPosition();
+        float StartPosition = hardware.Motor(0).getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         pid.clearData();
@@ -139,7 +138,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(StartPosition - hardware.m0.getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
+        while(Math.abs(StartPosition - hardware.Motor(0).getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < time.Now()){
                 // ... stop our loop if we have.
@@ -156,35 +155,28 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((pid.I * pid.ITuning) / 2000) + ((pid.P * pid.PTuning) / 2000) + ((pid.D * pid.DTuning) / 2000);
-            hardware.m0.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
-            hardware.m1.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
-            hardware.m2.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
-            hardware.m3.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+            hardware.Motor(0).setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+            hardware.Motor(1).setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+            hardware.Motor(2).setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+            hardware.Motor(3).setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
-        hardware.m0.setPower(0);
-        hardware.m1.setPower(0);
-        hardware.m2.setPower(0);
-        hardware.m3.setPower(0);
+        hardware.Motor(0).setPower(0);
+        hardware.Motor(1).setPower(0);
+        hardware.Motor(2).setPower(0);
+        hardware.Motor(3).setPower(0);
     }
 
     public void MoveToLine(float angle, float speed, int Timeout) {
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
         float[] movement = toMovementVector(angle);
-        pid.Headings[0] = pid.Headings[1];
-        // Then, we assign the new angle heading.
-        pid.Headings[1] = ((hardware.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
-
-        pid.Headings[0] = pid.Headings[1];
-        // Then, we assign the new angle heading.
-        pid.Headings[1] = ((hardware.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
-
+        pid.UpdateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
         CalculateAngles();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = time.Now();
-        float StartPosition = hardware.m0.getCurrentPosition();
+        float StartPosition = hardware.Motor(0).getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         pid.clearData();
@@ -219,16 +211,16 @@ public class Robot {
             //telemetry.addData("Direction ", Direction);
             //telemetry.update();
 
-            hardware.m0.setPower(((movement[0] - movement[1]) * speed) - (Direction));
-            hardware.m1.setPower(((movement[0] + movement[1]) * speed) + (Direction));
-            hardware.m2.setPower(((movement[0] - movement[1]) * speed) + (Direction));
-            hardware.m3.setPower(((movement[0] + movement[1]) * speed) - (Direction));
+            hardware.Motor(0).setPower(((movement[0] - movement[1]) * speed) - (Direction));
+            hardware.Motor(1).setPower(((movement[0] + movement[1]) * speed) + (Direction));
+            hardware.Motor(2).setPower(((movement[0] - movement[1]) * speed) + (Direction));
+            hardware.Motor(3).setPower(((movement[0] + movement[1]) * speed) - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
-        hardware.m0.setPower(0);
-        hardware.m1.setPower(0);
-        hardware.m2.setPower(0);
-        hardware.m3.setPower(0);
+        hardware.Motor(0).setPower(0);
+        hardware.Motor(1).setPower(0);
+        hardware.Motor(2).setPower(0);
+        hardware.Motor(3).setPower(0);
     }
 
     public void AngleTurn(float angle, int Timeout){
@@ -238,7 +230,7 @@ public class Robot {
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = time.Now();
-        float StartPosition = hardware.m0.getCurrentPosition();
+        float StartPosition = hardware.Motor(0).getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         pid.clearData();
@@ -282,16 +274,16 @@ public class Robot {
                 break;
             }
 
-            hardware.m0.setPower(Hardware.POWER_CONSTANT - (Direction));
-            hardware.m1.setPower(Hardware.POWER_CONSTANT + (Direction));
-            hardware.m2.setPower(Hardware.POWER_CONSTANT  + (Direction));
-            hardware.m3.setPower(Hardware.POWER_CONSTANT  - (Direction));
+            hardware.Motor(0).setPower(Hardware.POWER_CONSTANT - (Direction));
+            hardware.Motor(1).setPower(Hardware.POWER_CONSTANT + (Direction));
+            hardware.Motor(2).setPower(Hardware.POWER_CONSTANT  + (Direction));
+            hardware.Motor(3).setPower(Hardware.POWER_CONSTANT  - (Direction));
         }
         // Our drive loop has completed! Stop the motors.
-        hardware.m0.setPower(0);
-        hardware.m1.setPower(0);
-        hardware.m2.setPower(0);
-        hardware.m3.setPower(0);
+        hardware.Motor(0).setPower(0);
+        hardware.Motor(1).setPower(0);
+        hardware.Motor(2).setPower(0);
+        hardware.Motor(3).setPower(0);
     }
     
     // Private Methods
@@ -470,9 +462,9 @@ class Time {
     }
 }
 // Robot hardware data.
-class Hardware {
-    //motors indexing around the robot like the quadrants in a graph or like the motors on a drone.
-    // for example
+
+//motors indexing around the robot like the quadrants in a graph or like the motors on a drone.
+// for example
     /*
     Front
     ________
@@ -482,15 +474,14 @@ class Hardware {
     --------
     Rear
     */
+
+class Hardware {
     BNO055IMU imu;
     BNO055IMU.Parameters imuParameters;
     public Hardware(DcMotor dc0, DcMotor dc1, DcMotor dc2, DcMotor dc3, I2cDeviceSynch i2cSynch, ColorSensor cs) {
-        m0 = dc0;
-        m1 = dc1;
-        m2 = dc2;
-        m3 = dc3;
-        m0.setDirection(DcMotorSimple.Direction.REVERSE);
-        m3.setDirection(DcMotorSimple.Direction.REVERSE);
+        motors = new DcMotor[]{dc0, dc1, dc2, dc3};
+        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        motors[3].setDirection(DcMotorSimple.Direction.REVERSE);
         imuInit(i2cSynch);
         colorSensor = cs;
     }
@@ -510,10 +501,12 @@ class Hardware {
     }
     
     //our motors
-    DcMotor m0;
-    DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    private DcMotor[] motors;
+
+    public DcMotor Motor(int n) {
+        return motors[n];
+    }
+
     ColorSensor colorSensor; //color sensor used for line detection 
     
     final static int EncoderCount = 1440; //encoder count for a full rotation. Should not change.
