@@ -32,18 +32,25 @@ public class ExampleAutonomous extends LinearOpMode {
 
         robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
 
-
         //working PIDs
         //P: 100
         //I: 30
         //D: 0
 
         //loop
+
+        Float[] forward = new Float[]{1f,0f};
+        Float[] backward = new Float[]{-1f,0f};
+        robot.Data.PID.PTuning = 30f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+        waitForStart();
+        //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
+        robot.AngleTurn(-55f, 10, telemetry);
         robot.Data.PID.PTuning = 100f;
         robot.Data.PID.ITuning = 30f;
         robot.Data.PID.DTuning = 0f;
-        waitForStart();
-        robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
+        robot.MoveToLine(forward, 0.65f, 10, telemetry);
 
     }
 

@@ -79,11 +79,11 @@ public class BlueAutonomous extends LinearVisionOpMode {
         String colorTargetIsRight = "red, blue";
 
         robot.Data.PID.PTuning = 63f;
-        robot.Data.PID.ITuning = 31f;
+        robot.Data.PID.ITuning = 10f;
         robot.Data.PID.DTuning = 0f;
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(1.25f, forward, 10, telemetry);
+        robot.Straight(.625f, forward, 10, telemetry);
 
         //Thread.sleep(1000);
         //hopper.setPosition(0);
@@ -91,42 +91,71 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //Thread.sleep(3000);
         //hopper.setPosition(0.48);
         //shooter.setPower(0);
-        robot.Straight(1f, forward, 10, telemetry);
+        robot.Straight(.5f, forward, 10, telemetry);
+
+        robot.Data.PID.PTuning = 20f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+
+        Thread.sleep(1000);
         robot.AngleTurn(55f*side, 10, telemetry);
-        robot.Straight(3.2f, forward, 10, telemetry);
+        Thread.sleep(1000);
+
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.Straight(1.4f, forward, 10, telemetry); //1.2 1.6
+        Thread.sleep(1000);
+
+        robot.Data.PID.PTuning = 20f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+
         robot.AngleTurn(-55f*side, 10, telemetry);
         //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
-
-        robot.MoveToLine(forward, .65f, 10, telemetry);
         Thread.sleep(1000);
-        robot.MoveToLine(backward, .2f, 10, telemetry);
+
+        robot.Straight(.3f, forward, 10, telemetry);
+
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.MoveToLine(forward, 0.65f, 10, telemetry);
+        Thread.sleep(1000);
+        robot.MoveToLine(backward, 0.4f, 10, telemetry);
+
+        telemetry.addData("beacon is: ", beacon.getAnalysis().getColorString());
 
         //in front of first beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals("red, blue")) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
+            //robot.Straight(0.15f, backward, 10, telemetry);
         } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+            robot.Straight(0.15f, forward, 10, telemetry);
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 2, telemetry); //this will timeout, intentional
+        robot.Straight(.35f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //straight to clear existing line
         robot.Straight(1f, backward, 10, telemetry);
         robot.MoveToLine(backward, .4f, 10, telemetry);
         Thread.sleep(1000);
-        robot.MoveToLine(forward, .2f, 10, telemetry);
+        robot.MoveToLine(forward, .4f, 10, telemetry);
 
+
+        telemetry.addData("beacon is: ", beacon.getAnalysis().getColorString());
         //in front of second beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
+            //robot.Straight(0.15f, backward, 10, telemetry);
         } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+            robot.Straight(0.15f, forward, 10, telemetry);
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 2, telemetry); //this will timeout, intentional
+        robot.Straight(.5f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //go backwards because who cares
-        robot.Straight(5f, backward, 10, telemetry);
+        robot.Straight(2f, backward, 10, telemetry);
 
     }
 
