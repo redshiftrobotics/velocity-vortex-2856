@@ -17,6 +17,12 @@ public class DirectionObject {
         zAngle = -z;
     }
 
+    public void setDirection(float x, float y, float z){
+        xSpeed = -x;
+        ySpeed = y;
+        zAngle = -z;
+    }
+
     public float frontLeftSpeed(){
         float speed = 0;
 

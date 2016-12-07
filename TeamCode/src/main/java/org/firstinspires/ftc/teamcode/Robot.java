@@ -316,7 +316,6 @@ public class Robot {
         // First we will move the current angle heading into the previous angle heading slot.
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-
         Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
 
 
