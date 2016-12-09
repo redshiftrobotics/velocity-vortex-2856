@@ -33,14 +33,14 @@ public class CameraTestVisionOpMode extends TestableVisionOpMode {
          * PRIMARY = Front-facing, larger camera
          * SECONDARY = Screen-facing, "selfie" camera :D
          **/
-        this.setCamera(Cameras.PRIMARY);
+        this.setCamera(Cameras.SECONDARY);
 
         /**
          * Set the maximum frame size
          * Larger = sometimes more accurate, but also much slower
          * After this method runs, it will set the "width" and "height" of the frame
          **/
-        this.setFrameSize(new Size(900, 900));
+        this.setFrameSize(new Size(1440, 2560));
 
         /**
          * Enable extensions. Use what you need.
