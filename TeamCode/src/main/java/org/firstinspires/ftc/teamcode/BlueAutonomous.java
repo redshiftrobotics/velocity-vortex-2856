@@ -99,15 +99,15 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         robot.Data.PID.PTuning = 45f;
         robot.Data.PID.ITuning = 5f;
-        robot.Data.PID.DTuning = 2f;
+        robot.Data.PID.DTuning = 0.2f;
 
-        robot.AngleTurn(-25f*side, 10, telemetry);
+        robot.AngleTurn(-25f*side, 2, telemetry);
 
         Thread.sleep(1000);
         shooter.setPower(1);
-        Thread.sleep(3000);
+        Thread.sleep(2000);
         shooter.setPower(0);
-        robot.AngleTurn(25f*side, 10, telemetry);
+        robot.AngleTurn(25f*side, 2, telemetry);
 
         robot.Data.PID.PTuning = 63f;
         robot.Data.PID.ITuning = 10f;
@@ -151,9 +151,6 @@ public class BlueAutonomous extends LinearVisionOpMode {
         telemetry.addData("beacon is: ", beacon.getAnalysis().getColorString());
         telemetry.update();
 
-
-        Thread.sleep(2000); //DEBUG
-
         if(side == -1) { // if on the red side
             robot.Straight(0.1f, forward, 10, telemetry);
         } else {
@@ -188,9 +185,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.MoveToLine(backward, .4f, 10, telemetry);
         Thread.sleep(500);
         robot.MoveToLine(forward, .4f, 10, telemetry);
-
-        Thread.sleep(2000); //DEBUG
-
+        
         if(side == -1) { // if on the red side
             robot.Straight(0.1f, forward, 10, telemetry);
         } else {
