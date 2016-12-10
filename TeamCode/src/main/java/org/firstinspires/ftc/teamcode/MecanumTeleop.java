@@ -17,9 +17,11 @@ public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
-    //DcMotor capballLift
+    //DcMotor capballLift;
+    int rotations;
     int collecting;
     boolean collectSwitch;
+    boolean reseting;
     DirectionObject direction;
 
     @Override
@@ -36,14 +38,32 @@ public class MecanumTeleop extends OpMode {
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
+        rotations = shooter.getCurrentPosition();
     }
 
     @Override
     public void loop() {
         Move(gamepad1);
-        SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
-        SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
-        Sweep(gamepad1);
+        if(!reseting) {
+            SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
+            SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
+        }
+        //Sweep(gamepad1);
+        resetMotors(gamepad1);
+    }
+    void resetMotors(Gamepad pad)
+    {
+        if(!reseting) {
+            if (pad.a) {
+                reseting = true;
+            }
+        }else{
+            if(shooter.getCurrentPosition()%1440<rotations){
+                shooter.setPower(-1.0);
+            }else{
+                reseting = false;
+            }
+        }
     }
 
     void Move(Gamepad pad){
