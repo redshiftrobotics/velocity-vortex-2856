@@ -18,10 +18,8 @@ public class MecanumTeleop extends OpMode {
     DcMotor shooter;
     DcMotor collector;
     //DcMotor capballLift
-    Servo hopper;
-    int collecting = 0;
-    boolean collectSwitch = false;
-    boolean num2 = false;
+    int collecting;
+    boolean collectSwitch;
     DirectionObject direction;
 
     @Override
@@ -33,21 +31,19 @@ public class MecanumTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
-        hopper = hardwareMap.servo.get("hopper");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
-        hopper.setDirection(Servo.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
     }
 
     @Override
     public void loop() {
         Move(gamepad1);
-        Shoot(gamepad1);
+        SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
+        SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         Sweep(gamepad1);
-        StopShoot(gamepad2);
     }
 
     void Move(Gamepad pad){
@@ -59,46 +55,34 @@ public class MecanumTeleop extends OpMode {
         motors[3].setPower(direction.backLeftSpeed());
     }
 
-    void StopShoot(Gamepad pad){
-        if(pad.a){
-            shooter.setPower(0);
-            hopper.setPosition(0.48);
-        }
-        if(pad.b){
-            collecting = 0;
-            collector.setPower(0.0);
-        }
-        if(pad.left_trigger>0.1){
-            shooter.setPower(-1.0);
-            num2 = true;
-        }else{
-            num2 = false;
-        }
-    }
 
-    void Shoot(Gamepad pad){
-
+    int Leftpower(Gamepad pad){
         if(pad.left_trigger>0.1){
-            shooter.setPower(-1.0);
-            hopper.setPosition(0.0);
+            return -1;
         }else if(pad.left_bumper) {
-            shooter.setPower(1.0);
-            hopper.setPosition(1.0);
-        }else if(!num2){
-            shooter.setPower(0.0);
-            hopper.setPosition(0.48);
+            return 1;
         }
-
-
-//        if(pad.left_trigger>0.1){
-//            hopper.setPosition(1.0);
-//            shooter.setPower(-1.0);
-//        }else if(pad.left_bumper){
-//            shooter.setPower(1.0);
-//        }else{
-//            shooter.setPower(0.0);
-//        }
+        return 0;
     }
+    int Rightpower(Gamepad pad){
+        if(pad.right_trigger>0.1){
+            return -1;
+        }else if(pad.right_bumper) {
+            return 1;
+        }
+        return 0;
+    }
+
+    void SpinMotor(int power, int power2, DcMotor motor){
+        if(power==1||power==-1){
+            motor.setPower(power);
+        }else if(power2==1||power==-1){
+            motor.setPower(power2);
+        }else{
+            motor.setPower(0);
+        }
+    }
+
     void Sweep(Gamepad pad){
 
         if(collecting!=1&&pad.right_trigger>0.1&&collectSwitch){
