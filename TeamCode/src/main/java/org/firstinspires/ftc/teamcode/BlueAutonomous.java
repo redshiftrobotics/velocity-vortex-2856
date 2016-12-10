@@ -32,6 +32,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
     DcMotor m3;
     Robot robot;
     ColorSensor cs;
+    ColorSensor cs1;
 
     private String sideText;
 
@@ -93,15 +94,26 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.Data.PID.DTuning = 0f;
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(.625f, forward, 10, telemetry);
+        robot.Straight(.5f, forward, 10, telemetry); //.625
 
-        //Thread.sleep(1000);
-        //hopper.setPosition(0);
-        //shooter.setPower(1);
-        //Thread.sleep(3000);
-        //hopper.setPosition(0.48);
-        //shooter.setPower(0);
-        robot.Straight(.5f, forward, 10, telemetry);
+
+        robot.Data.PID.PTuning = 45f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 2f;
+
+        robot.AngleTurn(-25f*side, 10, telemetry);
+
+        Thread.sleep(1000);
+        shooter.setPower(1);
+        Thread.sleep(3000);
+        shooter.setPower(0);
+        robot.AngleTurn(25f*side, 10, telemetry);
+
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.Straight(.625f, forward, 10, telemetry);
 
         robot.Data.PID.PTuning = 20f;
         robot.Data.PID.ITuning = 5f;
@@ -115,7 +127,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.Data.PID.ITuning = 10f;
         robot.Data.PID.DTuning = 0f;
 
-        robot.Straight(1.3f, forward, 10, telemetry); //1.2 1.6
+        robot.Straight(1f, forward, 10, telemetry); //1.2 1.6
         //Thread.sleep(1000);
 
         robot.Data.PID.PTuning = 20f;
@@ -140,28 +152,36 @@ public class BlueAutonomous extends LinearVisionOpMode {
         telemetry.update();
 
 
+        Thread.sleep(2000); //DEBUG
+
         if(side == -1) { // if on the red side
-            robot.Straight(0.1f, backward, 10, telemetry);
+            robot.Straight(0.1f, forward, 10, telemetry);
         } else {
-            robot.Straight(0.17f, forward, 10, telemetry);
+            robot.Straight(0.14f, backward, 10, telemetry);
         }
         Thread.sleep(1000);
 
         //in front of first beacon: decide color, shift accordingly, and move in
-        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
+        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //target color is right
             telemetry.addData("beacon ", "right");
             telemetry.update();
-            robot.Straight(0.1f, forward, 10, telemetry);
+            if(side == 1) { // if we are on blue side we need a little bump forwards to press but not on red side
+                robot.Straight(0.1f, forward, 10, telemetry);
+            }
         } else if (beacon.getAnalysis().getColorString().equals("???, ???")) {
             //do nothing
-        } else { //blue is left
+        } else { //target is left
             telemetry.addData("beacon ", "left");
             telemetry.update();
-            robot.Straight(0.2f, forward, 10, telemetry);
+            if(side == 1) { // for blue side
+                robot.Straight(0.23f, forward, 10, telemetry);
+            } else { // red side
+                robot.Straight(0.15f, backward, 10, telemetry);
+            }
         }
 
-        robot.Straight(1f, new Float[]{0f, -1f*side}, 3, telemetry); //this will timeout, intentional
-        robot.Straight(.35f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
+        robot.Straight(.45f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //straight to clear existing line
         robot.Straight(1f, backward, 10, telemetry);
@@ -169,28 +189,36 @@ public class BlueAutonomous extends LinearVisionOpMode {
         Thread.sleep(500);
         robot.MoveToLine(forward, .4f, 10, telemetry);
 
+        Thread.sleep(2000); //DEBUG
+
         if(side == -1) { // if on the red side
-            robot.Straight(0.1f, backward, 10, telemetry);
+            robot.Straight(0.1f, forward, 10, telemetry);
         } else {
-            robot.Straight(0.17f, forward, 10, telemetry);
+            robot.Straight(0.14f, backward, 10, telemetry);
         }
         Thread.sleep(1000);
 
 
 
         //in front of second beacon: decide color, shift accordingly, and move in
-        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
-            robot.Straight(0.1f, forward, 10, telemetry);
+        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //target is right
             telemetry.addData("beacon ", "right");
             telemetry.update();
+            if(side == 1) { // if we are on blue side we need a little bump forwards to press but not on red side
+                robot.Straight(0.1f, forward, 10, telemetry);
+            }
         } else if (beacon.getAnalysis().getColorString().equals("???, ???")) {
             //do nothing
-        } else { //blue is left
-            robot.Straight(0.2f, forward, 10, telemetry);
+        } else { //target is left
+            if(side == 1) { // for blue side
+                robot.Straight(0.23f, forward, 10, telemetry);
+            } else { // red side
+                robot.Straight(0.15f, backward, 10, telemetry);
+            }
             telemetry.addData("beacon ", "left");
             telemetry.update();
         }
-        robot.Straight(1f, new Float[]{0f, -1f*side}, 3, telemetry); //this will timeout, intentional
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
         robot.Straight(.5f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //go backwards because who cares
@@ -220,10 +248,11 @@ public class BlueAutonomous extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        //shooter = hardwareMap.dcMotor.get("shooter");
+        shooter = hardwareMap.dcMotor.get("shooter");
         cs = hardwareMap.colorSensor.get("cs");
-        //shooter.setDirection(DcMotor.Direction.REVERSE);
+        cs1 = hardwareMap.colorSensor.get("cs1");
+        shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
     }
 }

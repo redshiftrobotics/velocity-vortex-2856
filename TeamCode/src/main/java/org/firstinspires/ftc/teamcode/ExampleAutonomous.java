@@ -27,6 +27,8 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     DcMotor m3;
     Robot robot;
     ColorSensor cs;
+    ColorSensor cs1;
+
 
 
     @Override
@@ -37,8 +39,9 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
         cs = hardwareMap.colorSensor.get("cs");
+        cs1 = hardwareMap.colorSensor.get("cs1");
 
-        robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
 
         //working PIDs
         //P: 100
@@ -60,7 +63,7 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 //        robot.Data.PID.PTuning = 100f;
 //        robot.Data.PID.ITuning = 30f;
 //        robot.Data.PID.DTuning = 0f;
-//        robot.MoveToLine(forward, 0.65f, 10, telemetry);
+        robot.MoveToLine(forward, 0.2f, 10, telemetry);
 
     }
 

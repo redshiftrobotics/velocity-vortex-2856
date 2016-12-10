@@ -36,7 +36,7 @@ public class TunePID extends LinearOpMode {
         hw_init();
 
         // Create our driver
-        myRobot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
+        myRobot = new Robot(imu, m0, m1, m2, m3, cs, cs, telemetry);
         // Give it default tunings
         myRobot.Data.PID.PTuning = 20;
         myRobot.Data.PID.ITuning = 20;

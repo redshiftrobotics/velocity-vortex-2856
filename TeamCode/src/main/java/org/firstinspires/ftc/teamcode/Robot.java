@@ -34,7 +34,7 @@ public class Robot {
     public float IMURotations = 0;
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, ColorSensor cs1, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -58,6 +58,7 @@ public class Robot {
         Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.colorSensor = cs; //instantiate color sensor
+        Data.Drive.colorSensor1 = cs1; //instantiate color sensor
         Data.Drive.EncoderCount = 1400;
 
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
@@ -260,13 +261,16 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 70){
+        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 50 && (Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3 < 50){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
                 break;
             }
 
+            tm.addData("cs", Float.toString((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3));
+            tm.addData("cs1", Float.toString((Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3));
+            tm.update();
             // Record the time since the previous loop.
             LoopTime = Data.Time.TimeFrom(LoopTime);
             // Calculate our angles. This method may modify the input Rotations.
@@ -563,6 +567,7 @@ class Drive {
     DcMotor m2;
     DcMotor m3;
     ColorSensor colorSensor;
+    ColorSensor colorSensor1;
     int EncoderCount;
     final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
 }
