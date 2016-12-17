@@ -32,10 +32,12 @@ import java.util.ArrayList;
 
 
 public class Robot {
-    PID pid;
-    Time time;
-    Hardware hardware;
-    public Telemetry telemetry;
+    
+    private PID pid;
+    private Time time;
+    private Hardware hardware;
+    Telemetry telemetry;
+    
     public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, Telemetry telemetry) {
         this.telemetry = telemetry;
         telemetry.addData("IMU ", "Innitializing");
@@ -52,56 +54,6 @@ public class Robot {
         // Start the program clock
         time = new Time();
     }
-
-    public void Push(float Rotations, Float[] movement, int timeout) {
-        // We need two points of data from the IMU to do our calculation. So, we take two and update PID.headings
-        pid.updateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
-        pid.calculateAngles(this.hardware);
-
-        // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.Now();
-        float startPosition = hardware.getMotor(0).getCurrentPosition();
-
-        // Reset our Integral and Derivative data.
-        pid.clearData();
-        
-        //Calculate PIDS again because Isaac Zinda only knows
-
-
-        // We need to keep track of how much time passes between a loop.
-        float loopTime = time.Now();
-
-        // This is the main loop of our straight drive.
-        // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(startPosition - hardware.getMotor(0).getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
-            // First we check if we have exceeded our timeout and...
-            if(startTime + timeout < time.Now()){
-                // ... stop our loop if we have.
-                break;
-            }
-
-            // Record the time since the previous loop.
-            loopTime = time.Since(loopTime);
-            // Calculate our angles. This method may modify the input Rotations.
-            //IMURotations =
-            pid.calculateAngles(hardware);
-            // Calculate our PID
-            pid.calculateVars(loopTime);
-
-            // Calculate the Direction to travel to correct any rotational errors.
-            float Direction = pid.getCorrectedValue();
-
-           // float offset = Tracking.getOffset();
-
-            hardware.getMotor(0).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/    - movement[1]) * 0.65) - (Direction));
-            hardware.getMotor(1).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/  + movement[1]) * 0.65) + (Direction));
-            hardware.getMotor(2).setPower(((  (movement[0])  /*+ Range.clip((offset / 200), -.2, .2)*/  - movement[1]) * 0.65) + (Direction));
-            hardware.getMotor(3).setPower(((  (movement[0]) /*+ Range.clip((offset / 200), -.2, .2)*/   + movement[1]) * 0.65) - (Direction));
-        }
-        // Our drive loop has completed! Stop the motors.
-        Stop();
-    }
-
     // Public Interface Methods:
 
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
@@ -117,12 +69,11 @@ public class Robot {
 
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
-        pid.updateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
-
+        pid.updateHeadings(hardware.currentImuOrientation());
         pid.calculateAngles(hardware);
 
         // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.Now();
+        float startTime = time.now();
         float startPosition = hardware.getMotor(0).getCurrentPosition();
 
         // Reset our Integral and Derivative data.
@@ -131,19 +82,19 @@ public class Robot {
 
 
         // We need to keep track of how much time passes between a loop.
-        float loopTime = time.Now();
+        float loopTime = time.now();
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
         while(Math.abs(startPosition - hardware.getMotor(0).getCurrentPosition()) < Math.abs(Rotations) * Hardware.EncoderCount){
             // First we check if we have exceeded our timeout and...
-            if(startTime + timeout < time.Now()){
+            if(startTime + timeout < time.now()){
                 // ... stop our loop if we have.
                 break;
             }
 
             // Record the time since the previous loop.
-            loopTime = time.Since(loopTime);
+            loopTime = time.since(loopTime);
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
             pidMove(loopTime, movement);
@@ -165,15 +116,15 @@ public class Robot {
         hardware.getMotor(3).setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
     }
 
-    public void MoveToLine(float angle, float speed, int timeout) {
+    public void moveToLine(float angle, float speed, int timeout) {
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
         float[] movement = toMovementVector(angle);
-        pid.updateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
+        pid.updateHeadings(hardware.currentImuOrientation());
         pid.calculateAngles(hardware);
 
         // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.Now();
+        float startTime = time.now();
 
         // Reset our Integral and Derivative data.
         pid.clearData();
@@ -181,15 +132,15 @@ public class Robot {
         //Calculate PIDS again because Isaac Zinda only knows
 
         // We need to keep track of how much time passes between a loop.
-        float loopTime = time.Now();
+        float loopTime = time.now();
         float endTime = startTime + timeout;
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
 
-        while(hardware.getAdjustedColorValues() < 70 && time.Now() < endTime) {
+        while(hardware.getAdjustedColorValues() < 70 && time.now() < endTime) {
             // First we check if we have exceeded our timeout and...
             // Record the time since the previous loop.
-            loopTime = time.Since(loopTime);
+            loopTime = time.since(loopTime);
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
             pidMove(loopTime, movement);
@@ -204,27 +155,26 @@ public class Robot {
         pid.calculateAngles(hardware);
 
         // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.Now();
+        float startTime = time.now();
         // Reset our Integral and Derivative data.
         pid.clearData();
 
 
         //Calculate PIDS again because Isaac Zinda only knows
-        pid.updateHeadings(hardware.currentImuOrientation().firstAngle, hardware.currentImuOrientation().firstAngle);
-
+        pid.updateHeadings(hardware.currentImuOrientation());
 
         // Manually calculate our first target
         pid.setTarget(pid.getTarget() + angle);
 
         // We need to keep track of how much time passes between a loop.
-        float loopTime = time.Now();
+        float loopTime = time.now();
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(startTime + timeout > time.Now()){
+        while(startTime + timeout > time.now()){
 
             // Record the time since the previous loop.
-            loopTime = time.Since(loopTime);
+            loopTime = time.since(loopTime);
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
             pid.calculateAngles(hardware);
@@ -232,29 +182,21 @@ public class Robot {
             pid.calculateVars(loopTime);
 
             // Calculate the Direction to travel to correct any rotational errors.
-            float Direction = pid.getCorrectedValue();
-            // Constrain our direction from being too intense.
-
-            //if(Direction > 50){ Direction = 50; }
-            //if(Direction < -50){ Direction = -50; }
-
-            // Define our motor power multiplier
-
-            //telemetry.addData("Direction ", Direction);
-            //telemetry.update();
-
-            if(Math.abs(Direction) <= 0.03f) {
+            float correctedValue = pid.getCorrectedValue();
+            if(Math.abs(correctedValue) <= 0.03f) {
                 break;
             }
 
-            hardware.getMotor(0).setPower(Hardware.POWER_CONSTANT - (Direction));
-            hardware.getMotor(1).setPower(Hardware.POWER_CONSTANT + (Direction));
-            hardware.getMotor(2).setPower(Hardware.POWER_CONSTANT  + (Direction));
-            hardware.getMotor(3).setPower(Hardware.POWER_CONSTANT  - (Direction));
+            hardware.getMotor(0).setPower(Hardware.POWER_CONSTANT - (correctedValue));
+            hardware.getMotor(1).setPower(Hardware.POWER_CONSTANT + (correctedValue));
+            hardware.getMotor(2).setPower(Hardware.POWER_CONSTANT  + (correctedValue));
+            hardware.getMotor(3).setPower(Hardware.POWER_CONSTANT  - (correctedValue));
         }
         // Our drive loop has completed! Stop the motors.
         Stop();
     }
+
+
     
     private void Stop() {
         for (int i = 0; i < hardware.motorCount(); i++) {
@@ -265,13 +207,6 @@ public class Robot {
     // Private Methods
 
     // Method that grabs the IMU data and calculates a new ComputedAngle.
-
-
-    public void setConstants(float P, float I, float D) {
-        pid.P = P;
-        pid.I = I;
-        pid.D = D;
-    }
     
     public void setTuning(float PTune, float ITune, float DTune) {
         pid.PTuning = PTune;
@@ -288,13 +223,16 @@ public class Robot {
      * Also includes lists of historical data, and helper methods for getting and setting tuning
      */
 class PID {
+
     float computedAngle; //rename
     float Target;
     float P, I, D;
     float PTuning, ITuning, DTuning;
-    float[] Headings = new float[2];
+    float[] headings = new float[2];
+
     ArrayList<Float> DerivativeData;
     ArrayList<Float> IntegralData;
+
     public LogFile logFile = new LogFile("sdcard/log.file");
     // Constructor
     public PID() {
@@ -308,14 +246,14 @@ class PID {
         IntegralData.clear();
     }
     
-    public void updateHeadings(float p1, float p2) {
-        Headings[0] = Headings[1];
+    public void updateHeadings(AngleData data) {
+        headings[0] = headings[1];
         // Then, we assign the new angle heading.
-        Headings[1] = ((p1*-1) + 180) % 360;
+        headings[1] = ((data.firstAngle * -1) + 180) % 360;
 
-        Headings[0] = Headings[1];
+        headings[0] = headings[1];
         // Then, we assign the new angle heading.
-        Headings[1] = ((p2*-1) + 180) % 360;
+        headings[1] = ((data.secondAngle * -1) + 180) % 360;
     }
     
     public void setTarget(float val) {
@@ -336,7 +274,7 @@ class PID {
             IntegralData.remove(0);
         }
 
-        if(DerivativeData.size() > 5){
+        if(DerivativeData.size() > 5) {
             DerivativeData.remove(0);
         }
 
@@ -367,33 +305,33 @@ class PID {
 
     public float calculateAngles(Hardware hardware) {
         // First we will move the current angle heading into the previous angle heading slot.
-        Headings[0] = Headings[1];
+        headings[0] = headings[1];
         // Then, we assign the new angle heading.
 
-        Headings[1] = ((hardware.currentImuOrientation().firstAngle*-1) + 180) % 360;
+        headings[1] = ((hardware.currentImuOrientation().firstAngle*-1) + 180) % 360;
 
 
         logFile.append("Raw IMU: " + Math.abs(hardware.imu.getAngularOrientation().firstAngle) + " " + hardware.imu.getAngularOrientation().secondAngle + " " + hardware.imu.getAngularOrientation().thirdAngle);
 
 
         // Finally we calculate a ComputedAngle from the current angle heading.
-        computedAngle = Headings[1] + (hardware.IMURotations * 360);
+        computedAngle = headings[1] + (hardware.IMURotations * 360);
 
        // Log.e("#####################", "About to increment IMURotations");
-        // Now we determine if we need to re-calculate the angles.
-        //Log.e("############### current", Float.toString(Headings[1]));
-       // Log.e("############### past", Float.toString(Headings[0]));
-        if(Headings[0] > 300 && Headings[1] < 60) {
+        // now we determine if we need to re-calculate the angles.
+        //Log.e("############### current", Float.toString(headings[1]));
+       // Log.e("############### past", Float.toString(headings[0]));
+        if(headings[0] > 300 && headings[1] < 60) {
             Log.e("################# ####", "Adding to IMURotations");
             hardware.IMURotations++; //rotations of 360 degrees
             calculateAngles(hardware);
-            //} else if(Headings[0] < 300 && Headings[1] > 60) {
-        } else if(Headings[0] < 60 && Headings[1] > 300) {
+            //} else if(headings[0] < 300 && headings[1] > 60) {
+        } else if(headings[0] < 60 && headings[1] > 300) {
             Log.e("#####################", "Subtracting from IMURotations");
             hardware.IMURotations--;
             calculateAngles(hardware);
         }
-        return Headings[1];
+        return headings[1];
     }
 
     public float getCorrectedValue() {
@@ -409,11 +347,11 @@ class Time {
         ProgramTime = new ElapsedTime();
     }
 
-    public float Now(){
+    public float now(){
         return (float) ProgramTime.seconds();
     }
 
-    public float Since(float PreviousTime){
+    public float since(float PreviousTime){
         return (float) (ProgramTime.seconds() - PreviousTime);
     }
 }
@@ -432,6 +370,7 @@ class Time {
     */
 
 class Hardware {
+
     BNO055IMU imu;
     BNO055IMU.Parameters imuParameters;
     public int IMURotations = 0;
@@ -458,8 +397,11 @@ class Hardware {
         imu.initialize(imuParameters);
     }
     
-    public Orientation currentImuOrientation() {
-        return imu.getAngularOrientation();
+    public AngleData currentImuOrientation() {
+        Orientation current = imu.getAngularOrientation();
+        float firstAngle = current.firstAngle * -1;
+        float secondAngle = current.secondAngle * -1;
+        return new AngleData(firstAngle, secondAngle);
     }
     
     //our motors
@@ -506,4 +448,15 @@ class LogFile {
         }
     }
 }
+
+class AngleData { //prettified IMU data
+    float firstAngle;
+    float secondAngle;
+    
+    AngleData(float firstAngle, float secondAngle) {
+        this.firstAngle = firstAngle;
+        this.secondAngle = secondAngle;
+    }
+}
+   
 

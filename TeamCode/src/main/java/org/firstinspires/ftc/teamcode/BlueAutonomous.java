@@ -95,9 +95,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.AngleTurn(-55f*side, 10);
         //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
 
-        robot.MoveToLine(forward, .65f, 10);
+        robot.moveToLine(forward, .65f, 10);
         Thread.sleep(1000);
-        robot.MoveToLine(backward, .2f, 10);
+        robot.moveToLine(backward, .2f, 10);
 
         //in front of first beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals("red, blue")) { //blue is right
@@ -110,9 +110,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         //straight to clear existing line
         robot.Straight(1f, backward, 10);
-        robot.MoveToLine(backward, .4f, 10);
+        robot.moveToLine(backward, .4f, 10);
         Thread.sleep(1000);
-        robot.MoveToLine(forward, .2f, 10);
+        robot.moveToLine(forward, .2f, 10);
 
         //in front of second beacon: decide color, shift accordingly, and move in
         if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
