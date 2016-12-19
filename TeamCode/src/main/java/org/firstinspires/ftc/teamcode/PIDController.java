@@ -139,8 +139,7 @@ public class PIDController {
             }
 
             //Calculate the pid and the direction to turn to
-            CalculatePID();
-            float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.iTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
+            float direction = CalculatePID();
 
             //set the motor power to the direction input and the direction to turn to
             directionObject.SetMotors(directionInput[0] * hardwareData.forwardPower, directionInput[1] * hardwareData.forwardPower, direction * hardwareData.rotationPower, hardwareData.motors);
@@ -224,8 +223,7 @@ public class PIDController {
             }
 
             //Calculate the pid and the direction to turn to
-            CalculatePID();
-            float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.iTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
+            float direction = CalculatePID();
 
             //set the motor power to the direction input and the direction to turn to
             directionObject.SetMotors(directionInput[0] * hardwareData.forwardPower, directionInput[1] * hardwareData.forwardPower, direction * hardwareData.rotationPower, hardwareData.motors);
@@ -346,8 +344,7 @@ public class PIDController {
         while(startTime + timeoutInput > time.CurrentTime()){
 
             //Calculate the pid and the direction to turn to
-            CalculatePID();
-            float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.pTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
+            float direction = CalculatePID();
 
             //If we are within our rotational tolerance stop
             if(Math.abs(direction) <= hardwareData.rotationTolerance) {
@@ -382,7 +379,7 @@ public class PIDController {
      * Calculates what the PID values will be, based off of the
      * current error and past error in the {@link PIDData}.
      */
-    private void CalculatePID(){
+    private float CalculatePID(){
         //Set the current angle to the imu's angle
         pidData.currentAngle = hardwareData.imu.getAngularOrientation().firstAngle*-1;
         //calculate how far off we are
@@ -396,6 +393,8 @@ public class PIDController {
         pidData.i += pidData.error * time.deltaTime / 1000;
         //Set d to teh change in error over dT
         pidData.d = (pidData.error - pidData.lastError)/(time.deltaTime/1000);
+
+        return ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.iTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
     }
 
     /**

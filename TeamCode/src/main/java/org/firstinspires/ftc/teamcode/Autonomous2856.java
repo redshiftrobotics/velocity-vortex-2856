@@ -62,5 +62,6 @@ public class Autonomous2856 extends LinearOpMode {
         pidController.AngularTurn(55f);
         Thread.sleep(1000);
         pidController.LinearMove(0f, 3.5f, 10);
+        pidController.AngularTurn(0f);
     }
 }
