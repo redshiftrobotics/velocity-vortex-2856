@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 
 public class Robot {
-    
+    /*
     private PID pid;
     private Time time;
     private Hardware hardware;
@@ -71,7 +71,6 @@ public class Robot {
         // and put it into our "current" headings slot.
         pid.updateHeadings(hardware.currentImuOrientation());
         pid.calculateAngles(hardware);
-
         // Get the current program time and starting encoder position before we start our drive loop
         float startTime = time.now();
         float startPosition = hardware.getMotor(0).getCurrentPosition();
@@ -215,132 +214,18 @@ public class Robot {
     }
 
     // Method that calculates P, I, and D. Requires the time
-    
+    */
 }
 
 
     /**  PID data, including constants, tuning, and current computed target. 
      * Also includes lists of historical data, and helper methods for getting and setting tuning
      */
-class PID {
 
-    float computedAngle; //rename
-    float Target;
-    float P, I, D;
-    float PTuning, ITuning, DTuning;
-    float[] headings = new float[2];
-
-    ArrayList<Float> DerivativeData;
-    ArrayList<Float> IntegralData;
-
-    public LogFile logFile = new LogFile("sdcard/log.file");
-    // Constructor
-    public PID() {
-        // Init non-primitives
-        DerivativeData = new ArrayList<>();
-        IntegralData = new ArrayList<>();
-    }
-    
-    public void clearData() {
-        DerivativeData.clear();
-        IntegralData.clear();
-    }
-    
-    public void updateHeadings(AngleData data) {
-        headings[0] = headings[1];
-        // Then, we assign the new angle heading.
-        headings[1] = ((data.firstAngle * -1) + 180) % 360;
-
-        headings[0] = headings[1];
-        // Then, we assign the new angle heading.
-        headings[1] = ((data.secondAngle * -1) + 180) % 360;
-    }
-    
-    public void setTarget(float val) {
-        this.Target = val;
-    }
-    
-    public float getTarget() {
-        return Target;
-    }
-        
-    public void calculateVars(float loopTime) {
-        // Append to our data sets.
-        IntegralData.add(computedAngle - Target);
-        DerivativeData.add(computedAngle);
-
-        // Keep IntegralData and DerivativeData from having an exceeding number of entries.
-        if (IntegralData.size() > 500){
-            IntegralData.remove(0);
-        }
-
-        if(DerivativeData.size() > 5) {
-            DerivativeData.remove(0);
-        }
-
-        // Set our P, I, and D values.
-        // `P` will be the ComputedAngle - Target
-        P = computedAngle - getTarget();
-
-        // `I` will be the average of the IntegralData (Cries softly at the lack of Java8 streams)
-
-        float IntegralAverage = 0;
-        for(float value : IntegralData){
-            IntegralAverage += value;
-        }
-        I = IntegralAverage / IntegralData.size();
-
-        // `D` will be the difference of the ComputedAngle and the Derivative average divided by
-        // the time since the last loop in seconds multiplied by one plus half of the size of
-        // the Derivative data set size.
-
-        float DerivativeAverage = 0;
-        for(float value : DerivativeData) {
-            DerivativeAverage += value;
-        }
-        DerivativeAverage /= DerivativeData.size();
-
-        D = (computedAngle - DerivativeAverage) / ((loopTime/1000) * (1 + (DerivativeData.size() / 2)));
-    }
-
-    public float calculateAngles(Hardware hardware) {
-        // First we will move the current angle heading into the previous angle heading slot.
-        headings[0] = headings[1];
-        // Then, we assign the new angle heading.
-
-        headings[1] = ((hardware.currentImuOrientation().firstAngle*-1) + 180) % 360;
-
-
-        logFile.append("Raw IMU: " + Math.abs(hardware.imu.getAngularOrientation().firstAngle) + " " + hardware.imu.getAngularOrientation().secondAngle + " " + hardware.imu.getAngularOrientation().thirdAngle);
-
-
-        // Finally we calculate a ComputedAngle from the current angle heading.
-        computedAngle = headings[1] + (hardware.IMURotations * 360);
-
-       // Log.e("#####################", "About to increment IMURotations");
-        // now we determine if we need to re-calculate the angles.
-        //Log.e("############### current", Float.toString(headings[1]));
-       // Log.e("############### past", Float.toString(headings[0]));
-        if(headings[0] > 300 && headings[1] < 60) {
-            Log.e("################# ####", "Adding to IMURotations");
-            hardware.IMURotations++; //rotations of 360 degrees
-            calculateAngles(hardware);
-            //} else if(headings[0] < 300 && headings[1] > 60) {
-        } else if(headings[0] < 60 && headings[1] > 300) {
-            Log.e("#####################", "Subtracting from IMURotations");
-            hardware.IMURotations--;
-            calculateAngles(hardware);
-        }
-        return headings[1];
-    }
-
-    public float getCorrectedValue() {
-        return ((I * ITuning) / 2000) + ((P * PTuning) / 2000) + ((D *DTuning) / 2000);
-    }
-        
-}
 // Time data
-class Time {
+
+    /*
+    class Time {
     private ElapsedTime ProgramTime;
 
     public Time(){
@@ -368,7 +253,7 @@ class Time {
     --------
     Rear
     */
-
+/*
 class Hardware {
 
     BNO055IMU imu;
@@ -449,14 +334,5 @@ class LogFile {
     }
 }
 
-class AngleData { //prettified IMU data
-    float firstAngle;
-    float secondAngle;
-    
-    AngleData(float firstAngle, float secondAngle) {
-        this.firstAngle = firstAngle;
-        this.secondAngle = secondAngle;
-    }
-}
-   
 
+*/
