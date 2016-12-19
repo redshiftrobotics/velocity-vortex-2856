@@ -31,7 +31,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 public class Autonomous2856 extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor[] motors;
-    PIDController pidController;
+    PIDControllerOld pidController;
     ColorSensor colorSensor;
 
     DcMotor shooter;
@@ -50,7 +50,7 @@ public class Autonomous2856 extends LinearOpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
 
-        pidController = new PIDController(imu, motors, colorSensor, telemetry);
+        pidController = new PIDControllerOld(imu, motors, colorSensor, telemetry);
         pidController.SetPIDValues(100f, 30f, 0f);
 
         waitForStart();

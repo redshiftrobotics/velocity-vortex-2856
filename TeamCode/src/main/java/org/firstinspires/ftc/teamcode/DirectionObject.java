@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
  * </ul>
  * @author Duncan McKee
  * @version 1.2, 12/18/2016
+ * @deprecated Replaced with {@link HardwareController} as of 12/19/2016.
  */
 public class DirectionObject {
     private float xSpeed;
