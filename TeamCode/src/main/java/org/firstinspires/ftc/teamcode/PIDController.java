@@ -48,6 +48,7 @@ public class PIDController {
      * @param telemetryInput The Telemetry of the phone to output data.
      */
     public PIDController(I2cDeviceSynch imuInput, DcMotor[] motorsInput, ColorSensor colorSensorInput, Telemetry telemetryInput){
+        //Set up the private variables
         telemetry = telemetryInput;
         hardwareData = new HardwareData(imuInput, motorsInput, colorSensorInput);
         time = new Time();
@@ -73,6 +74,7 @@ public class PIDController {
      * @param telemetryInput The Telemetry of the phone to output data.
      */
     public PIDController(I2cDeviceSynch imuInput, DcMotor m0Input, DcMotor m1Input, DcMotor m2Input, DcMotor m3Input, ColorSensor colorSensorInput, Telemetry telemetryInput){
+        //Set up the private variables
         telemetry = telemetryInput;
         hardwareData = new HardwareData(imuInput, m0Input, m1Input, m2Input, m3Input, colorSensorInput);
         time = new Time();
@@ -125,21 +127,27 @@ public class PIDController {
      * @see DirectionObject
      */
     public void LinearMove(float[] directionInput, float rotationsInput, int timeoutInput){
+        //Set up the start time and position to the current time and position
         float startTime = time.CurrentTime();
         float startPosition = hardwareData.motors[0].getCurrentPosition();
 
+        //runs a loop until the motor rotations hits the rotationsInput
         while(Math.abs(startPosition - hardwareData.motors[0].getCurrentPosition()) < Math.abs(rotationsInput) * hardwareData.encoderCount){
+            //If we hit the timeout stop the loop
             if(startTime + timeoutInput < time.CurrentTime()){
                 break;
             }
+
+            //Calculate the pid and the direction to turn to
             CalculatePID();
             float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.iTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
 
-
+            //set the motor power to the direction input and the direction to turn to
             directionObject.SetMotors(directionInput[0] * hardwareData.forwardPower, directionInput[1] * hardwareData.forwardPower, direction * hardwareData.rotationPower, hardwareData.motors);
         }
-        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
 
+        //reset all pid values and motor values to zero
+        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
         pidData.p = 0;
         pidData.i = 0;
         pidData.d = 0;
@@ -156,6 +164,7 @@ public class PIDController {
      * @see DirectionObject
      */
     public void LinearMove(float angleInput, float rotationsInput, int timeoutInput){
+        //Convert the angle to a direction vector
         float[] direction = {(float) Math.cos(angleInput),(float) Math.sin(angleInput)};
         LinearMove(direction, rotationsInput, timeoutInput);
     }
@@ -184,6 +193,7 @@ public class PIDController {
      * @see DirectionObject
      */
     public void LinearMove(float angleInput, float rotationsInput){
+        //Convert the angle to a direction vector
         float[] direction = {(float) Math.cos(angleInput),(float) Math.sin(angleInput)};
         LinearMove(direction, rotationsInput);
     }
@@ -202,21 +212,27 @@ public class PIDController {
      * @see DirectionObject
      */
     public void MoveToLine(float[] directionInput, float speedInput, int timeoutInput){
+        //Set up the start time and position to the current time and position
         float startTime = time.CurrentTime();
         float startPosition = hardwareData.motors[0].getCurrentPosition();
 
+        //while there is no line below the robot
         while(!DetectLine()){
+            //If we hit the timeout stop the loop
             if(startTime + timeoutInput < time.CurrentTime()){
                 break;
             }
+
+            //Calculate the pid and the direction to turn to
             CalculatePID();
             float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.iTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
 
-
+            //set the motor power to the direction input and the direction to turn to
             directionObject.SetMotors(directionInput[0] * hardwareData.forwardPower, directionInput[1] * hardwareData.forwardPower, direction * hardwareData.rotationPower, hardwareData.motors);
         }
-        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
 
+        //reset all pid values and motor values to zero
+        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
         pidData.p = 0;
         pidData.i = 0;
         pidData.d = 0;
@@ -232,6 +248,7 @@ public class PIDController {
      * @see DirectionObject
      */
     public void MoveToLine(float angleInput, float speedInput, int timeoutInput){
+        //Convert the angle to a direction vector
         float[] movement = {(float) Math.cos(angleInput),(float) Math.sin(angleInput)};
         MoveToLine(movement, speedInput, timeoutInput);
     }
@@ -320,23 +337,29 @@ public class PIDController {
      * @see DirectionObject
      */
     public void AngularTurn(float angleInput, int timeoutInput){
+        //Set up the start time to the current time
         float startTime = time.CurrentTime();
-        pidData.targetAngle += angleInput;
+        //Set the targetAngle to the angle input
+        pidData.targetAngle = angleInput;
 
+        //Run until the timeout happens
         while(startTime + timeoutInput > time.CurrentTime()){
 
+            //Calculate the pid and the direction to turn to
             CalculatePID();
-
             float direction = ((pidData.i * pidData.iTuning) / 2000) + ((pidData.p * pidData.pTuning) / 2000) + ((pidData.d * pidData.dTuning) / 2000);
 
+            //If we are within our rotational tolerance stop
             if(Math.abs(direction) <= hardwareData.rotationTolerance) {
                 break;
             }
 
+            //set the motor power to the direction to turn to
             directionObject.SetMotors(0, 0, direction * hardwareData.rotationPower, hardwareData.motors);
         }
-        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
 
+        //reset all pid values and motor values to zero
+        directionObject.SetMotors(0, 0, 0, hardwareData.motors);
         pidData.p = 0;
         pidData.i = 0;
         pidData.d = 0;
@@ -360,12 +383,18 @@ public class PIDController {
      * current error and past error in the {@link PIDData}.
      */
     private void CalculatePID(){
+        //Set the current angle to the imu's angle
         pidData.currentAngle = hardwareData.imu.getAngularOrientation().firstAngle*-1;
+        //calculate how far off we are
         pidData.CalculateError();
+        //calculate the difference in time from the last time this was run
         time.CurrentDelta();
 
+        //Set the p to the error
         pidData.p = pidData.error;
+        //Add the change in error times dT to i
         pidData.i += pidData.error * time.deltaTime / 1000;
+        //Set d to teh change in error over dT
         pidData.d = (pidData.error - pidData.lastError)/(time.deltaTime/1000);
     }
 
@@ -375,7 +404,9 @@ public class PIDController {
      * @return <code>true</code> if the ColorSensor detects a line; <code>false</code> otherwise.
      */
     private boolean DetectLine(){
+        //Calculate the average of blue, green, and red
         float average = (hardwareData.colorSensor.blue() + hardwareData.colorSensor.green() + hardwareData.colorSensor.red())/3;
+        //if average is greater than tolerance return true otherwise return false
         if(average>hardwareData.colorTolerance)
             return true;
         return false;
@@ -417,6 +448,7 @@ class PIDData{
      * @param dTuningInput The constant multiplier for the D value.
      */
     PIDData(float pTuningInput, float iTuningInput, float dTuningInput){
+        //Set the tuning when initializing
         pTuning = pTuningInput;
         iTuning = iTuningInput;
         dTuning = dTuningInput;
@@ -442,7 +474,9 @@ class PIDData{
      * achieve the target angle.
      */
     public void CalculateError(){
+        //Set the last error to the current error
         lastError = error;
+        //Calculate the closes way to turn to get to the target angle form the current angle
         if(currentAngle + 360 - targetAngle < 180){
             error = (currentAngle - targetAngle + 360) * -1;
         }else if(targetAngle + 360 - currentAngle < 180){
