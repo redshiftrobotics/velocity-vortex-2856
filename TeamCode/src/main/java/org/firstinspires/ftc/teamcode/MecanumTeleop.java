@@ -3,25 +3,38 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.Range;
+
 
 /**
- * Created by Duncan on 11/5/2016.
+ * MecanumTeleop is the teleop op mode of 2856,
+ * in the FTC game Velocity Vortex. MecanumTeleop
+ * controls all motors on the robot, by the two
+ * controllers. The first controller controls:
+ * <ul>
+ *     <li>The drive motors of the robot</li>
+ *     <li>The shooter and collector of the particles</li>
+ * </ul>
+ * The second controller controls:
+ * <ul>
+ *     <li>The shooter and collector of the particles</li>
+ *     <li>The capball mechanism (Not installed yet)</li>
+ * </ul>
+ * @author Duncan McKee
+ * @version 1.1, 12/18/2016
  */
-@TeleOp(name="Mechanum")
+//@TeleOp(name="Mechanum")
 public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
-    //DcMotor capballLift
-    Servo hopper;
-    int collecting = 0;
-    boolean collectSwitch = false;
-    boolean num2 = false;
+    //DcMotor capballLift;
+    int rotations;
+    int collecting;
+    boolean collectSwitch;
+    boolean reseting;
+    DirectionObject direction;
+
     @Override
     public void init() {
         motors[0] = hardwareMap.dcMotor.get("m0");
@@ -31,69 +44,105 @@ public class MecanumTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
-        hopper = hardwareMap.servo.get("hopper");
-        motors[0].setDirection(DcMotor.Direction.REVERSE);
-        motors[1].setDirection(DcMotor.Direction.REVERSE);
-        hopper.setDirection(Servo.Direction.REVERSE);
+//        motors[0].setDirection(DcMotor.Direction.REVERSE);
+//        motors[1].setDirection(DcMotor.Direction.REVERSE);
+//        motors[2].setDirection(DcMotor.Direction.REVERSE);
+//        motors[3].setDirection(DcMotor.Direction.REVERSE);
+        direction = new DirectionObject(0, 0, 0);
+        rotations = shooter.getCurrentPosition();
     }
 
     @Override
     public void loop() {
         Move(gamepad1);
-        Shoot(gamepad1);
-        Sweep(gamepad1);
-        StopShoot(gamepad2);
+        if(!reseting) {
+            SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
+            SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
+        }
+        //Sweep(gamepad1);
+        resetMotors(gamepad1);
     }
 
-    void Move(Gamepad pad){
-        DirectionObject direction = new DirectionObject(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
-
-        motors[0].setPower(direction.frontLeftSpeed());
-        motors[1].setPower(direction.frontRightSpeed());
-        motors[2].setPower(direction.backRightSpeed());
-        motors[3].setPower(direction.backLeftSpeed());
-    }
-
-    void StopShoot(Gamepad pad){
-        if(pad.a){
-            shooter.setPower(0);
-            hopper.setPosition(0.48);
-        }
-        if(pad.b){
-            collecting = 0;
-            collector.setPower(0.0);
-        }
-        if(pad.left_trigger>0.1){
-            shooter.setPower(-1.0);
-            num2 = true;
+    /**
+     * If the A button is pressed the shooter is reset.
+     * @param pad The gamepad used to control this action.
+     */
+    void resetMotors(Gamepad pad)
+    {
+        if(!reseting) {
+            if (pad.a) {
+                reseting = true;
+            }
         }else{
-            num2 = false;
+            if(shooter.getCurrentPosition()%1400<rotations){
+                shooter.setPower(-1.0);
+            }else{
+                reseting = false;
+            }
         }
     }
 
-    void Shoot(Gamepad pad){
+    /**
+     * Controls the motors using the gamepad.
+     * @param pad The gamepad used to control this action.
+     */
+    void Move(Gamepad pad){
+        direction.SetMotors(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x, motors);
+    }
 
+    /**
+     * Returns a value based off of which button on the left side of the gamepad is pressed.
+     * @param pad The gamepad used to control this action.
+     * @return <code>1</code> if the left bumper is pressed,
+     *         <code>-1</code> if the left trigger is pressed,
+     *         <code>0</code> otherwise.
+     */
+    int Leftpower(Gamepad pad){
         if(pad.left_trigger>0.1){
-            shooter.setPower(-1.0);
-            hopper.setPosition(0.0);
+            return -1;
         }else if(pad.left_bumper) {
-            shooter.setPower(1.0);
-            hopper.setPosition(1.0);
-        }else if(!num2){
-            shooter.setPower(0.0);
-            hopper.setPosition(0.48);
+            return 1;
         }
-
-
-//        if(pad.left_trigger>0.1){
-//            hopper.setPosition(1.0);
-//            shooter.setPower(-1.0);
-//        }else if(pad.left_bumper){
-//            shooter.setPower(1.0);
-//        }else{
-//            shooter.setPower(0.0);
-//        }
+        return 0;
     }
+
+    /**
+     * Returns a value based off of which button on the right side of the gamepad is pressed.
+     * @param pad The gamepad used to control this action.
+     * @return <code>1</code> if the right bumper is pressed,
+     *         <code>-1</code> if the right trigger is pressed,
+     *         <code>0</code> otherwise.
+     */
+    int Rightpower(Gamepad pad){
+        if(pad.right_trigger>0.1){
+            return -1;
+        }else if(pad.right_bumper) {
+            return 1;
+        }
+        return 0;
+    }
+
+    /**
+     * Controls a specific DcMotor based upon two inputs.
+     * @param power1 A number based upon gamepad 1.
+     * @param power2 A number based upon gamepad 2.
+     * @param motor A DcMotor to spin based upon the powers.
+     */
+    void SpinMotor(int power1, int power2, DcMotor motor){
+        if(power1==1||power1==-1){
+            motor.setPower(power1);
+        }else if(power2==1||power2==-1){
+            motor.setPower(power2);
+        }else{
+            motor.setPower(0);
+        }
+    }
+
+    /**
+     * Control the sweeper of the robot.
+     * @param pad The gamepad used to control this action.
+     * @deprecated Replaced with {@link #SpinMotor(int, int, DcMotor)} in version 1.1.
+     */
     void Sweep(Gamepad pad){
 
         if(collecting!=1&&pad.right_trigger>0.1&&collectSwitch){

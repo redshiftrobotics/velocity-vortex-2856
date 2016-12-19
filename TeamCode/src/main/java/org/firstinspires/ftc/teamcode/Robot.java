@@ -20,9 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Created by Noah Rose Ledesma on 10/1/16.
  * Re-implementation of the 2856 PID Driving System without the spaghetti.
  * Class name is not finalized. Method names are eh right now, looking to revise them.
+ * @author Noah Rose Ledesma
+ * @author Matthew Kesley
+ * @author Duncan McKee
+ * @author Adam Perlin
+ * @version 1.0, 10/1/2016
+ * @deprecated Replaced with {@link PIDController} in version 2.0.
  */
 public class Robot {
 
@@ -33,6 +38,20 @@ public class Robot {
     public float[] movementVector = new float[]{1f, 0f};
 
     //changed from I2cDevice
+
+    /**
+     * Contructor for the PIDController class setting up all devices.
+     * @param imu The imu I2c Device to get current angle.
+     * @param m0 DcMotor 0 following the structure
+     *                of the {@link HardwareData} Object.
+     * @param m1 DcMotor 1 following the structure
+     *                of the {@link HardwareData} Object.
+     * @param m2 DcMotor 2 following the structure
+     *                of the {@link HardwareData} Object.
+     * @param m3 DcMotor 3 following the structure
+     *                of the {@link HardwareData} Object.
+     * @param tm The Telemetry of the phone to output data.
+     */
     public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, /*ColorSensor cs,*/ Telemetry tm) {
 
         tm.addData("IMU ", "Innitializing");
@@ -67,19 +86,37 @@ public class Robot {
     // Public Interface Methods:
 
     //Reset the target to the current robot position.
+
+    /**
+     * Resets the target to the current position of the robot.
+     */
     public void updateTarget() {
         Data.PID.Target = Data.imu.getAngularOrientation().firstAngle*-1;
     }
 
-    //If an angle is given, reset target to that angle.
+    /**
+     * If an angle is given, reset target to that angle.
+     * @param currentAngle The angle to set the target to.
+     */
     public void updateTarget(float currentAngle) {
         Data.PID.Target = currentAngle;
     }
 
+    /**
+     * Sets the movement vector to a new vector.
+     * @param vector The vector to set the movement vector to.
+     */
     public void setVector(float[] vector) {
         movementVector = vector;
     }
 
+    /**
+     * Set the PID constants in the {@link PIDData} to the given input values.
+     * Only call once, at the beginning of Autonomous.
+     * @param P The constant multiplier for the P value.
+     * @param I The constant multiplier for the I value.
+     * @param D The constant multiplier for the D value.
+     */
     public void setConstants(float P, float I, Float D) {
         Data.PID.PTuning = P;
         Data.PID.ITuning = I;
@@ -88,6 +125,15 @@ public class Robot {
 
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
     // corrected by PID control.
+
+    /**
+     * Method that moves the robot forward variable number of Rotations. Orientation is verified and
+     * corrected by PID control.
+     * @param Rotations The amount of rotations to move in
+     *                  the given direction.
+     * @param Timeout The amount of time move the robot for.
+     * @param tm The Telemetry of the phone to output data.
+     */
     public void linearMove(float Rotations, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
@@ -148,6 +194,10 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
+    /**
+     * Moves to the line or until the timeout is triggered.
+     * @param Timeout Amount of time to run for.
+     */
     public void moveToLine(int Timeout){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
@@ -204,6 +254,12 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
+    /**
+     *  Turns the robot to the given angle or until the timeout triggers.
+     * @param angle The angle to turn the robot to.
+     * @param Timeout The amount of time to run for.
+     * @param tm The Telemetry of the phone to output data.
+     */
     public void angleTurn(float angle, int Timeout, Telemetry tm){
 
         // Get the current program time and starting encoder position before we start our drive loop
@@ -260,6 +316,9 @@ public class Robot {
 
     // Private Methods
 
+    /**
+     * Initializes the heading.
+     */
     private void init() {
         // Then, we assign the new angle heading.
         Data.PID.Headings[1] = Data.imu.getAngularOrientation().firstAngle*-1;
@@ -274,12 +333,20 @@ public class Robot {
         CalculateAngles();
     }
 
+    /**
+     * Detects if the robot had hit the line.
+     * @return <code>true</code> if the robot hit the line; <code>false</code> otherwise.
+     */
     private boolean hasLine() {
         // Use Data.Drive.cs to detect if line is under sensor.
         return true;
     }
 
     // Method that grabs the IMU data and calculates a new ComputedTarget.
+
+    /**
+     * Method that grabs the IMU data and calculates a new ComputedTarget.
+     */
     private void CalculateAngles(){
 
         appendLog("Raw IMU: " + Math.abs(Data.imu.getAngularOrientation().firstAngle) + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
@@ -305,7 +372,10 @@ public class Robot {
         }
     }
 
-
+    /**
+     * Appends the text to the log.
+     * @param text String to add to the log.
+     */
     private void appendLog(String text)
     {
         File logFile = new File("sdcard/log.file");
@@ -338,6 +408,11 @@ public class Robot {
 
 
     // Method that calculates P, I, and D. Requires the time
+
+    /**
+     * Method that calculates P, I, and D. Requires the time.
+     * @param LoopTime The current loop time.
+     */
     private void CalculatePID(float LoopTime){
 
 
@@ -385,6 +460,12 @@ public class Robot {
 // RobotData acts as the main container for Data.
 // The PID, RobotTime, and Drive Classes act as child data containers for neater organization.
 
+/**
+ * Data container classes
+ * RobotData acts as the main container for Data.
+ * The PID, RobotTime, and Drive Classes act as child data containers for neater organization.
+ * @deprecated Removed in version 2.0.
+ */
 class RobotData {
     BNO055IMU imu;
     BNO055IMU.Parameters imuParameters;
@@ -398,7 +479,10 @@ class RobotData {
     }
 }
 
-// PID data
+/**
+ * PID data
+ * @deprecated Replaced with {@link PIDData} in version 2.0.
+ */
 class PID {
     float ComputedTarget;
     float Target;
@@ -415,6 +499,11 @@ class PID {
     }
 }
 // Time data
+
+/**
+ * Time data
+ * @deprecated Replaced with {@link Time} in version 2.0.
+ */
 class RobotTime {
     private ElapsedTime ProgramTime;
 
@@ -431,6 +520,11 @@ class RobotTime {
     }
 }
 // Robot hardware data.
+
+/**
+ * Robot hardware data.
+ * @deprecated Replaced with {@link HardwareData} in version 2.0.
+ */
 class Drive {
     //motors indexing around the robot like the quadrants in a graph or like the motors on a drone
     // for example
