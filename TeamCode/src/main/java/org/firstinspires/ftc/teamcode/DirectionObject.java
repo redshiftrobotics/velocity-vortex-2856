@@ -15,9 +15,9 @@ import com.qualcomm.robotcore.util.Range;
  * @version 1.2, 12/18/2016
  */
 public class DirectionObject {
-    public float xSpeed;
-    public float ySpeed;
-    public float zAngle;
+    private float xSpeed;
+    private float ySpeed;
+    private float zAngle;
 
     /**
      * Constructor for the DirectionObject class using
