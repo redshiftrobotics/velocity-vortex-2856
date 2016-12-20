@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  * @author Duncan McKee
  * @version 1.1, 12/18/2016
  */
-@TeleOp(name="2856 Teleop")
+//@TeleOp(name="2856 Teleop")
 public class Teleop2856 extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
@@ -128,42 +128,5 @@ public class Teleop2856 extends OpMode {
         }else{
             $motor.setPower(0);
         }
-    }
-
-    /**
-     * Control the sweeper of the robot.
-     * @param $pad The gamepad used to control this action.
-     * @deprecated Replaced with {@link #SpinMotor(int, int, DcMotor)} in version 1.1.
-     */
-    void Sweep(Gamepad $pad){
-
-        if(collecting!=1&& $pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(-1.0);
-            collecting = 1;
-        }else if(collecting==1&& $pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-        if(collecting!=-1&& $pad.right_bumper&&collectSwitch){
-            collector.setPower(1.0);
-            collecting = -1;
-        }else if(collecting==-1&& $pad.right_bumper&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-
-        if($pad.right_bumper|| $pad.right_trigger>0.1){
-            collectSwitch = false;
-        }else{
-            collectSwitch = true;
-        }
-
-//        if($pad.right_trigger>0.2){
-//            collector.setPower(-1.0);
-//        }else if($pad.right_bumper){
-//            collector.setPower(1.0);
-//        }else{
-//            collector.setPower(0.0);
-//        }
     }
 }
