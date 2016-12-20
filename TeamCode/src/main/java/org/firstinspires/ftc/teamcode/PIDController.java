@@ -99,6 +99,13 @@ public class PIDController {
         _hardwareController.colorTolerance = colorTolerance;
     }
 
+    public void SetDefaultMultipliers(){
+        defaultTimeout = 5;
+        forwardConstant = 0.6f;
+        rotationConstant = 1.0f;
+        rotationTolerance = 0.03f;
+    }
+
     //endregion
 
     //region Functions

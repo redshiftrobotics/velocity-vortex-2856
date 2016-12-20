@@ -31,8 +31,9 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 public class Autonomous2856 extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor[] motors;
-    PIDControllerOld pidController;
-    ColorSensor colorSensor;
+    PIDController pidController;
+    ColorSensor colorSensor1;
+    ColorSensor colorSensor2;
 
     DcMotor shooter;
 
@@ -46,12 +47,14 @@ public class Autonomous2856 extends LinearOpMode {
         motors[1] = hardwareMap.dcMotor.get("m1");
         motors[2] = hardwareMap.dcMotor.get("m2");
         motors[3] = hardwareMap.dcMotor.get("m3");
-        colorSensor = hardwareMap.colorSensor.get("cs");
+        colorSensor1 = hardwareMap.colorSensor.get("cs1");
+        colorSensor2 = hardwareMap.colorSensor.get("cs2");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
 
-        pidController = new PIDControllerOld(imu, motors, colorSensor, telemetry);
-        pidController.SetPIDValues(100f, 30f, 0f);
+        pidController = new PIDController(imu, motors, colorSensor1, colorSensor2, telemetry);
+        pidController.SetPIDConstatns(100f, 30f, 0f, 50);
+        pidController.SetDefaultMultipliers();
 
         waitForStart();
         pidController.LinearMove(0f, 0.5f, 10);
