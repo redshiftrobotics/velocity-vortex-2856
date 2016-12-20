@@ -28,62 +28,71 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class HardwareController {
     //region Hardware Data
+    /**
+     * The imu and all of its data is stored here.
+     */
     public BNO055IMU imu;
+    /**
+     * This is the parameters for the imu, they are private because they should not change.
+     */
     private BNO055IMU.Parameters _imuParameters;
-    //motors indexing around the robot like the quadrants in a graph or like the motors on a drone
-    // for example
-    /*
-    Front
-    ________
-    |0    1|
-    |      |
-    |3    2|
-    --------
-    Rear
-    */
+
+    /**
+     * Motors index around the robot like the motors on a drone.
+     * Front
+     * ________
+     * |0    1|
+     * |      |
+     * |3    2|
+     * --------
+     * Rear.
+     */
     public DcMotor[] motors;
+    /**
+     * The number of encoder counts in one full rotation of the motors, should always be 1400 with DcMotors.
+     */
     public int encoderCount;
 
+    /**
+     * One of the two ColorSensors used to detect the line.
+     * @see #DetectLine()
+     */
     private ColorSensor _colorSensor1;
+    /**
+     * One of the two ColorSensors used to detect the line.
+     * @see #DetectLine()
+     */
     private ColorSensor _colorSensor2;
+    /**
+     * The amount of color the sensors need to see to detect the line.
+     */
     public float colorTolerance;
     //endregion
     //region Speed Data
+    /**
+     * The current x speed of the robot
+     * @see #SetDirection
+     * @see #RunMotors
+     * @see #StopMotors
+     */
     private float _xSpeed;
+    /**
+     * The current y speed of the robot
+     * @see #SetDirection
+     * @see #RunMotors
+     * @see #StopMotors
+     */
     private float _ySpeed;
+    /**
+     * The current z rotation speed of the robot
+     * @see #SetDirection
+     * @see #RunMotors
+     * @see #StopMotors
+     */
     private float _zAngle;
     //endregion
 
     //region Initialization
-
-    /**
-     * Constructor for the HardwareController class setting up
-     * the DcMotor array,.
-     * @param $motors The array of DcMotors.
-     */
-    HardwareController(DcMotor[] $motors){
-        //Initialize the motors
-        motors = $motors;
-
-        //Set up encoder count
-        encoderCount = 1400;
-    }
-
-    /**
-     * Constructor for the HardwareController class setting up
-     * the four DcMotors.
-     * @param $m0 DcMotor 0.
-     * @param $m1 DcMotor 1.
-     * @param $m2 DcMotor 2.
-     * @param $m3 DcMotor 3.
-     */
-    HardwareController(DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3){
-        //Initialize the motors
-        motors = ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3));
-
-        //Set up encoder count
-        encoderCount = 1400;
-    }
 
     /**
      * Constructor for the HardwareController class setting up
@@ -124,6 +133,7 @@ public class HardwareController {
      * @param $m3 DcMotor 3.
      * @param $colorSensor1 The ColorSensor Device to get the Line Data.
      * @param $colorSensor2 The ColorSensor Device to get the Line Data.
+     * @see #HardwareController
      */
     HardwareController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2){
         //Set up the imu Parameters to use correct units
@@ -146,6 +156,37 @@ public class HardwareController {
         _colorSensor2 = $colorSensor2;
     }
 
+    /**
+     * Constructor for the HardwareController class setting up
+     * the DcMotor array,.
+     * @param $motors The array of DcMotors.
+     * @see #HardwareController
+     */
+    HardwareController(DcMotor[] $motors){
+        //Initialize the motors
+        motors = $motors;
+
+        //Set up encoder count
+        encoderCount = 1400;
+    }
+
+    /**
+     * Constructor for the HardwareController class setting up
+     * the four DcMotors.
+     * @param $m0 DcMotor 0.
+     * @param $m1 DcMotor 1.
+     * @param $m2 DcMotor 2.
+     * @param $m3 DcMotor 3.
+     * @see #HardwareController
+     */
+    HardwareController(DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3){
+        //Initialize the motors
+        motors = ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3));
+
+        //Set up encoder count
+        encoderCount = 1400;
+    }
+
     //endregion
 
     //region Functions
@@ -165,9 +206,9 @@ public class HardwareController {
 
     /**
      * Allows for changing of the DirectionObject's values.
-     * @param $xSpeed The value to set the _xSpeed.
-     * @param $ySpeed The value to set the _ySpeed.
-     * @param $zAngle The value to set the _zAngle.
+     * @param $xSpeed The value to set the {@link #_xSpeed}.
+     * @param $ySpeed The value to set the {@link #_ySpeed}.
+     * @param $zAngle The value to set the {@link #_zAngle}.
      */
     public void SetDirection(float $xSpeed, float $ySpeed, float $zAngle){
         _xSpeed = $xSpeed;
@@ -199,10 +240,10 @@ public class HardwareController {
     /**
      * Function for setting power to the motors
      * in the motors array.
-     * @param $xSpeed The value to set the _xSpeed.
-     * @param $ySpeed The value to set the YSpeed.
-     * @param $zAngle The value to set the _zAngle.
-     * @see #RunMotors() Base function for all RunMotors functions
+     * @param $xSpeed The value to set the {@link #_xSpeed}.
+     * @param $ySpeed The value to set the {@link #_ySpeed}.
+     * @param $zAngle The value to set the {@link #_zAngle}.
+     * @see #RunMotors()
      */
     public void RunMotors(float $xSpeed, float $ySpeed, float $zAngle){
         SetDirection($xSpeed, $ySpeed, $zAngle);
@@ -213,7 +254,7 @@ public class HardwareController {
      * Function for setting power to the motors
      * in the motors array.
      * @param $motors An array of 4 DcMotors following the structure of {@link HardwareController}.
-     * @see #RunMotors() Base function for all RunMotors functions
+     * @see #RunMotors()
      */
     public void RunMotors(DcMotor[] $motors){
         motors = $motors;
@@ -231,7 +272,7 @@ public class HardwareController {
      *                of the {@link HardwareController} Object.
      * @param $m3 DcMotor 3 following the structure
      *                of the {@link HardwareController} Object.
-     * @see #RunMotors() Base function for all RunMotors functions
+     * @see #RunMotors()
      */
     public void RunMotors(DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3){
         motors = ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3));
@@ -241,11 +282,11 @@ public class HardwareController {
     /**
      * Function for setting power to the motors
      * in the motors array.
-     * @param $xSpeed The value to set the _xSpeed.
-     * @param $ySpeed The value to set the YSpeed.
-     * @param $zAngle The value to set the _zAngle.
+     * @param $xSpeed The value to set the {@link #_xSpeed}.
+     * @param $ySpeed The value to set the {@link #_ySpeed}.
+     * @param $zAngle The value to set the {@link #_zAngle}.
      * @param $motors An array of 4 DcMotors following the structure of {@link HardwareController}.
-     * @see #RunMotors() Base function for all RunMotors functions
+     * @see #RunMotors()
      */
     public void RunMotors(float $xSpeed, float $ySpeed, float $zAngle, DcMotor[] $motors){
         SetDirection($xSpeed, $ySpeed, $zAngle);
@@ -256,9 +297,9 @@ public class HardwareController {
     /**
      * Function for setting power to the motors
      * in the motors array.
-     * @param $xSpeed The value to set the _xSpeed.
-     * @param $ySpeed The value to set the YSpeed.
-     * @param $zAngle The value to set the _zAngle.
+     * @param $xSpeed The value to set the {@link #_xSpeed}.
+     * @param $ySpeed The value to set the {@link #_ySpeed}.
+     * @param $zAngle The value to set the {@link #_zAngle}.
      * @param $m0 DcMotor 0 following the structure
      *                of the {@link HardwareController} Object.
      * @param $m1 DcMotor 1 following the structure
@@ -267,7 +308,7 @@ public class HardwareController {
      *                of the {@link HardwareController} Object.
      * @param $m3 DcMotor 3 following the structure
      *                of the {@link HardwareController} Object.
-     * @see #RunMotors() Base function for all RunMotors functions
+     * @see #RunMotors()
      */
     public void RunMotors(float $xSpeed, float $ySpeed, float $zAngle, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3){
         SetDirection($xSpeed, $ySpeed, $zAngle);

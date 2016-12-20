@@ -23,17 +23,59 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  */
 public class PIDController {
     //region Private Data
-    private Telemetry _telemetry;
+    /**
+     * A {@link HardwareController} to store all motors and motor speeds in.
+     */
     private HardwareController _hardwareController;
+    /**
+     * A {@link PIDData} to store all PID values and error calculations.
+     */
     private PIDData _pidData;
+    /**
+     * The telemetry to ouput debug to.
+     */
+    private Telemetry _telemetry;
 
+    /**
+     * The start time for any movement methods.
+     * @see #LinearMove
+     * @see #MoveToLine
+     * @see #AngularTurn
+     */
     private float _startTime;
+    /**
+     * The start position for any movement methods.
+     * @see #LinearMove
+     * @see #MoveToLine
+     * @see #AngularTurn
+     */
     private float _startPosition;
     //endregion
     //region Public Data
+    /**
+     * The default timeout for any movement methods which are not passed one.
+     * @see #LinearMove
+     * @see #MoveToLine
+     * @see #AngularTurn
+     */
     public int defaultTimeout;
+    /**
+     * The constant applied to linear motion for the motors.
+     * @see #LinearMove
+     * @see #MoveToLine
+     * @see #AngularTurn
+     */
     public float forwardConstant;
+    /**
+     * The constant applied to rotational motion for the motors.
+     * @see #LinearMove
+     * @see #MoveToLine
+     */
     public float rotationConstant;
+    /**
+     * The tolerance for the {@link #AngularTurn} method.
+     * @see #AngularTurn
+     */
     public float rotationTolerance;
     //endregion
 
@@ -73,6 +115,7 @@ public class PIDController {
      * @param $colorSensor1 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
      * @param $colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
      * @param $telemetry The Telemetry of the phone to output data.
+     * @see #PIDController(I2cDeviceSynch, DcMotor[], ColorSensor, ColorSensor, Telemetry)
      */
     PIDController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry){
         //Set up the private variables
@@ -105,23 +148,34 @@ public class PIDController {
      * @param $p The constant multiplier for the P value.
      * @param $i The constant multiplier for the I value.
      * @param $d The constant multiplier for the D value.
+     * @see #SetPIDConstatns(float, float, float, float)
      */
     public void SetPIDConstatns(float $p, float $i, float $d){
         _pidData.SetValues($p, $i, $d);
         _pidData.rotationTolerance = rotationTolerance;
     }
 
+    /**
+     * Sets the default multipliers and tolerances
+     */
     public void SetDefaultMultipliers(){
         defaultTimeout = 5;
         forwardConstant = 0.6f;
         rotationConstant = 1.0f;
         rotationTolerance = 0.03f;
+        _pidData.rotationTolerance = rotationTolerance;
     }
 
     //endregion
 
     //region Functions
 
+    /**
+     * Clears the PID data to allow for a new movement function to run.
+     * @see #LinearMove
+     * @see #MoveToLine
+     * @see #AngularTurn
+     */
     private void _ClearPID(){
         //reset all pid values and motor values to zero
         _hardwareController.StopMotors();
@@ -170,6 +224,7 @@ public class PIDController {
      *                       the given direction.
      * @param $timeout The amount of time move the robot for.
      * @see HardwareController
+     * @see #LinearMove
      */
     public void LinearMove(float $angle, float $rotations, int $timeout){
         //Convert the angle to a direction vector
@@ -185,6 +240,7 @@ public class PIDController {
      * @param $rotations The amount of rotations to move in
      *                       the given direction.
      * @see HardwareController
+     * @see #LinearMove
      */
     public void LinearMove(float[] $direction, float $rotations){
         LinearMove($direction, $rotations, defaultTimeout);
@@ -198,6 +254,7 @@ public class PIDController {
      * @param $rotations The amount of rotations to move in
      *                       the given direction.
      * @see HardwareController
+     * @see #LinearMove
      */
     public void LinearMove(float $angle, float $rotations){
         //Convert the angle to a direction vector
@@ -243,6 +300,7 @@ public class PIDController {
      * @param $speed The speed at which the robot moves.
      * @param $timeout The amount of time move the robot for.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float $speed, float $angle, int $timeout){
         //Convert the angle to a direction vector
@@ -257,6 +315,7 @@ public class PIDController {
      *                       and y motion.
      * @param $speed The speed at which the robot moves.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float $speed, float[] $direction){
         MoveToLine($speed, $direction, defaultTimeout);
@@ -269,6 +328,7 @@ public class PIDController {
      * @param $angle An angle to move the robot to.
      * @param $speed The speed at which the robot moves.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float $speed, float $angle){
         MoveToLine($speed, $angle, defaultTimeout);
@@ -282,6 +342,7 @@ public class PIDController {
      *                       and y motion.
      * @param $timeout The amount of time move the robot for.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float[] $direction, int $timeout){
         MoveToLine(forwardConstant, $direction, $timeout);
@@ -294,6 +355,7 @@ public class PIDController {
      * @param $angle An angle to move the robot to.
      * @param $timeout The amount of time move the robot for.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float $angle, int $timeout){
         MoveToLine(forwardConstant, $angle, $timeout);
@@ -306,6 +368,7 @@ public class PIDController {
      * @param $direction A length two float array with x motion
      *                       and y motion.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float[] $direction){
         MoveToLine(forwardConstant, $direction, defaultTimeout);
@@ -317,6 +380,7 @@ public class PIDController {
      * or the default timeout is triggered.
      * @param $angle An angle to move the robot to.
      * @see HardwareController
+     * @see #MoveToLine
      */
     public void MoveToLine(float $angle){
         MoveToLine(forwardConstant, $angle, defaultTimeout);
@@ -359,6 +423,7 @@ public class PIDController {
      * Rotates to a given angle or until a default timeout is triggered.
      * @param $angle An angle to turn the robot to.
      * @see HardwareController
+     * @see #AngularTurn
      */
     public void AngularTurn(float $angle){
         AngularTurn($angle, defaultTimeout);

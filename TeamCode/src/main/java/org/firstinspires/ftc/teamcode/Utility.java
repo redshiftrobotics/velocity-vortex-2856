@@ -13,9 +13,20 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  * @version 1.0, 12/19/2016
  */
 public class Utility {
+    /**
+     * This is a function that makes an generic object array out of several objects.
+     * @param $objects Each individual object.
+     * @return An array of objects.
+     */
     public static Object[] MakeArray(Object... $objects){
         return $objects;
     }
+
+    /**
+     * This function initializes the motors, by hardwareMapping them and reversing some.
+     * @param $hardwareMap The HardwareMap to look through to find the dcMotors
+     * @param $motors An array of DcMotors in the structure of {@link HardwareController}.
+     */
     public static void InitMotors(HardwareMap $hardwareMap, DcMotor[] $motors){
         $motors[0] = $hardwareMap.dcMotor.get("m0");
         $motors[1] = $hardwareMap.dcMotor.get("m0");

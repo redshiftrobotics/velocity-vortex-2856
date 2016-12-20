@@ -24,17 +24,48 @@ import com.qualcomm.robotcore.util.ElapsedTime;
  */
 public class PIDData {
     //region Error Data
+    /**
+     * The current Angle of the robot, got from the imu.
+     */
     public float currentAngle;
+    /**
+     * The target angle, that the robot wants to turn to.
+     */
     public float targetAngle;
+    /**
+     * The error and lastError are calculated and used to calculate PID.
+     */
     public float error, lastError;
+    /**
+     * The tolerance for the {@link PIDController#AngularTurn} method.
+     * @see PIDController#AngularTurn
+     */
     public float rotationTolerance;
+    /**
+     * These values are calculated and used to set the motor power.
+     */
     public float p, i, d;
+    /**
+     * These values are used to multiply the p, i, and d values.
+     * @see #p
+     * @see #i
+     * @see #d
+     */
     public float pTuning, iTuning, dTuning;
     //endregion
     //region Time Data
+    /**
+     * The change in time between the iterations of the movement functions.
+     */
     public float deltaTime;
 
+    /**
+     * The total amount of time that the program has run for.
+     */
     private ElapsedTime _programTime;
+    /**
+     * A value used to calculate the {@link #deltaTime}.
+     */
     private float _lastTime;
     //endregion
 
