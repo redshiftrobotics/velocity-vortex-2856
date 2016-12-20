@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 
 /**
- * MecanumTeleop is the teleop op mode of 2856,
- * in the FTC game Velocity Vortex. MecanumTeleop
+ * Teleop2856 is the teleop op mode of 2856,
+ * in the FTC game Velocity Vortex. Teleop2856
  * controls all motors on the robot, by the two
  * controllers. The first controller controls:
  * <ul>
@@ -24,7 +24,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  * @version 1.1, 12/18/2016
  */
 @TeleOp(name="2856 Teleop")
-public class MecanumTeleop extends OpMode {
+public class Teleop2856 extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;

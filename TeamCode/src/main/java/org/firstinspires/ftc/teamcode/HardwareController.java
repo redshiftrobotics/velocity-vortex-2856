@@ -4,7 +4,6 @@ import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.Range;
 
@@ -12,7 +11,7 @@ import com.qualcomm.robotcore.util.Range;
  * HardwareController is the class in which all hardware
  * related values and devices are stored.
  * A HardwareController object is used in {@link PIDController} and
- * {@link MecanumTeleop} to control
+ * {@link Teleop2856} to control
  * all hardware devices. A HardwareController object contains the
  * information required to control a PID robot.   This information includes:
  * <ul>

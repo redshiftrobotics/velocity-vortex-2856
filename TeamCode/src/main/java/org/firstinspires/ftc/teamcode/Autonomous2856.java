@@ -39,7 +39,7 @@ import java.io.IOException;
  * </ul>
  * @author Duncan McKee
  * @author Matthew Kesley
- * @version 1.0, 12/18/2016
+ * @version 2.0, 12/19/2016
  */
 @Autonomous(name = "2856 Autonomous")
 public class Autonomous2856 extends LinearVisionOpMode {

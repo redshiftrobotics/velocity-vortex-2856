@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * DirectionObject is the class for all motor assignment values.
  * A DirectionObject encapsulates the information
- * used to run the {@link Autonomous2856} and {@link MecanumTeleop}. This information includes:
+ * used to run the {@link Autonomous2856} and {@link Teleop2856}. This information includes:
  * <ul>
  *     <li>A xSpeed and a ySpeed to move towards</li>
  *     <li>A zAngle to turn to</li>
