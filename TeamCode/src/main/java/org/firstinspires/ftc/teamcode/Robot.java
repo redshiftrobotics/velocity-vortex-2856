@@ -27,7 +27,7 @@ import java.util.ArrayList;
  * @author Duncan McKee
  * @author Adam Perlin
  * @version 1.0, 10/1/2016
- * @deprecated Replaced with {@link PIDController} in version 2.0.
+ * @deprecated Replaced with {@link PIDControllerOld} in version 2.0.
  */
 public class Robot {
 

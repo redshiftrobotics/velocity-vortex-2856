@@ -40,10 +40,7 @@ public class Autonomous2856 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
-        motors[0] = hardwareMap.dcMotor.get("m0");
-        motors[1] = hardwareMap.dcMotor.get("m1");
-        motors[2] = hardwareMap.dcMotor.get("m2");
-        motors[3] = hardwareMap.dcMotor.get("m3");
+        Utility.InitMotors(hardwareMap, motors);
         colorSensor1 = hardwareMap.colorSensor.get("cs1");
         colorSensor2 = hardwareMap.colorSensor.get("cs2");
         shooter = hardwareMap.dcMotor.get("shooter");

@@ -66,12 +66,6 @@ public class HardwareController {
         //Initialize the motors
         motors = dcmotors;
 
-        //Reverse specific motors based on gears and chains, comment out which ones should not be flipped
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-
         //Set up encoder count
         encoderCount = 1400;
     }
@@ -87,12 +81,6 @@ public class HardwareController {
     HardwareController(DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3){
         //Initialize the motors
         motors = ((DcMotor[]) Utility.MakeArray(m0, m1, m2, m3));
-
-        //Reverse specific motors based on gears and chains, comment out which ones should not be flipped
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Set up encoder count
         encoderCount = 1400;
@@ -118,12 +106,6 @@ public class HardwareController {
 
         //Initialize the motors
         motors = dcmotors;
-
-        //Reverse specific motors based on gears and chains, comment out which ones should not be flipped
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Set up encoder count
         encoderCount = 1400;
@@ -156,12 +138,6 @@ public class HardwareController {
 
         //Initialize the motors
         motors = ((DcMotor[]) Utility.MakeArray(m0, m1, m2, m3));
-
-        //Reverse specific motors based on gears and chains, comment out which ones should not be flipped
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        //motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
-        motors[0].setDirection(DcMotorSimple.Direction.REVERSE);
 
         //Set up encoder count
         encoderCount = 1400;

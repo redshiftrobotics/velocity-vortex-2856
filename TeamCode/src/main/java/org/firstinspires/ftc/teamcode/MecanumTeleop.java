@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  * @author Duncan McKee
  * @version 1.1, 12/18/2016
  */
-@TeleOp(name="Mechanum")
+@TeleOp(name="2856 Teleop")
 public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
@@ -37,17 +37,10 @@ public class MecanumTeleop extends OpMode {
 
     @Override
     public void init() {
-        motors[0] = hardwareMap.dcMotor.get("m0");
-        motors[1] = hardwareMap.dcMotor.get("m1");
-        motors[2] = hardwareMap.dcMotor.get("m2");
-        motors[3] = hardwareMap.dcMotor.get("m3");
+        Utility.InitMotors(hardwareMap, motors);
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
-//        motors[0].setDirection(DcMotor.Direction.REVERSE);
-//        motors[1].setDirection(DcMotor.Direction.REVERSE);
-//        motors[2].setDirection(DcMotor.Direction.REVERSE);
-//        motors[3].setDirection(DcMotor.Direction.REVERSE);
         hardwareController = new HardwareController(motors);
         rotations = shooter.getCurrentPosition();
     }
