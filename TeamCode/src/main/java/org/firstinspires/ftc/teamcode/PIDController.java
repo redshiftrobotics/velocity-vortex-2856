@@ -23,12 +23,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
  */
 public class PIDController {
     //region Private Data
-    private Telemetry telemetry;
-    private HardwareController hardwareController;
-    private PIDData pidData;
+    private Telemetry _telemetry;
+    private HardwareController _hardwareController;
+    private PIDData _pidData;
 
-    private float startTime;
-    private float startPosition;
+    private float _startTime;
+    private float _startPosition;
     //endregion
     //region Public Data
     public int defaultTimeout;
@@ -50,12 +50,12 @@ public class PIDController {
      */
     PIDController(I2cDeviceSynch imu, DcMotor[] motors, ColorSensor colorSensor1, ColorSensor colorSensor2, Telemetry telemetryInput){
         //Set up the private variables
-        telemetry = telemetryInput;
-        hardwareController = new HardwareController(imu, motors, colorSensor1, colorSensor2);
-        pidData = new PIDData();
+        _telemetry = telemetryInput;
+        _hardwareController = new HardwareController(imu, motors, colorSensor1, colorSensor2);
+        _pidData = new PIDData();
 
         //Set the target angle to the current angle
-        pidData.targetAngle = hardwareController.imu.getAngularOrientation().firstAngle*-1;
+        _pidData.targetAngle = _hardwareController.imu.getAngularOrientation().firstAngle*-1;
     }
 
     /**
@@ -76,12 +76,12 @@ public class PIDController {
      */
     PIDController(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor colorSensor1, ColorSensor colorSensor2, Telemetry telemetryInput){
         //Set up the private variables
-        telemetry = telemetryInput;
-        hardwareController = new HardwareController(imu, ((DcMotor[]) Utility.MakeArray(m0, m1, m2, m3)), colorSensor1, colorSensor2);
-        pidData = new PIDData();
+        _telemetry = telemetryInput;
+        _hardwareController = new HardwareController(imu, ((DcMotor[]) Utility.MakeArray(m0, m1, m2, m3)), colorSensor1, colorSensor2);
+        _pidData = new PIDData();
 
         //Set the target angle to the current angle
-        pidData.targetAngle = hardwareController.imu.getAngularOrientation().firstAngle*-1;
+        _pidData.targetAngle = _hardwareController.imu.getAngularOrientation().firstAngle*-1;
     }
 
     /**
@@ -94,21 +94,21 @@ public class PIDController {
      * @param colorTolerance The minimum average value for the ColorSensor to return true.
      */
     public void SetPIDConstatns(float pInput, float iInput, float dInput, float colorTolerance){
-        pidData.SetValues(pInput, iInput, dInput);
-        pidData.rotationTolerance = rotationTolerance;
-        hardwareController.colorTolerance = colorTolerance;
+        _pidData.SetValues(pInput, iInput, dInput);
+        _pidData.rotationTolerance = rotationTolerance;
+        _hardwareController.colorTolerance = colorTolerance;
     }
 
     //endregion
 
     //region Functions
 
-    private void ClearPID(){
+    private void _ClearPID(){
         //reset all pid values and motor values to zero
-        hardwareController.StopMotors();
-        pidData.p = 0;
-        pidData.i = 0;
-        pidData.d = 0;
+        _hardwareController.StopMotors();
+        _pidData.p = 0;
+        _pidData.i = 0;
+        _pidData.d = 0;
     }
 
     //region Linear Move
@@ -125,21 +125,21 @@ public class PIDController {
      */
     public void LinearMove(float[] directionInput, float rotationsInput, int timeoutInput){
         //Set up the start time and position to the current time and position
-        startTime = pidData.CurrentTime();
-        startPosition = hardwareController.motors[0].getCurrentPosition();
+        _startTime = _pidData.CurrentTime();
+        _startPosition = _hardwareController.motors[0].getCurrentPosition();
 
         //runs a loop until the motor rotations hits the rotationsInput
-        while(Math.abs(startPosition - hardwareController.motors[0].getCurrentPosition()) < Math.abs(rotationsInput) * hardwareController.encoderCount){
+        while(Math.abs(_startPosition - _hardwareController.motors[0].getCurrentPosition()) < Math.abs(rotationsInput) * _hardwareController.encoderCount){
             //If we hit the timeout stop the loop
-            if(startTime + timeoutInput < pidData.CurrentTime()){
+            if(_startTime + timeoutInput < _pidData.CurrentTime()){
                 break;
             }
 
             //Calculate the pid and the direction to turn to
             //set the motor power to the direction input and the direction to turn to
-            hardwareController.RunMotors(directionInput[0] * forwardConstant, directionInput[1] * forwardConstant, pidData.CalculatePID(hardwareController) * rotationConstant);
+            _hardwareController.RunMotors(directionInput[0] * forwardConstant, directionInput[1] * forwardConstant, _pidData.CalculatePID(_hardwareController) * rotationConstant);
         }
-        ClearPID();
+        _ClearPID();
     }
 
     /**
@@ -199,21 +199,21 @@ public class PIDController {
      */
     public void MoveToLine(float speedInput, float[] directionInput, int timeoutInput){
         //Set up the start time and position to the current time and position
-        startTime = pidData.CurrentTime();
-        startPosition = hardwareController.motors[0].getCurrentPosition();
+        _startTime = _pidData.CurrentTime();
+        _startPosition = _hardwareController.motors[0].getCurrentPosition();
 
         //while there is no line below the robot
-        while(!hardwareController.DetectLine()){
+        while(!_hardwareController.DetectLine()){
             //If we hit the timeout stop the loop
-            if(startTime + timeoutInput < pidData.CurrentTime()){
+            if(_startTime + timeoutInput < _pidData.CurrentTime()){
                 break;
             }
 
             //Calculate the pid and the direction to turn to
             //set the motor power to the direction input and the direction to turn to
-            hardwareController.RunMotors(directionInput[0] * forwardConstant * speedInput, directionInput[1] * forwardConstant * speedInput, pidData.CalculatePID(hardwareController) * rotationConstant);
+            _hardwareController.RunMotors(directionInput[0] * forwardConstant * speedInput, directionInput[1] * forwardConstant * speedInput, _pidData.CalculatePID(_hardwareController) * rotationConstant);
         }
-        ClearPID();
+        _ClearPID();
     }
 
     /**
@@ -314,15 +314,15 @@ public class PIDController {
      */
     public void AngularTurn(float angleInput, int timeoutInput){
         //Set up the start time to the current time
-        float startTime = pidData.CurrentTime();
+        float startTime = _pidData.CurrentTime();
         //Set the targetAngle to the angle input
-        pidData.targetAngle = angleInput;
+        _pidData.targetAngle = angleInput;
 
         //Run until the timeout happens
-        while(startTime + timeoutInput > pidData.CurrentTime()){
+        while(startTime + timeoutInput > _pidData.CurrentTime()){
 
             //Calculate the pid and the direction to turn to
-            float direction = pidData.CalculatePID(hardwareController);
+            float direction = _pidData.CalculatePID(_hardwareController);
 
             //If we are within our rotational tolerance stop
             if(Math.abs(direction) <= rotationConstant) {
@@ -330,9 +330,9 @@ public class PIDController {
             }
 
             //set the motor power to the direction to turn to
-            hardwareController.RunMotors(0, 0, direction * rotationConstant);
+            _hardwareController.RunMotors(0, 0, direction * rotationConstant);
         }
-        ClearPID();
+        _ClearPID();
     }
 
     /**

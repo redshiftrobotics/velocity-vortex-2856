@@ -34,8 +34,8 @@ public class PIDData {
     //region Time Data
     public float deltaTime;
 
-    private ElapsedTime programTime;
-    private float lastTime;
+    private ElapsedTime _programTime;
+    private float _lastTime;
     //endregion
 
     //region Initialization
@@ -44,8 +44,8 @@ public class PIDData {
      * Constructor for the PIDData class, and setting up the elapsed time.
      */
     PIDData(){
-        programTime = new ElapsedTime();
-        lastTime = System.currentTimeMillis();
+        _programTime = new ElapsedTime();
+        _lastTime = System.currentTimeMillis();
     }
 
     //endregion
@@ -92,7 +92,7 @@ public class PIDData {
      * @return The current elapsed time in seconds.
      */
     public float CurrentTime(){
-        return (float) programTime.seconds();
+        return (float) _programTime.seconds();
     }
 
     /**
@@ -100,8 +100,8 @@ public class PIDData {
      * from the last time this function was called.
      */
     public void CurrentDelta(){
-        deltaTime = System.currentTimeMillis() - lastTime;
-        lastTime = System.currentTimeMillis();
+        deltaTime = System.currentTimeMillis() - _lastTime;
+        _lastTime = System.currentTimeMillis();
     }
 
 
