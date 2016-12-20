@@ -24,8 +24,8 @@ import java.io.IOException;
  * Created by matt on 11/10/16.
  */
 @Autonomous(name = "2856 Autonomous")
-public class BlueAutonomous extends LinearVisionOpMode {
-    I2cDeviceSynch imu;
+public class BlueAutonomous /*extends LinearVisionOpMode*/ {
+    /*I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -34,8 +34,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
     ColorSensor cs;
 
     private String sideText;
-
     private int side; //1 for blue, -1 for red because everything will be flipped this is now determined by a file... see the beginning of runOpMode()
+    String colorTargetIsRight;
+
 
     DcMotor shooter;
     Servo hopper;
@@ -63,8 +64,12 @@ public class BlueAutonomous extends LinearVisionOpMode {
         // Provide in a more user friendly form.
         sideText = text.toString();
         if(sideText.equals("red")) {
+            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
+            colorTargetIsRight = "blue, red";
             side = -1;
         } else if (sideText.equals("blue")) {
+            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
+            colorTargetIsRight = "red, blue";
             side = 1;
         }
 
@@ -76,57 +81,142 @@ public class BlueAutonomous extends LinearVisionOpMode {
         Float[] backward = new Float[]{-1f,0f};
 
         //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
-        String colorTargetIsRight = "red, blue";
+        //String colorTargetIsRight = "red, blue";
 
         robot.Data.PID.PTuning = 100f;
         robot.Data.PID.ITuning = 30f;
         robot.Data.PID.DTuning = 0f;
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(1.25f, forward, 10, telemetry);
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+        //hopper.setPosition(0.48);
+        waitForStart();
+        robot.Straight(.5f, forward, 10, telemetry); //.625
+
+
+        robot.Data.PID.PTuning = 45f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0.2f;
+
+        robot.AngleTurn(-25f*side, 2, telemetry);
+
+        Thread.sleep(1000);
+        shooter.setPower(1);
+        Thread.sleep(2000);
+        shooter.setPower(0);
+        robot.AngleTurn(25f*side, 2, telemetry);
+
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.Straight(.625f, forward, 10, telemetry);
+
+        robot.Data.PID.PTuning = 20f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
 
         //Thread.sleep(1000);
-        //hopper.setPosition(0);
-        //shooter.setPower(1);
-        //Thread.sleep(3000);
-        //hopper.setPosition(0.48);
-        //shooter.setPower(0);
-        robot.Straight(1f, forward, 10, telemetry);
         robot.AngleTurn(55f*side, 10, telemetry);
-        robot.Straight(3.2f, forward, 10, telemetry);
-        robot.AngleTurn(-55f*side, 10, telemetry);
-        //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
+        //Thread.sleep(1000);
 
-        robot.MoveToLine(forward, .65f, 10, telemetry);
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.Straight(1f, forward, 10, telemetry); //1.2 1.6
+        //Thread.sleep(1000);
+
+        robot.Data.PID.PTuning = 20f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.AngleTurn(-53f*side, 10, telemetry);
+        //robot.Straight(1f, new Float[]{1f,0f}, 10, telemetry);
+        //Thread.sleep(1000);
+
+        robot.Straight(.3f, forward, 10, telemetry);
+
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.DTuning = 0f;
+
+        robot.MoveToLine(forward, 0.4f, 10, telemetry);
+        Thread.sleep(500);
+        robot.MoveToLine(backward, 0.4f, 10, telemetry);
+
+        telemetry.addData("beacon is: ", beacon.getAnalysis().getColorString());
+        telemetry.update();
+
+        if(side == -1) { // if on the red side
+            robot.Straight(0.1f, forward, 10, telemetry);
+        } else {
+            robot.Straight(0.14f, backward, 10, telemetry);
+        }
         Thread.sleep(1000);
-        robot.MoveToLine(backward, .2f, 10, telemetry);
 
         //in front of first beacon: decide color, shift accordingly, and move in
-        if(beacon.getAnalysis().getColorString().equals("red, blue")) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
-        } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //target color is right
+            telemetry.addData("beacon ", "right");
+            telemetry.update();
+            if(side == 1) { // if we are on blue side we need a little bump forwards to press but not on red side
+                robot.Straight(0.1f, forward, 10, telemetry);
+            }
+        } else if (beacon.getAnalysis().getColorString().equals("???, ???")) {
+            //do nothing
+        } else { //target is left
+            telemetry.addData("beacon ", "left");
+            telemetry.update();
+            if(side == 1) { // for blue side
+                robot.Straight(0.23f, forward, 10, telemetry);
+            } else { // red side
+                robot.Straight(0.15f, backward, 10, telemetry);
+            }
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
+        robot.Straight(.45f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //straight to clear existing line
         robot.Straight(1f, backward, 10, telemetry);
         robot.MoveToLine(backward, .4f, 10, telemetry);
+        Thread.sleep(500);
+        robot.MoveToLine(forward, .4f, 10, telemetry);
+
+        if(side == -1) { // if on the red side
+            robot.Straight(0.1f, forward, 10, telemetry);
+        } else {
+            robot.Straight(0.14f, backward, 10, telemetry);
+        }
         Thread.sleep(1000);
-        robot.MoveToLine(forward, .2f, 10, telemetry);
+
+
 
         //in front of second beacon: decide color, shift accordingly, and move in
-        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //blue is right
-            robot.Straight(0.3f, backward, 10, telemetry);
-        } else { //blue is left
-            robot.Straight(0.3f, forward, 10, telemetry);
+        if(beacon.getAnalysis().getColorString().equals(colorTargetIsRight)) { //target is right
+            telemetry.addData("beacon ", "right");
+            telemetry.update();
+            if(side == 1) { // if we are on blue side we need a little bump forwards to press but not on red side
+                robot.Straight(0.1f, forward, 10, telemetry);
+            }
+        } else if (beacon.getAnalysis().getColorString().equals("???, ???")) {
+            //do nothing
+        } else { //target is left
+            if(side == 1) { // for blue side
+                robot.Straight(0.23f, forward, 10, telemetry);
+            } else { // red side
+                robot.Straight(0.15f, backward, 10, telemetry);
+            }
+            telemetry.addData("beacon ", "left");
+            telemetry.update();
         }
-        robot.Straight(.7f, new Float[]{0f, -1f*side}, 10, telemetry);
-        robot.Straight(.7f, new Float[]{0f, 1f*side}, 10, telemetry);
+        robot.Straight(1f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
+        robot.Straight(.5f, new Float[]{0f, 1f*side}, 10, telemetry);
 
         //go backwards because who cares
-        robot.Straight(5f, backward, 10, telemetry);
+        robot.Straight(1.3f, backward, 10, telemetry)
 
     }
 
@@ -157,5 +247,5 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
-    }
+    }*/
 }
