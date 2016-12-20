@@ -13,24 +13,20 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
-    DcMotor m0;
-    DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
-    Robot robot;
-    ColorSensor cs;
+    DcMotor[] motors;
+    PIDController pidController;
+    ColorSensor cs1;
+    ColorSensor cs2;
 
 
     @Override
     public void runOpMode() throws InterruptedException {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
-        m0 = hardwareMap.dcMotor.get("m0");
-        m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
-        cs = hardwareMap.colorSensor.get("cs");
+        Utility.InitMotors(hardwareMap, motors);
+        cs1 = hardwareMap.colorSensor.get("cs1");
+        cs2 = hardwareMap.colorSensor.get("cs2");
 
-        robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
+        pidController = new PIDController(imu, motors, cs1, cs2, telemetry);
 
 
         //working PIDs
@@ -39,11 +35,11 @@ public class ExampleAutonomous extends LinearOpMode {
         //D: 0
 
         //loop
-        robot.Data.PID.PTuning = 100f;
-        robot.Data.PID.ITuning = 30f;
-        robot.Data.PID.DTuning = 0f;
+        pidController.SetPIDConstatns(63f, 10f, 0f, 50f);
+        pidController.SetDefaultMultipliers();
         waitForStart();
-        robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
+
+        pidController.LinearMove(0f, 1f);
 
     }
 
