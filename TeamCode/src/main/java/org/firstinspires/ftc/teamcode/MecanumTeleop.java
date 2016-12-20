@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  * @author Duncan McKee
  * @version 1.1, 12/18/2016
  */
-//@TeleOp(name="Mechanum")
+@TeleOp(name="Mechanum")
 public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
@@ -33,7 +33,7 @@ public class MecanumTeleop extends OpMode {
     int collecting;
     boolean collectSwitch;
     boolean reseting;
-    DirectionObject direction;
+    HardwareController hardwareController;
 
     @Override
     public void init() {
@@ -48,7 +48,7 @@ public class MecanumTeleop extends OpMode {
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
-        direction = new DirectionObject(0, 0, 0);
+        hardwareController = new HardwareController(motors);
         rotations = shooter.getCurrentPosition();
     }
 
@@ -87,7 +87,7 @@ public class MecanumTeleop extends OpMode {
      * @param pad The gamepad used to control this action.
      */
     void Move(Gamepad pad){
-        direction.SetMotors(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x, motors);
+        hardwareController.RunMotors(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
     }
 
     /**

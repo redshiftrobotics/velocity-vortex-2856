@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
  * @author Matthew Kesley
  * @version 1.0, 12/18/2016
  */
-//@Autonomous(name = "2856 Autonomous")
+@Autonomous(name = "2856 Autonomous")
 public class Autonomous2856 extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor[] motors;
@@ -38,9 +38,6 @@ public class Autonomous2856 extends LinearOpMode {
     DcMotor shooter;
 
     @Override
-    /**
-     * Runs the Op Mode
-     */
     public void runOpMode() throws InterruptedException {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         motors[0] = hardwareMap.dcMotor.get("m0");
