@@ -58,12 +58,12 @@ public class Teleop2856 extends OpMode {
 
     /**
      * If the A button is pressed the shooter is reset.
-     * @param pad The gamepad used to control this action.
+     * @param $pad The gamepad used to control this action.
      */
-    void resetMotors(Gamepad pad)
+    void resetMotors(Gamepad $pad)
     {
         if(!reseting) {
-            if (pad.a) {
+            if ($pad.a) {
                 reseting = true;
             }
         }else{
@@ -77,23 +77,23 @@ public class Teleop2856 extends OpMode {
 
     /**
      * Controls the motors using the gamepad.
-     * @param pad The gamepad used to control this action.
+     * @param $pad The gamepad used to control this action.
      */
-    void Move(Gamepad pad){
-        hardwareController.RunMotors(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
+    void Move(Gamepad $pad){
+        hardwareController.RunMotors($pad.right_stick_x, -$pad.right_stick_y, $pad.left_stick_x);
     }
 
     /**
      * Returns a value based off of which button on the left side of the gamepad is pressed.
-     * @param pad The gamepad used to control this action.
+     * @param $pad The gamepad used to control this action.
      * @return <code>1</code> if the left bumper is pressed,
      *         <code>-1</code> if the left trigger is pressed,
      *         <code>0</code> otherwise.
      */
-    int Leftpower(Gamepad pad){
-        if(pad.left_trigger>0.1){
+    int Leftpower(Gamepad $pad){
+        if($pad.left_trigger>0.1){
             return -1;
-        }else if(pad.left_bumper) {
+        }else if($pad.left_bumper) {
             return 1;
         }
         return 0;
@@ -101,15 +101,15 @@ public class Teleop2856 extends OpMode {
 
     /**
      * Returns a value based off of which button on the right side of the gamepad is pressed.
-     * @param pad The gamepad used to control this action.
+     * @param $pad The gamepad used to control this action.
      * @return <code>1</code> if the right bumper is pressed,
      *         <code>-1</code> if the right trigger is pressed,
      *         <code>0</code> otherwise.
      */
-    int Rightpower(Gamepad pad){
-        if(pad.right_trigger>0.1){
+    int Rightpower(Gamepad $pad){
+        if($pad.right_trigger>0.1){
             return -1;
-        }else if(pad.right_bumper) {
+        }else if($pad.right_bumper) {
             return 1;
         }
         return 0;
@@ -117,51 +117,51 @@ public class Teleop2856 extends OpMode {
 
     /**
      * Controls a specific DcMotor based upon two inputs.
-     * @param power1 A number based upon gamepad 1.
-     * @param power2 A number based upon gamepad 2.
-     * @param motor A DcMotor to spin based upon the powers.
+     * @param $power1 A number based upon gamepad 1.
+     * @param $power2 A number based upon gamepad 2.
+     * @param $motor A DcMotor to spin based upon the powers.
      */
-    void SpinMotor(int power1, int power2, DcMotor motor){
-        if(power1==1||power1==-1){
-            motor.setPower(power1);
-        }else if(power2==1||power2==-1){
-            motor.setPower(power2);
+    void SpinMotor(int $power1, int $power2, DcMotor $motor){
+        if($power1 ==1|| $power1 ==-1){
+            $motor.setPower($power1);
+        }else if($power2 ==1|| $power2 ==-1){
+            $motor.setPower($power2);
         }else{
-            motor.setPower(0);
+            $motor.setPower(0);
         }
     }
 
     /**
      * Control the sweeper of the robot.
-     * @param pad The gamepad used to control this action.
+     * @param $pad The gamepad used to control this action.
      * @deprecated Replaced with {@link #SpinMotor(int, int, DcMotor)} in version 1.1.
      */
-    void Sweep(Gamepad pad){
+    void Sweep(Gamepad $pad){
 
-        if(collecting!=1&&pad.right_trigger>0.1&&collectSwitch){
+        if(collecting!=1&& $pad.right_trigger>0.1&&collectSwitch){
             collector.setPower(-1.0);
             collecting = 1;
-        }else if(collecting==1&&pad.right_trigger>0.1&&collectSwitch){
+        }else if(collecting==1&& $pad.right_trigger>0.1&&collectSwitch){
             collector.setPower(0.0);
             collecting = 0;
         }
-        if(collecting!=-1&&pad.right_bumper&&collectSwitch){
+        if(collecting!=-1&& $pad.right_bumper&&collectSwitch){
             collector.setPower(1.0);
             collecting = -1;
-        }else if(collecting==-1&&pad.right_bumper&&collectSwitch){
+        }else if(collecting==-1&& $pad.right_bumper&&collectSwitch){
             collector.setPower(0.0);
             collecting = 0;
         }
 
-        if(pad.right_bumper||pad.right_trigger>0.1){
+        if($pad.right_bumper|| $pad.right_trigger>0.1){
             collectSwitch = false;
         }else{
             collectSwitch = true;
         }
 
-//        if(pad.right_trigger>0.2){
+//        if($pad.right_trigger>0.2){
 //            collector.setPower(-1.0);
-//        }else if(pad.right_bumper){
+//        }else if($pad.right_bumper){
 //            collector.setPower(1.0);
 //        }else{
 //            collector.setPower(0.0);

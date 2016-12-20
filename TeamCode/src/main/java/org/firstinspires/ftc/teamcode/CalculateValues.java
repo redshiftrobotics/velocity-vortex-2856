@@ -48,24 +48,24 @@ public class CalculateValues extends OpMode {
         telemetry.update();
     }
 
-    private void TestPID(Gamepad pad){
+    private void TestPID(Gamepad $pad){
         pidController.SetPIDConstatns(p, i, d);
-        if(pad.back){
+        if($pad.back){
             pidController.AngularTurn(90f);
             pidController.LinearMove(0f, 1f);
         }
     }
 
-    private void SetPID(Gamepad pad){
-        if(pad.a){
+    private void SetPID(Gamepad $pad){
+        if($pad.a){
             mode = 'p';
-        }else if(pad.b){
+        }else if($pad.b){
             mode = 'i';
-        }else if(pad. x){
+        }else if($pad. x){
             mode = 'd';
         }
 
-        if(pad.right_bumper){
+        if($pad.right_bumper){
             switch (mode){
                 case 'p':
                     p--;
@@ -79,7 +79,7 @@ public class CalculateValues extends OpMode {
                 default:
                     break;
             }
-        }else if(pad.left_bumper){
+        }else if($pad.left_bumper){
             switch (mode){
                 case 'p':
                     p++;
@@ -96,7 +96,7 @@ public class CalculateValues extends OpMode {
         }
     }
 
-    private float CalculateAverageColor(ColorSensor colorSensor){
-        return (colorSensor.blue() + colorSensor.green() + colorSensor.red())/3;
+    private float CalculateAverageColor(ColorSensor $colorSensor){
+        return ($colorSensor.blue() + $colorSensor.green() + $colorSensor.red())/3;
     }
 }

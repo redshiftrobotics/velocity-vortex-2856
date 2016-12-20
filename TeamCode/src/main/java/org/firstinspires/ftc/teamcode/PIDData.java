@@ -55,14 +55,14 @@ public class PIDData {
     /**
      * Set the PID constants to the given input values.
      * Only call once, at the beginning of Autonomous.
-     * @param pTuningInput The constant multiplier for the P value.
-     * @param iTuningInput The constant multiplier for the I value.
-     * @param dTuningInput The constant multiplier for the D value.
+     * @param $pTuning The constant multiplier for the P value.
+     * @param $iTuning The constant multiplier for the I value.
+     * @param $dTuning The constant multiplier for the D value.
      */
-    public void SetValues(float pTuningInput, float iTuningInput, float dTuningInput){
-        pTuning = pTuningInput;
-        iTuning = iTuningInput;
-        dTuning = dTuningInput;
+    public void SetValues(float $pTuning, float $iTuning, float $dTuning){
+        pTuning = $pTuning;
+        iTuning = $iTuning;
+        dTuning = $dTuning;
     }
 
     /**
@@ -108,11 +108,11 @@ public class PIDData {
     /**
      * Calculates what the PID values will be, based off of the
      * current error and past error in the {@link PIDData}.
-     * @param hardwareController A {@link HardwareController} object to get the imu's angle
+     * @param $hardwareController A {@link HardwareController} object to get the imu's angle
      */
-    public float CalculatePID(HardwareController hardwareController){
+    public float CalculatePID(HardwareController $hardwareController){
         //Set the current angle to the imu's angle
-        currentAngle = hardwareController.imu.getAngularOrientation().firstAngle*-1;
+        currentAngle = $hardwareController.imu.getAngularOrientation().firstAngle*-1;
         //calculate how far off we are
         CalculateError();
         //calculate the difference in time from the last time this was run

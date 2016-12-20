@@ -41,17 +41,17 @@ public class PIDController {
     /**
      * Constructor for the PIDController class using
      * an array of DcMotors.
-     * @param imu The imu I2c Device to get current angle.
-     * @param motors The array of DcMotors following the structure of
+     * @param $imu The imu I2c Device to get current angle.
+     * @param $motors The array of DcMotors following the structure of
      *                    the {@link HardwareController} Object.
-     * @param colorSensor1 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
-     * @param colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
-     * @param telemetryInput The Telemetry of the phone to output data.
+     * @param $colorSensor1 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
+     * @param $colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
+     * @param $telemetry The Telemetry of the phone to output data.
      */
-    PIDController(I2cDeviceSynch imu, DcMotor[] motors, ColorSensor colorSensor1, ColorSensor colorSensor2, Telemetry telemetryInput){
+    PIDController(I2cDeviceSynch $imu, DcMotor[] $motors, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry){
         //Set up the private variables
-        _telemetry = telemetryInput;
-        _hardwareController = new HardwareController(imu, motors, colorSensor1, colorSensor2);
+        _telemetry = $telemetry;
+        _hardwareController = new HardwareController($imu, $motors, $colorSensor1, $colorSensor2);
         _pidData = new PIDData();
 
         //Set the target angle to the current angle
@@ -61,23 +61,23 @@ public class PIDController {
     /**
      * Contructor for the PIDController class using
      * four seperate DcMotors
-     * @param imu The imu I2c Device to get current angle.
-     * @param m0 DcMotor 0 following the structure
+     * @param $imu The imu I2c Device to get current angle.
+     * @param $m0 DcMotor 0 following the structure
      *                of the {@link HardwareController} Object.
-     * @param m1 DcMotor 1 following the structure
+     * @param $m1 DcMotor 1 following the structure
      *                of the {@link HardwareController} Object.
-     * @param m2 DcMotor 2 following the structure
+     * @param $m2 DcMotor 2 following the structure
      *                of the {@link HardwareController} Object.
-     * @param m3 DcMotor 3 following the structure
+     * @param $m3 DcMotor 3 following the structure
      *                of the {@link HardwareController} Object.
-     * @param colorSensor1 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
-     * @param colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
-     * @param telemetryInput The Telemetry of the phone to output data.
+     * @param $colorSensor1 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
+     * @param $colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
+     * @param $telemetry The Telemetry of the phone to output data.
      */
-    PIDController(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor colorSensor1, ColorSensor colorSensor2, Telemetry telemetryInput){
+    PIDController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry){
         //Set up the private variables
-        _telemetry = telemetryInput;
-        _hardwareController = new HardwareController(imu, ((DcMotor[]) Utility.MakeArray(m0, m1, m2, m3)), colorSensor1, colorSensor2);
+        _telemetry = $telemetry;
+        _hardwareController = new HardwareController($imu, ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3)), $colorSensor1, $colorSensor2);
         _pidData = new PIDData();
 
         //Set the target angle to the current angle
@@ -88,26 +88,26 @@ public class PIDController {
      * Set the PID constants in the {@link PIDData} to the given input values.
      * Along with a tolerance for the color sensor.
      * Only call once, at the beginning of Autonomous.
-     * @param pInput The constant multiplier for the P value.
-     * @param iInput The constant multiplier for the I value.
-     * @param dInput The constant multiplier for the D value.
-     * @param colorTolerance The minimum average value for the ColorSensor to return true.
+     * @param $p The constant multiplier for the P value.
+     * @param $i The constant multiplier for the I value.
+     * @param $d The constant multiplier for the D value.
+     * @param $colorTolerance The minimum average value for the ColorSensor to return true.
      */
-    public void SetPIDConstatns(float pInput, float iInput, float dInput, float colorTolerance){
-        _pidData.SetValues(pInput, iInput, dInput);
+    public void SetPIDConstatns(float $p, float $i, float $d, float $colorTolerance){
+        _pidData.SetValues($p, $i, $d);
         _pidData.rotationTolerance = rotationTolerance;
-        _hardwareController.colorTolerance = colorTolerance;
+        _hardwareController.colorTolerance = $colorTolerance;
     }
 
     /**
      * Set the PID constants in the {@link PIDData} to the given input values.
      * Only call once, at the beginning of Autonomous.
-     * @param pInput The constant multiplier for the P value.
-     * @param iInput The constant multiplier for the I value.
-     * @param dInput The constant multiplier for the D value.
+     * @param $p The constant multiplier for the P value.
+     * @param $i The constant multiplier for the I value.
+     * @param $d The constant multiplier for the D value.
      */
-    public void SetPIDConstatns(float pInput, float iInput, float dInput){
-        _pidData.SetValues(pInput, iInput, dInput);
+    public void SetPIDConstatns(float $p, float $i, float $d){
+        _pidData.SetValues($p, $i, $d);
         _pidData.rotationTolerance = rotationTolerance;
     }
 
@@ -135,28 +135,28 @@ public class PIDController {
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction for the given rotations or
      * until the given timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
-     * @param rotationsInput The amount of rotations to move in
+     * @param $rotations The amount of rotations to move in
      *                       the given direction.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void LinearMove(float[] directionInput, float rotationsInput, int timeoutInput){
+    public void LinearMove(float[] $direction, float $rotations, int $timeout){
         //Set up the start time and position to the current time and position
         _startTime = _pidData.CurrentTime();
         _startPosition = _hardwareController.motors[0].getCurrentPosition();
 
-        //runs a loop until the motor rotations hits the rotationsInput
-        while(Math.abs(_startPosition - _hardwareController.motors[0].getCurrentPosition()) < Math.abs(rotationsInput) * _hardwareController.encoderCount){
+        //runs a loop until the motor rotations hits the $rotations
+        while(Math.abs(_startPosition - _hardwareController.motors[0].getCurrentPosition()) < Math.abs($rotations) * _hardwareController.encoderCount){
             //If we hit the timeout stop the loop
-            if(_startTime + timeoutInput < _pidData.CurrentTime()){
+            if(_startTime + $timeout < _pidData.CurrentTime()){
                 break;
             }
 
             //Calculate the pid and the direction to turn to
             //set the motor power to the direction input and the direction to turn to
-            _hardwareController.RunMotors(directionInput[0] * forwardConstant, directionInput[1] * forwardConstant, _pidData.CalculatePID(_hardwareController) * rotationConstant);
+            _hardwareController.RunMotors($direction[0] * forwardConstant, $direction[1] * forwardConstant, _pidData.CalculatePID(_hardwareController) * rotationConstant);
         }
         _ClearPID();
     }
@@ -165,43 +165,43 @@ public class PIDController {
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle for the given rotations or
      * until the given timeout is triggered.
-     * @param angleInput An angle to move the robot to.
-     * @param rotationsInput The amount of rotations to move in
+     * @param $angle An angle to move the robot to.
+     * @param $rotations The amount of rotations to move in
      *                       the given direction.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void LinearMove(float angleInput, float rotationsInput, int timeoutInput){
+    public void LinearMove(float $angle, float $rotations, int $timeout){
         //Convert the angle to a direction vector
-        LinearMove(new float[]{(float) Math.cos(angleInput),(float) Math.sin(angleInput)}, rotationsInput, timeoutInput);
+        LinearMove(new float[]{(float) Math.cos($angle),(float) Math.sin($angle)}, $rotations, $timeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction for the given rotations or
      * until the default timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
-     * @param rotationsInput The amount of rotations to move in
+     * @param $rotations The amount of rotations to move in
      *                       the given direction.
      * @see HardwareController
      */
-    public void LinearMove(float[] directionInput, float rotationsInput){
-        LinearMove(directionInput, rotationsInput, defaultTimeout);
+    public void LinearMove(float[] $direction, float $rotations){
+        LinearMove($direction, $rotations, defaultTimeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle for the given rotations or
      * until the default timeout is triggered.
-     * @param angleInput An angle to move the robot to.
-     * @param rotationsInput The amount of rotations to move in
+     * @param $angle An angle to move the robot to.
+     * @param $rotations The amount of rotations to move in
      *                       the given direction.
      * @see HardwareController
      */
-    public void LinearMove(float angleInput, float rotationsInput){
+    public void LinearMove(float $angle, float $rotations){
         //Convert the angle to a direction vector
-        LinearMove(new float[]{(float) Math.cos(angleInput),(float) Math.sin(angleInput)}, rotationsInput, defaultTimeout);
+        LinearMove(new float[]{(float) Math.cos($angle),(float) Math.sin($angle)}, $rotations, defaultTimeout);
     }
     //endregion
 
@@ -210,13 +210,13 @@ public class PIDController {
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction at a given speed until the ColorSensor
      * or the given timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
-     * @param speedInput The speed at which the robot moves.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $speed The speed at which the robot moves.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void MoveToLine(float speedInput, float[] directionInput, int timeoutInput){
+    public void MoveToLine(float $speed, float[] $direction, int $timeout){
         //Set up the start time and position to the current time and position
         _startTime = _pidData.CurrentTime();
         _startPosition = _hardwareController.motors[0].getCurrentPosition();
@@ -224,13 +224,13 @@ public class PIDController {
         //while there is no line below the robot
         while(!_hardwareController.DetectLine()){
             //If we hit the timeout stop the loop
-            if(_startTime + timeoutInput < _pidData.CurrentTime()){
+            if(_startTime + $timeout < _pidData.CurrentTime()){
                 break;
             }
 
             //Calculate the pid and the direction to turn to
             //set the motor power to the direction input and the direction to turn to
-            _hardwareController.RunMotors(directionInput[0] * forwardConstant * speedInput, directionInput[1] * forwardConstant * speedInput, _pidData.CalculatePID(_hardwareController) * rotationConstant);
+            _hardwareController.RunMotors($direction[0] * forwardConstant * $speed, $direction[1] * forwardConstant * $speed, _pidData.CalculatePID(_hardwareController) * rotationConstant);
         }
         _ClearPID();
     }
@@ -239,87 +239,87 @@ public class PIDController {
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle at a given speed until the ColorSensor
      * or the given timeout is triggered.
-     * @param angleInput An angle to move the robot to.
-     * @param speedInput The speed at which the robot moves.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $angle An angle to move the robot to.
+     * @param $speed The speed at which the robot moves.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void MoveToLine(float speedInput, float angleInput, int timeoutInput){
+    public void MoveToLine(float $speed, float $angle, int $timeout){
         //Convert the angle to a direction vector
-        MoveToLine(speedInput, new float[]{(float) Math.cos(angleInput),(float) Math.sin(angleInput)}, timeoutInput);
+        MoveToLine($speed, new float[]{(float) Math.cos($angle),(float) Math.sin($angle)}, $timeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction at a given speed until the ColorSensor
      * or the default timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
-     * @param speedInput The speed at which the robot moves.
+     * @param $speed The speed at which the robot moves.
      * @see HardwareController
      */
-    public void MoveToLine(float speedInput, float[] directionInput){
-        MoveToLine(speedInput, directionInput, defaultTimeout);
+    public void MoveToLine(float $speed, float[] $direction){
+        MoveToLine($speed, $direction, defaultTimeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle at a given speed until the ColorSensor
      * or the default timeout is triggered.
-     * @param angleInput An angle to move the robot to.
-     * @param speedInput The speed at which the robot moves.
+     * @param $angle An angle to move the robot to.
+     * @param $speed The speed at which the robot moves.
      * @see HardwareController
      */
-    public void MoveToLine(float speedInput, float angleInput){
-        MoveToLine(speedInput, angleInput, defaultTimeout);
+    public void MoveToLine(float $speed, float $angle){
+        MoveToLine($speed, $angle, defaultTimeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction at the default speed until the ColorSensor
      * or the given timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void MoveToLine(float[] directionInput, int timeoutInput){
-        MoveToLine(forwardConstant, directionInput, timeoutInput);
+    public void MoveToLine(float[] $direction, int $timeout){
+        MoveToLine(forwardConstant, $direction, $timeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle at a default speed until the ColorSensor
      * or the given timeout is triggered.
-     * @param angleInput An angle to move the robot to.
-     * @param timeoutInput The amount of time move the robot for.
+     * @param $angle An angle to move the robot to.
+     * @param $timeout The amount of time move the robot for.
      * @see HardwareController
      */
-    public void MoveToLine(float angleInput, int timeoutInput){
-        MoveToLine(forwardConstant, angleInput, timeoutInput);
+    public void MoveToLine(float $angle, int $timeout){
+        MoveToLine(forwardConstant, $angle, $timeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves in a given direction at the default speed until the ColorSensor
      * or the given timeout is triggered.
-     * @param directionInput A length two float array with x motion
+     * @param $direction A length two float array with x motion
      *                       and y motion.
      * @see HardwareController
      */
-    public void MoveToLine(float[] directionInput){
-        MoveToLine(forwardConstant, directionInput, defaultTimeout);
+    public void MoveToLine(float[] $direction){
+        MoveToLine(forwardConstant, $direction, defaultTimeout);
     }
 
     /**
      * Move the robot around in a line, uses PID to keep the angle the same.
      * Moves at a given angle at a default speed until the ColorSensor
      * or the default timeout is triggered.
-     * @param angleInput An angle to move the robot to.
+     * @param $angle An angle to move the robot to.
      * @see HardwareController
      */
-    public void MoveToLine(float angleInput){
-        MoveToLine(forwardConstant, angleInput, defaultTimeout);
+    public void MoveToLine(float $angle){
+        MoveToLine(forwardConstant, $angle, defaultTimeout);
     }
     //endregion
 
@@ -327,18 +327,18 @@ public class PIDController {
     /**
      * Turn the robot to a given angle, using PID to stop on the correct value.
      * Rotates to a given angle or until a given timeout is triggered.
-     * @param angleInput An angle to turn the robot to.
-     * @param timeoutInput The amount of time turn the robot for.
+     * @param $angle An angle to turn the robot to.
+     * @param $timeout The amount of time turn the robot for.
      * @see HardwareController
      */
-    public void AngularTurn(float angleInput, int timeoutInput){
+    public void AngularTurn(float $angle, int $timeout){
         //Set up the start time to the current time
         float startTime = _pidData.CurrentTime();
         //Set the targetAngle to the angle input
-        _pidData.targetAngle = angleInput;
+        _pidData.targetAngle = $angle;
 
         //Run until the timeout happens
-        while(startTime + timeoutInput > _pidData.CurrentTime()){
+        while(startTime + $timeout > _pidData.CurrentTime()){
 
             //Calculate the pid and the direction to turn to
             float direction = _pidData.CalculatePID(_hardwareController);
@@ -357,11 +357,11 @@ public class PIDController {
     /**
      * Turn the robot to a given angle, using PID to stop on the correct value.
      * Rotates to a given angle or until a default timeout is triggered.
-     * @param angleInput An angle to turn the robot to.
+     * @param $angle An angle to turn the robot to.
      * @see HardwareController
      */
-    public void AngularTurn(float angleInput){
-        AngularTurn(angleInput, defaultTimeout);
+    public void AngularTurn(float $angle){
+        AngularTurn($angle, defaultTimeout);
     }
     //endregion
 
