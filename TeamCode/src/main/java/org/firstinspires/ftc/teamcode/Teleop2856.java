@@ -60,8 +60,7 @@ public class Teleop2856 extends OpMode {
      * If the A button is pressed the shooter is reset.
      * @param $pad The gamepad used to control this action.
      */
-    void resetMotors(Gamepad $pad)
-    {
+    void resetMotors(Gamepad $pad){
         if(!reseting) {
             if ($pad.a) {
                 reseting = true;

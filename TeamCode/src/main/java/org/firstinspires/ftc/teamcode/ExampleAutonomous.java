@@ -8,7 +8,12 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 /**
- * Created by matt on 10/15/16.
+ * ExampleAutonomous is a generic Autonomous
+ * for 2856, to test the functionality of {@link PIDController}.
+ * @author Duncan McKee
+ * @author Matthew Kelsey
+ * @version 2.0, 12/19/2016
+ * @deprecated Replaced with {@link CalculateValues} as of 12/19/2016.
  */
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearOpMode {
@@ -18,32 +23,19 @@ public class ExampleAutonomous extends LinearOpMode {
     ColorSensor cs1;
     ColorSensor cs2;
 
-
     @Override
     public void runOpMode() throws InterruptedException {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         Utility.InitMotors(hardwareMap, motors);
         cs1 = hardwareMap.colorSensor.get("cs1");
         cs2 = hardwareMap.colorSensor.get("cs2");
-
         pidController = new PIDController(imu, motors, cs1, cs2, telemetry);
-
-
-        //working PIDs
-        //P: 100
-        //I: 30
-        //D: 0
-
-        //loop
         pidController.SetPIDConstatns(63f, 10f, 0f, 50f);
         pidController.SetDefaultMultipliers();
+
         waitForStart();
 
         pidController.LinearMove(0f, 1f);
 
-    }
-
-    enum TuneState {
-        P, I, D
     }
 }

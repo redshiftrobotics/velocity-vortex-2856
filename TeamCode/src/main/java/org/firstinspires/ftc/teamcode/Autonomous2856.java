@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
@@ -183,6 +180,9 @@ public class Autonomous2856 extends LinearVisionOpMode {
         pidController.LinearMove(180f, 1.3f);
     }
 
+    /**
+     * Initializes all vision related functionality.
+     */
     private void initVision() {
         setCamera(Cameras.PRIMARY);
         setFrameSize(new Size(900,900));

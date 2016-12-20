@@ -8,7 +8,16 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 /**
- * Created by Duncan on 12/19/2016.
+ * CalculateValues is a test teleop for 2856
+ * in the use of {@link PIDController}.
+ * CalculateValues has three things that it does:
+ * <ul>
+ *     <li>Display the Average Color to the user</li>
+ *     <li>Test the current PID values with forward and turn</li>
+ *     <li>Change the PID values using the controller</li>
+ * </ul>
+ * @author Duncan McKee
+ * @version 1.0, 12/19/2016
  */
 @TeleOp(name="Test and Calculate Values")
 public class CalculateValues extends OpMode {
