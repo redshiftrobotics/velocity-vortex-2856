@@ -99,6 +99,18 @@ public class PIDController {
         _hardwareController.colorTolerance = colorTolerance;
     }
 
+    /**
+     * Set the PID constants in the {@link PIDData} to the given input values.
+     * Only call once, at the beginning of Autonomous.
+     * @param pInput The constant multiplier for the P value.
+     * @param iInput The constant multiplier for the I value.
+     * @param dInput The constant multiplier for the D value.
+     */
+    public void SetPIDConstatns(float pInput, float iInput, float dInput){
+        _pidData.SetValues(pInput, iInput, dInput);
+        _pidData.rotationTolerance = rotationTolerance;
+    }
+
     public void SetDefaultMultipliers(){
         defaultTimeout = 5;
         forwardConstant = 0.6f;
