@@ -24,8 +24,8 @@ import java.io.IOException;
  * Created by matt on 11/10/16.
  */
 @Autonomous(name = "2856 Autonomous")
-public class BlueAutonomous extends LinearVisionOpMode {
-    I2cDeviceSynch imu;
+public class BlueAutonomous /*extends LinearVisionOpMode*/ {
+   /* I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -156,4 +156,5 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
     }
+    */
 }

@@ -5,154 +5,188 @@ package org.firstinspires.ftc.teamcode;
  */
 
 
+import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
+import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 /**
  * Base interface which all robots that wish to use our PID must implement.
  */
-public abstract class PIDRobot {
+public class PIDRobot {
 
-    PID pid;
-    PIDHardware hardware;
-    public TimeData time;
-
+    private PIDController pid;
+    private TimeData time;
+    private Hardware hardware;
     public static float angleTurnThreshold = 0.03f;
+    public static float motorSpeed = 0.65f;
+    public static float correctedSpeedScalar = 0.5f;
+    public Telemetry telemetry;
 
-
-    public PIDRobot(PIDHardware hardware) {
-       this.hardware = hardware;
+    public PIDRobot(Hardware hardware, I2cDeviceSynch imu, Telemetry telemetry) {
+        this.hardware = hardware;
+        this.telemetry = telemetry;
+        pid = new PIDController(imu);
+        time = new TimeData();
+        pid.initializeTarget();
+        telemetry.addData("Robot: ", "Initializing");
+        telemetry.update();
     }
-    /**
-     *
-     * @param direction passed a float value representing the
-     *                  PID corrected direction for the motor.
-     *                  How the value is used can be decided
-     *                  by the subclass implementation.
-     */
-
-    //TODO: get rid of abstract methods
-    public abstract void applyLinearMove(float direction);
 
     /**
-     * Overloaded version of ApplyLinearMove
-     * @param direction see above for explanation.
-     * @param vector movement parameter for a mechanum chassis or other chassis
-     *               capable of movement on arbitrary movement vectors.
-     *
+     * Wrapper method. See {@link PIDController#setTuning(float, float, float}
+     * @param P p value
+     * @param I i value
+     * @param D d value
      */
-    public abstract void applyLinearMove(float direction, float[] vector);
 
-    /**
-     *
-     * @param direction passed a PID corrected direction float value,
-     *                  but is meant to be applied to turn the robot,
-     *                  rather than move linearly.
-     */
-    public abstract void applyTurn(float direction);
+    public void setTuning(float P, float I, float D) {
+        pid.setTuning(P, I, D);
+    }
+    private void applyLinearMove(float correctedValue, float[] movement, float speed, float scalar) {
+        hardware.getMotor(0).setPower((((movement[0] - movement[1]) * speed) - (correctedValue)) * scalar);
+        hardware.getMotor(1).setPower((((movement[0] + movement[1]) * speed) + (correctedValue)) * scalar);
+        hardware.getMotor(2).setPower((((movement[0] - movement[1]) * speed) + (correctedValue)) * scalar);
+        hardware.getMotor(3).setPower((((movement[0] + movement[1]) * speed) - (correctedValue)) * scalar);
+    }
+    
+    private void applyTurn(float correctedValue) {
+        hardware.getMotor(0).setPower(Hardware.POWER_CONSTANT - (correctedValue));
+        hardware.getMotor(1).setPower(Hardware.POWER_CONSTANT + (correctedValue));
+        hardware.getMotor(2).setPower(Hardware.POWER_CONSTANT  + (correctedValue));
+        hardware.getMotor(3).setPower(Hardware.POWER_CONSTANT  - (correctedValue));
+    }
 
     public void linearMove(float rotations, float[] movement, int timeout) {
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
-        // and put it into our "current" headings slot.
-       pid.updateData();
+        float startTime = time.now(); //beginning time
+        float endTime = startTime + timeout; //when we need to time out...
+         /*
+        Note about change from previous implementation
+        We don't need to update any headings here or calculate any angles. getCorrectedValue
+        takes care of both of these things. All we need to do is clear out historical integral
+        and derivative data.
+         */
+        pid.clearHistoricData();
 
-        // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.now();
-        float startPosition = hardware.getMeasuredEncoderValue(); /*
-        use implementation supplied encoder value */
+        //get the current encoder position of the specified motor...
 
-        // Reset our Integral and Derivative data.
+        float startPosition = hardware.getMotor(0).getCurrentPosition();
 
-        //Calculate PIDS again because Isaac Zinda only knows
-
-
-        // We need to keep track of how much time passes between a loop.
+         /* loopTime represents the time since the last data point was taken. We start by assigning
+              the current time to this variable, so we can continually update it in our loop...
+         */
         float loopTime = time.now();
-        float endTime = startTime + timeout;
-        // This is the main loop of our straight drive.
-        // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(startPosition - hardware.getMeasuredEncoderValue()) < Math.abs(rotations) * Hardware.EncoderCount
+
+        /*
+            Corrected value holds the current PID produced correction necessary to move towards
+            our target. It gets applied to movement functions.
+         */
+        float correctedValue;
+
+        /*
+            Apply motor corrections
+            while the loop hasn't timed out, and the absolute value of the correction is less
+            than the specified threshold (our corrections will never be perfect, so we have
+            to call it good at a certain point).
+         */
+
+        while(Math.abs(startPosition - hardware.getMotor(0).getCurrentPosition()) < Math.abs(rotations) * Hardware.EncoderCount
                 && time.now() < endTime) {
-            // First we check if we have exceeded our timeout and...
-            // Record the time since the previous loop.
-            loopTime = time.since(loopTime);
-            // Calculate our angles. This method may modify the input Rotations.
-            //IMURotations =
-            float correctedValue = pid.getCorrectedValue(loopTime);
-            applyLinearMove(correctedValue, movement);
+            loopTime = time.since(loopTime); // Record the time since the previous loop.
+            correctedValue = pid.getCorrectedValue(loopTime); //get the current corrected values
+            applyLinearMove(correctedValue, movement, motorSpeed, 1f); //set them to motors in order to make the corrections
         }
-        // Our drive loop has completed! Stop the motors.
-        hardware.stop();
-    }
-
-    public void linearMove(float rotations,  int timeout) {
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
-        // and put it into our "current" headings slot.
-        pid.updateData();
-        // Get the current program time and starting encoder position before we start our drive loop
-        //float startTime = time.now();
-        //pid.setCurrentTimeDataPoint(time.now());
-        float startPosition = hardware.getMeasuredEncoderValue(); /*
-        use implementation supplied encoder value */
-        //Calculate PIDS again because Isaac Zinda only knows
-
-
-        // We need to keep track of how much time passes between a loop.
-        float endTime = time.now() + timeout;
-        float prevTimePoint = time.now();
-
-        // This is the main loop of our straight drive.
-        // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(startPosition - hardware.getMeasuredEncoderValue()) < Math.abs(rotations) * Hardware.EncoderCount
-                && time.now() < endTime) {
-            // First we check if we have exceeded our timeout and...
-
-            // Record the time since the previous loop.
-             prevTimePoint = time.since(prevTimePoint);
-
-            // Calculate our angles. This method may modify the input Rotations.
-            //IMURotations =
-            float correctedValue = pid.getCorrectedValue(prevTimePoint);
-            applyLinearMove(correctedValue);
-        }
-        // Our drive loop has completed! Stop the motors.
-        hardware.stop();
+        // Our drive loop has completed! stop the motors.
+        stop();
     }
 
     public void turnToAngle(float angle, int timeout) {
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
-        // and put it into our "current" headings slot.
-       // pid.calculateAngles(hardware);
+        float startTime = time.now(); //beginning time
+        float endTime = startTime + timeout; //when we need to time out...
 
-        // Get the current program time and starting encoder position before we start our drive loop
-        float startTime = time.now();
-        // Reset our Integral and Derivative data.
-       // pid.clearData();
+        /*
+        Note about change from previous implementation
+        We don't need to update any headings here or calculate any angles. getCorrectedValue
+        takes care of both of these things. All we need to do is clear out historical integral
+        and derivative data.
+         */
+        pid.clearHistoricData();
 
-
-        //Calculate PIDS again because Isaac Zinda only knows
-        //pid.updateHeadings();
-        pid.updateData();
-
-        // Manually calculate our first target
-        //pid.setTarget(pid.getTarget() + angle);
+       /* because this is a turn function, we have to add to our current PID
+        target. This renders our current orientation incorrect, and our PID loop corrects
+        accordingly, making the robot turn.
+        */
         pid.addTarget(angle);
-        // We need to keep track of how much time passes between a loop.
+
+        /* loopTime represents the time since the last data point was taken. We start by assigning
+              the current time to this variable, so we can continually update it in our loop...
+         */
         float loopTime = time.now();
 
-        // This is the main loop of our straight drive.
-        // We use encoders to form a loop that corrects rotation until we reach our target.
-        float endTime = startTime + timeout;
-        loopTime = time.since(loopTime);
+        /*
+        preload correctedValue with our first pid correction value, in order to begin the loop...
+         */
         float correctedValue = pid.getCorrectedValue(loopTime);
+
+        /*
+            Apply motor corrections
+            while the loop hasn't timed out, and the absolute value of the correction is less
+            than the specified threshold (our corrections will never be perfect, so we have
+            to call it good at a certain point).
+         */
         while(time.now() < endTime && Math.abs(correctedValue) <= angleTurnThreshold){
-            // Record the time since the previous loop.
+            loopTime = time.since(loopTime); // Record the time since the previous loop.
+            correctedValue = pid.getCorrectedValue(loopTime); //get the current corrected values
+            applyTurn(correctedValue); //set them to motors in order to make the robot turn
+        }
+        // Our drive loop has completed! stop the motors.
+        stop();
+    }
+
+    public void moveToLine(float[] movement, float speed, int timeout) {
+        float startTime = time.now();
+        float endTime = startTime + timeout;
+         /*
+        Note about change from previous implementation
+        We don't need to update any headings here or calculate any angles. getCorrectedValue
+        takes care of both of these things. All we need to do is clear out historical integral
+        and derivative data.
+         */
+        pid.clearHistoricData();
+        /* loopTime represents the time since the last data point was taken. We start by assigning
+              the current time to this variable, so we can continually update it in our loop...
+        */
+        float loopTime = time.now();
+         /*
+            Corrected value holds the current PID produced correction necessary to move towards
+            our target. It gets applied to movement functions.
+         */
+        float correctValue;
+
+        /*
+        While the average of all our color values is less than our threshold of 70...
+         */
+
+        while(hardware.getAdjustedColorValues() < 70 && time.now() < endTime) {
             loopTime = time.since(loopTime);
-            // Calculate the Direction to travel to correct any rotational errors.
-           correctedValue = pid.getCorrectedValue(loopTime);
-            applyTurn(correctedValue);
+            correctValue = pid.getCorrectedValue(loopTime);
+            applyLinearMove(correctValue, movement, motorSpeed, correctedSpeedScalar);
         }
         // Our drive loop has completed! Stop the motors.
-        hardware.stop();
+        stop();
+    }
+
+    private void stop() {
+        for (int i = 0; i < hardware.motorCount(); i++) {
+            hardware.getMotor(i).setPower(0);
+        }
     }
 }
+
 

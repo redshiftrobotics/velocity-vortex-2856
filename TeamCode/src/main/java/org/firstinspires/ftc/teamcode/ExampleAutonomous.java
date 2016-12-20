@@ -17,7 +17,7 @@ public class ExampleAutonomous extends LinearOpMode {
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
-    Robot robot;
+    PIDRobot robot;
     ColorSensor cs;
 
 
@@ -30,21 +30,15 @@ public class ExampleAutonomous extends LinearOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         cs = hardwareMap.colorSensor.get("cs");
 
-        robot = new Robot(imu, m0, m1, m2, m3, cs, telemetry);
-
-
-        //working PIDs
-        //P tuning: 100
-        //I tuning : 30
-        //D tuning: 0
-
-        //loop
-
-        robot.setTuning(100f, 30f, 0f);
-        waitForStart();
-        //robot.Push(5f, new Float[]{0f,-1f}, 7);
-        robot.AngleTurn(90f, 10);
-        robot.Straight(5f, 0f, 7);
+        Hardware hardware = new Hardware(m0, m1, m2, m3, cs);
+        PIDRobot robot = new PIDRobot(hardware, imu, telemetry);
+        robot.setTuning(63f, 10f, 0f);
+        robot.linearMove(4f, new float[]{0f, 1f}, 4);
+        sleep(10000);
+        robot.moveToLine(new float[]{0f, -1f}, 0.5f, 10);
+        sleep(10000);
+        robot.turnToAngle(45, 5);
+        robot.turnToAngle(90, 5);
     }
 
     enum TuneState {
