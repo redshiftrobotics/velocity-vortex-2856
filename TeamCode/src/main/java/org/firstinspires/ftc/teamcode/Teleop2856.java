@@ -23,15 +23,13 @@ import com.qualcomm.robotcore.hardware.Gamepad;
  * @author Duncan McKee
  * @version 1.1, 12/18/2016
  */
-//@TeleOp(name="2856 Teleop")
+@TeleOp(name="2856 Teleop")
 public class Teleop2856 extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
     //DcMotor capballLift;
     int rotations;
-    int collecting;
-    boolean collectSwitch;
     boolean reseting;
     HardwareController hardwareController;
 

@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
  * @author Duncan McKee
  * @version 1.0, 12/19/2016
  */
-//@TeleOp(name="Test and Calculate Values")
+@TeleOp(name="Test and Calculate Values")
 public class CalculateValues extends OpMode {
     I2cDeviceSynch imu;
     DcMotor[] motors;
