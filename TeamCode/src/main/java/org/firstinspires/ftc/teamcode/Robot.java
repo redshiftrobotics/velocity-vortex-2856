@@ -364,7 +364,7 @@ public class Robot {
             Log.e("################# ####", "Adding to IMURotations");
             IMURotations++; //rotations of 360 degrees
             CalculateAngles();
-        //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
+            //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
         } else if(Data.PID.Headings[0] < 60 && Data.PID.Headings[1] > 300) {
             Log.e("#####################", "Subtracting from IMURotations");
             IMURotations--;

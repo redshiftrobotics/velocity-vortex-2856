@@ -423,6 +423,11 @@ public class FtcRobotControllerActivity extends Activity {
       requestRobotRestart();
       return true;
     }
+    else if(id == R.id.action_custom_settings) {
+      Intent settingsIntent = new Intent(this, CustomSettingsActivity.class);
+      startActivityForResult(settingsIntent, 0);
+      return true;
+    }
     else if (id == R.id.action_configure_robot) {
       EditParameters parameters = new EditParameters();
       Intent intentConfigure = new Intent(FtcLoadFileActivity.launchIntent);
