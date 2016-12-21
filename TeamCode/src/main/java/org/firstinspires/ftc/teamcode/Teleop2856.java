@@ -45,11 +45,10 @@ public class Teleop2856 extends OpMode {
     @Override
     public void loop() {
         Move(gamepad1);
+        SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
         if(!reseting) {
-            SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
             SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         }
-        //Sweep(gamepad1);
         resetMotors(gamepad1);
     }
 

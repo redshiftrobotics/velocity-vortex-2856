@@ -52,7 +52,7 @@ public class HardwareController {
     /**
      * The number of encoder counts in one full rotation of the motors, should always be 1400 with DcMotors.
      */
-    public int encoderCount;
+    public static final int encoderCount = 1400;
 
     /**
      * One of the two ColorSensors used to detect the line.
@@ -205,9 +205,6 @@ public class HardwareController {
 //      //motors[1].setDirection(DcMotor.Direction.REVERSE);
 //      //motors[2].setDirection(DcMotor.Direction.REVERSE);
 //      //motors[3].setDirection(DcMotor.Direction.REVERSE);
-
-        //Set up encoder count
-        encoderCount = 1400;
     }
 
     private void InitCS(){
