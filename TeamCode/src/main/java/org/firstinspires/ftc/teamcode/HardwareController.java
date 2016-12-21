@@ -118,6 +118,8 @@ public class HardwareController {
         InitMotors();
 
         //Set up colorSensor
+        _colorSensor1 = $colorSensor1;
+        _colorSensor2 = $colorSensor2;
         InitCS();
     }
 
@@ -146,6 +148,8 @@ public class HardwareController {
         InitMotors();
 
         //Set up colorSensor
+        _colorSensor1 = $colorSensor1;
+        _colorSensor2 = $colorSensor2;
         InitCS();
     }
 
