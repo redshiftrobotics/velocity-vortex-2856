@@ -53,15 +53,11 @@ public class Autonomous2856 extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        imu = hardwareMap.i2cDeviceSynch.get("imu");
-        Utility.InitMotors(hardwareMap, motors);
-        colorSensor1 = hardwareMap.colorSensor.get("cs1");
-        colorSensor2 = hardwareMap.colorSensor.get("cs2");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
 
-        pidController = new PIDController(imu, motors, colorSensor1, colorSensor2, telemetry);
-        pidController.SetPIDConstatns(63f, 10f, 0f, 50f);
+        pidController = new PIDController(imu, motors, colorSensor1, colorSensor2, telemetry, hardwareMap);
+        pidController.SetPIDConstants(63f, 10f, 0f, 50f);
         pidController.SetDefaultMultipliers();
 
         // Retrieve file.

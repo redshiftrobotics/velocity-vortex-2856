@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -90,10 +91,10 @@ public class PIDController {
      * @param $colorSensor2 The ColorSensor Device to use {@link HardwareController#DetectLine()}.
      * @param $telemetry The Telemetry of the phone to output data.
      */
-    PIDController(I2cDeviceSynch $imu, DcMotor[] $motors, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry){
+    PIDController(I2cDeviceSynch $imu, DcMotor[] $motors, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry, HardwareMap $hardwareMap){
         //Set up the private variables
         _telemetry = $telemetry;
-        _hardwareController = new HardwareController($imu, $motors, $colorSensor1, $colorSensor2);
+        _hardwareController = new HardwareController($imu, $motors, $colorSensor1, $colorSensor2, $hardwareMap);
         _pidData = new PIDData();
 
         //Set the target angle to the current angle
@@ -117,10 +118,10 @@ public class PIDController {
      * @param $telemetry The Telemetry of the phone to output data.
      * @see #PIDController(I2cDeviceSynch, DcMotor[], ColorSensor, ColorSensor, Telemetry)
      */
-    PIDController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry){
+    PIDController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2, Telemetry $telemetry, HardwareMap $hardwareMap){
         //Set up the private variables
         _telemetry = $telemetry;
-        _hardwareController = new HardwareController($imu, ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3)), $colorSensor1, $colorSensor2);
+        _hardwareController = new HardwareController($imu, ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3)), $colorSensor1, $colorSensor2, $hardwareMap);
         _pidData = new PIDData();
 
         //Set the target angle to the current angle
@@ -136,7 +137,7 @@ public class PIDController {
      * @param $d The constant multiplier for the D value.
      * @param $colorTolerance The minimum average value for the ColorSensor to return true.
      */
-    public void SetPIDConstatns(float $p, float $i, float $d, float $colorTolerance){
+    public void SetPIDConstants(float $p, float $i, float $d, float $colorTolerance){
         _pidData.SetValues($p, $i, $d);
         _pidData.rotationTolerance = rotationTolerance;
         _hardwareController.colorTolerance = $colorTolerance;
@@ -150,7 +151,7 @@ public class PIDController {
      * @param $d The constant multiplier for the D value.
      * @see #SetPIDConstatns(float, float, float, float)
      */
-    public void SetPIDConstatns(float $p, float $i, float $d){
+    public void SetPIDConstants(float $p, float $i, float $d){
         _pidData.SetValues($p, $i, $d);
         _pidData.rotationTolerance = rotationTolerance;
     }

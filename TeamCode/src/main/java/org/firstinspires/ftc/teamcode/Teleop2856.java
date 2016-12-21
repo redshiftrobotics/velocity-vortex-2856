@@ -35,11 +35,10 @@ public class Teleop2856 extends OpMode {
 
     @Override
     public void init() {
-        Utility.InitMotors(hardwareMap, motors);
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
-        hardwareController = new HardwareController(motors);
+        hardwareController = new HardwareController(motors, hardwareMap);
         rotations = shooter.getCurrentPosition();
     }
 

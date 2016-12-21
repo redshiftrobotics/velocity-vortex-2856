@@ -4,6 +4,7 @@ import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.Range;
 
@@ -67,6 +68,8 @@ public class HardwareController {
      * The amount of color the sensors need to see to detect the line.
      */
     public float colorTolerance;
+
+    private HardwareMap hardwareMap;
     //endregion
     //region Speed Data
     /**
@@ -102,25 +105,20 @@ public class HardwareController {
      * @param $colorSensor1 The ColorSensor Device to get the Line Data.
      * @param $colorSensor2 The ColorSensor Device to get the Line Data.
      */
-    HardwareController(I2cDeviceSynch $imu, DcMotor[] $motors, ColorSensor $colorSensor1, ColorSensor $colorSensor2){
-        //Set up the imu Parameters to use correct units
-        _imuParameters = new BNO055IMU.Parameters();
-        _imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        _imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    HardwareController(I2cDeviceSynch $imu, DcMotor[] $motors, ColorSensor $colorSensor1, ColorSensor $colorSensor2, HardwareMap $hardwareMap){
+        //Set up HardwareMap
+        hardwareMap = $hardwareMap;
 
         //Initialize the imu based on the Parameters
         imu = new AdafruitBNO055IMU($imu);
-        imu.initialize(_imuParameters);
+        InitIMU();
 
         //Initialize the motors
         motors = $motors;
+        InitMotors();
 
-        //Set up encoder count
-        encoderCount = 1400;
-
-        //Set up colorSensors
-        _colorSensor1 = $colorSensor1;
-        _colorSensor2 = $colorSensor2;
+        //Set up colorSensor
+        InitCS();
     }
 
     /**
@@ -135,25 +133,20 @@ public class HardwareController {
      * @param $colorSensor2 The ColorSensor Device to get the Line Data.
      * @see #HardwareController
      */
-    HardwareController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2){
-        //Set up the imu Parameters to use correct units
-        _imuParameters = new BNO055IMU.Parameters();
-        _imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        _imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    HardwareController(I2cDeviceSynch $imu, DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, ColorSensor $colorSensor1, ColorSensor $colorSensor2, HardwareMap $hardwareMap){
+        //Set up HardwareMap
+        hardwareMap = $hardwareMap;
 
         //Initialize the imu based on the Parameters
         imu = new AdafruitBNO055IMU($imu);
-        imu.initialize(_imuParameters);
+        InitIMU();
 
         //Initialize the motors
         motors = ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3));
-
-        //Set up encoder count
-        encoderCount = 1400;
+        InitMotors();
 
         //Set up colorSensor
-        _colorSensor1 = $colorSensor1;
-        _colorSensor2 = $colorSensor2;
+        InitCS();
     }
 
     /**
@@ -162,12 +155,13 @@ public class HardwareController {
      * @param $motors The array of DcMotors.
      * @see #HardwareController
      */
-    HardwareController(DcMotor[] $motors){
+    HardwareController(DcMotor[] $motors, HardwareMap $hardwareMap){
+        //Set up HardwareMap
+        hardwareMap = $hardwareMap;
+
         //Initialize the motors
         motors = $motors;
-
-        //Set up encoder count
-        encoderCount = 1400;
+        InitMotors();
     }
 
     /**
@@ -179,12 +173,42 @@ public class HardwareController {
      * @param $m3 DcMotor 3.
      * @see #HardwareController
      */
-    HardwareController(DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3){
+    HardwareController(DcMotor $m0, DcMotor $m1, DcMotor $m2, DcMotor $m3, HardwareMap $hardwareMap){
+        //Set up HardwareMap
+        hardwareMap = $hardwareMap;
+
         //Initialize the motors
         motors = ((DcMotor[]) Utility.MakeArray($m0, $m1, $m2, $m3));
+        InitMotors();
+    }
+
+    private void InitIMU(){
+        //Set up the imu Parameters to use correct units
+        _imuParameters = new BNO055IMU.Parameters();
+        _imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        _imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+
+        imu.initialize(_imuParameters);
+    }
+
+    private void InitMotors(){
+        motors[0] = hardwareMap.dcMotor.get("m0");
+        motors[1] = hardwareMap.dcMotor.get("m1");
+        motors[2] = hardwareMap.dcMotor.get("m2");
+        motors[3] = hardwareMap.dcMotor.get("m3");
+        //Reverse specific $motors based on gears and chains, comment out which ones should not be flipped
+//      //motors[0].setDirection(DcMotor.Direction.REVERSE);
+//      //motors[1].setDirection(DcMotor.Direction.REVERSE);
+//      //motors[2].setDirection(DcMotor.Direction.REVERSE);
+//      //motors[3].setDirection(DcMotor.Direction.REVERSE);
 
         //Set up encoder count
         encoderCount = 1400;
+    }
+
+    private void InitCS(){
+        _colorSensor1 = hardwareMap.colorSensor.get("cs1");
+        _colorSensor2 = hardwareMap.colorSensor.get("cs2");
     }
 
     //endregion

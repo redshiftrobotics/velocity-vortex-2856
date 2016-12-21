@@ -32,12 +32,8 @@ public class CalculateValues extends OpMode {
 
     @Override
     public void init() {
-        imu = hardwareMap.i2cDeviceSynch.get("imu");
-        Utility.InitMotors(hardwareMap, motors);
-        colorSensor1 = hardwareMap.colorSensor.get("cs1");
-        colorSensor2 = hardwareMap.colorSensor.get("cs2");
-        pidController = new PIDController(imu, motors, colorSensor1, colorSensor2, telemetry);
-        pidController.SetPIDConstatns(63f, 10f, 0f, 50f);
+        pidController = new PIDController(imu, motors, colorSensor1, colorSensor2, telemetry, hardwareMap);
+        pidController.SetPIDConstants(63f, 10f, 0f, 50f);
         pidController.SetDefaultMultipliers();
         mode = 'p';
         p = 10;
@@ -58,7 +54,7 @@ public class CalculateValues extends OpMode {
     }
 
     private void TestPID(Gamepad $pad){
-        pidController.SetPIDConstatns(p, i, d);
+        pidController.SetPIDConstants(p, i, d);
         if($pad.back){
             pidController.AngularTurn(90f);
             pidController.LinearMove(0f, 1f);
