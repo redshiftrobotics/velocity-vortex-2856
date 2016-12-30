@@ -42,8 +42,10 @@ public class ExampleAutonomous extends LinearOpMode {
         robot.turnToAngle(90, 5);*/
         Hardware hardware = new Hardware(m0, m1, m2, m3, cs);
         PIDRobot robot = new PIDRobot(hardware, imu, telemetry);
-        //robot.turnToAngle(45, 5);
+        robot.setTuning(63f, 10f, 0f);
+        waitForStart();
         robot.linearMove(2f, new float[]{1f, 0f}, 4);
+        robot.turnToAngle(-45, 5);
     }
 
     enum TuneState {

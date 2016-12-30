@@ -143,6 +143,7 @@ public class PIDController {
 
     public void addTarget(float angle) {
         target += angle;
+        target = target % 360;
     }
 
     /** Method to manually set target value. Not used, but potentially necessary for some
@@ -234,6 +235,8 @@ public class PIDController {
         P = getCurrentError();
         I += getCurrentError() * deltaT / 1000; //Riemann sum
         D = (getCurrentError() - getLastError()) / (deltaT / 1000);
+
+        Log.d("Pid values ", "P: " + Float.toString(P) +" D: " + Float.toString(D) + " I: " + Float.toString(I));
     }
 
     /** Calculates computed angle value, updating the number of full rotations accordingly, and accounting
@@ -266,13 +269,12 @@ public class PIDController {
     }*/
 
     public float getCurrentImuAngle() {
-        float angle = imu.getAngularOrientation().firstAngle * -1;
-        Log.d("Current Imu Angle: ", Float.toString(angle));
-        return angle;
+        return imu.getAngularOrientation().firstAngle * -1;
     }
 
     public void calculateError() {
         lastError = currentError;
+        Log.d("Current Error: ", Float.toString(currentError));
         float currentAngle = getCurrentImuAngle(); //calculateAngles();
         if (currentAngle + 360 - target < 180) {
             currentError = (currentAngle - target + 360) * -1;
@@ -325,6 +327,8 @@ public class PIDController {
 
     public float getCorrectedValue(float deltaT) {
         calculateVars(deltaT);
-        return ((I * ITuning) / 100) + ((P * PTuning) / 100) + ((D * DTuning) / 100);
+        float corrected = ((I * ITuning) / 2000) + ((P * PTuning) / 2000) + ((D * DTuning) / 2000);
+        Log.d("PID CORRECTED ", Float.toString(corrected));
+        return corrected;
     }
 }

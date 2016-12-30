@@ -24,7 +24,7 @@ public class PIDRobot {
     private PIDController pid;
     private TimeData time;
     private Hardware hardware;
-    private static final float angleTurnThreshold = 0.003f;
+    private static final float angleTurnThreshold = 0.03f;
     private static final float motorSpeed = 0.65f;
     private static final float correctedSpeedScalar = 0.5f;
     private static float colorSensorThreshold = 70;
