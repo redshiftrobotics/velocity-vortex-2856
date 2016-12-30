@@ -261,7 +261,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 50 && (Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3 < 50){
+        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 70 && (Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3 < 70){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
