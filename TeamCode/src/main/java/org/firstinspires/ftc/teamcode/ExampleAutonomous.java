@@ -28,17 +28,22 @@ public class ExampleAutonomous extends LinearOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        cs = hardwareMap.colorSensor.get("cs");
+        cs = hardwareMap.colorSensor.get("cs1");
 
-        Hardware hardware = new Hardware(m0, m1, m2, m3, cs);
+        /*Hardware hardware = new Hardware(m0, m1, m2, m3, cs);
         PIDRobot robot = new PIDRobot(hardware, imu, telemetry);
         robot.setTuning(63f, 10f, 0f);
-        robot.linearMove(4f, new float[]{0f, 1f}, 4);
+        waitForStart();
+        robot.linearMove(2f, new float[]{1f, 0f}, 4);
         sleep(10000);
-        robot.moveToLine(new float[]{0f, -1f}, 0.5f, 10);
+        robot.moveToLine(new float[]{-1f, 0}, 0.5f, 10);
         sleep(10000);
         robot.turnToAngle(45, 5);
-        robot.turnToAngle(90, 5);
+        robot.turnToAngle(90, 5);*/
+        Hardware hardware = new Hardware(m0, m1, m2, m3, cs);
+        PIDRobot robot = new PIDRobot(hardware, imu, telemetry);
+        //robot.turnToAngle(45, 5);
+        robot.linearMove(2f, new float[]{1f, 0f}, 4);
     }
 
     enum TuneState {

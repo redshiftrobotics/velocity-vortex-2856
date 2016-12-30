@@ -7,12 +7,16 @@ import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by adam on 12/16/16.
  * A further refactor of original, for more streamlined design,
  * and better long term usability.
  */
+
+
 public class PIDController {
     float computedAngle; //current computed robot angle, constrained by constrainAngleRange
     float target; //current target, the value we are trying to correct to.
@@ -26,6 +30,7 @@ public class PIDController {
     360 degree turn. multiplying this by 360 and adding it to the current imu angle yields the
      robot's actual orientation relative to the starting position.*/
 
+    public float currentError = 0f, lastError = 0f;
 
     public BNO055IMU imu;
 
@@ -71,8 +76,6 @@ public class PIDController {
         integralData = new ArrayList<>();
         imuInit(i2cSync);
     }
-
-
 
     private void imuInit(I2cDeviceSynch i2cSync) {
         BNO055IMU.Parameters imuParameters = new BNO055IMU.Parameters();
@@ -154,9 +157,14 @@ public class PIDController {
     /**
      * Default initialization method, sets the current target to the computed angle.
      */
-    public void initializeTarget() {
+    /*public void initializeTarget() {
         target = calculateAngles();
+    }*/
+
+    public void initializeTarget() {
+        target = getCurrentImuAngle();
     }
+
 
     /** Returns the current target.
      *
@@ -177,10 +185,10 @@ public class PIDController {
     /** Calculates the proportional, integral, and derivative terms
      *
      *
-     * @param timeDiff Time since the last iteration of the loop, i.e., currentTime - previousTime
+     * @param deltaT Time since the last iteration of the loop, i.e., currentTime - previousTime
      */
 
-    public void calculateVars(float timeDiff) {
+    /*public void calculateVars(float timeDiff) {
         // Append to our data sets.
         integralData.add(getComputedAngle() - getTarget());
         derivativeData.add(getComputedAngle());
@@ -219,13 +227,20 @@ public class PIDController {
         DerivativeAverage /= derivativeData.size();
 
         D = (getComputedAngle() - DerivativeAverage) / ((timeDiff / 1000) * (1 + (derivativeData.size() / 2)));
+    } */
+
+    public void calculateVars(float deltaT) {
+        calculateError();
+        P = getCurrentError();
+        I += getCurrentError() * deltaT / 1000; //Riemann sum
+        D = (getCurrentError() - getLastError()) / (deltaT / 1000);
     }
 
     /** Calculates computed angle value, updating the number of full rotations accordingly, and accounting
      * for this in calculations.
      * @return the newest angular orientation data point
      */
-    public float calculateAngles() {
+    /*public float calculateAngles() {
         //assign angle headings
         updateHeadings();
         logFile.append("Raw IMU: " + Math.abs(imu.getAngularOrientation().firstAngle) + " " + imu.getAngularOrientation().secondAngle + " " + imu.getAngularOrientation().thirdAngle);
@@ -248,6 +263,34 @@ public class PIDController {
             calculateAngles();
         }
         return headings[1];
+    }*/
+
+    public float getCurrentImuAngle() {
+        float angle = imu.getAngularOrientation().firstAngle * -1;
+        Log.d("Current Imu Angle: ", Float.toString(angle));
+        return angle;
+    }
+
+    public void calculateError() {
+        lastError = currentError;
+        float currentAngle = getCurrentImuAngle(); //calculateAngles();
+        if (currentAngle + 360 - target < 180) {
+            currentError = (currentAngle - target + 360) * -1;
+        } else if(target + 360 - currentAngle < 180) {
+            currentError = (target - currentAngle + 360);
+        } else if(currentAngle - target < 180) {
+            currentError = (currentAngle - target) * -1;
+        } else if(target - currentAngle < 180) {
+            currentError = (target - currentAngle);
+        }
+    }
+
+    public float getLastError() {
+        return lastError;
+    }
+
+    public float getCurrentError() {
+        return currentError;
     }
 
     /** Wrapper method which updates internal data, and does the actual PID calculation.
@@ -264,20 +307,24 @@ public class PIDController {
      * d(e)/dt = the derivative of function e(t) with respect to t.
      *
      *
-     * @param timeDiff the time between the last loop iteration, and the current iteration.
+     * @param deltaT the time between the last loop iteration, and the current iteration.
      *                 Passed as an argument to calculateVars.
      * @return The corrected value based on the PID formula
      */
 
-    public float getCorrectedValue(float timeDiff) {
+    /*public float getCorrectedValue(float timeDiff) {
         calculateAngles(); //fetch new angle data, updating our target
         calculateVars(timeDiff); //calculate P, I, and D constants
 
         /*
         Calculate the actual corrected value, scaled down by
-         */
-        return ((I * ITuning) / 2000) + ((P * PTuning) / 2000) + ((D * DTuning) / 2000);
+         *//*
+        //return ((I * ITuning) / 2000) + ((P * PTuning) / 2000) + ((D * DTuning) / 2000);
+        return ((I * ITuning) / 100) + ((P * PTuning) / 100) + ((D * DTuning) / 100);
+    }*/
+
+    public float getCorrectedValue(float deltaT) {
+        calculateVars(deltaT);
+        return ((I * ITuning) / 100) + ((P * PTuning) / 100) + ((D * DTuning) / 100);
     }
-
-
 }

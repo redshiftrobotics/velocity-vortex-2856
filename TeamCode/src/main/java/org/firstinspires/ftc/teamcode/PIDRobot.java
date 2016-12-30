@@ -24,10 +24,11 @@ public class PIDRobot {
     private PIDController pid;
     private TimeData time;
     private Hardware hardware;
-    public static float angleTurnThreshold = 0.03f;
-    public static float motorSpeed = 0.65f;
-    public static float correctedSpeedScalar = 0.5f;
-    public Telemetry telemetry;
+    private static final float angleTurnThreshold = 0.003f;
+    private static final float motorSpeed = 0.65f;
+    private static final float correctedSpeedScalar = 0.5f;
+    private static float colorSensorThreshold = 70;
+    private Telemetry telemetry;
 
     public PIDRobot(Hardware hardware, I2cDeviceSynch imu, Telemetry telemetry) {
         this.hardware = hardware;
@@ -50,17 +51,17 @@ public class PIDRobot {
         pid.setTuning(P, I, D);
     }
     private void applyLinearMove(float correctedValue, float[] movement, float speed, float scalar) {
-        hardware.getMotor(0).setPower((((movement[0] - movement[1]) * speed) - (correctedValue)) * scalar);
-        hardware.getMotor(1).setPower((((movement[0] + movement[1]) * speed) + (correctedValue)) * scalar);
-        hardware.getMotor(2).setPower((((movement[0] - movement[1]) * speed) + (correctedValue)) * scalar);
-        hardware.getMotor(3).setPower((((movement[0] + movement[1]) * speed) - (correctedValue)) * scalar);
+        hardware.getMotor(0).setPower((((movement[0] - movement[1]) * speed) + (correctedValue)) * scalar);
+        hardware.getMotor(1).setPower((((movement[0] + movement[1]) * speed) - (correctedValue)) * scalar);
+        hardware.getMotor(2).setPower((((movement[0] - movement[1]) * speed) - (correctedValue)) * scalar);
+        hardware.getMotor(3).setPower((((movement[0] + movement[1]) * speed) + (correctedValue)) * scalar);
     }
     
     private void applyTurn(float correctedValue) {
-        hardware.getMotor(0).setPower(Hardware.POWER_CONSTANT - (correctedValue));
-        hardware.getMotor(1).setPower(Hardware.POWER_CONSTANT + (correctedValue));
-        hardware.getMotor(2).setPower(Hardware.POWER_CONSTANT  + (correctedValue));
-        hardware.getMotor(3).setPower(Hardware.POWER_CONSTANT  - (correctedValue));
+        hardware.getMotor(0).setPower(Hardware.POWER_CONSTANT + (correctedValue));
+        hardware.getMotor(1).setPower(-(Hardware.POWER_CONSTANT + (correctedValue)));
+        hardware.getMotor(2).setPower(-(Hardware.POWER_CONSTANT + (correctedValue)));
+        hardware.getMotor(3).setPower(Hardware.POWER_CONSTANT + (correctedValue));
     }
 
     public void linearMove(float rotations, float[] movement, int timeout) {
@@ -100,6 +101,8 @@ public class PIDRobot {
                 && time.now() < endTime) {
             loopTime = time.since(loopTime); // Record the time since the previous loop.
             correctedValue = pid.getCorrectedValue(loopTime); //get the current corrected values
+            telemetry.addData("Pid correction: ", Float.toString(correctedValue));
+            telemetry.update();
             applyLinearMove(correctedValue, movement, motorSpeed, 1f); //set them to motors in order to make the corrections
         }
         // Our drive loop has completed! stop the motors.
@@ -140,9 +143,16 @@ public class PIDRobot {
             than the specified threshold (our corrections will never be perfect, so we have
             to call it good at a certain point).
          */
-        while(time.now() < endTime && Math.abs(correctedValue) <= angleTurnThreshold){
+        while(time.now() < endTime/* && Math.abs(correctedValue) >= angleTurnThreshold*/) {
+            telemetry.addData("Pid correction: ", Float.toString(correctedValue));
+            telemetry.update();
+            /*if (Math.abs(correctedValue) <= angleTurnThreshold) {
+                break;
+            }*/
+
             loopTime = time.since(loopTime); // Record the time since the previous loop.
             correctedValue = pid.getCorrectedValue(loopTime); //get the current corrected values
+
             applyTurn(correctedValue); //set them to motors in order to make the robot turn
         }
         // Our drive loop has completed! stop the motors.

@@ -33,7 +33,6 @@ public class Hardware {
         public float getAdjustedColorValues() {
             return (colorSensor.red() + colorSensor.blue() + colorSensor.green()) / 3;
         }
-
-
-
 }
+
+
