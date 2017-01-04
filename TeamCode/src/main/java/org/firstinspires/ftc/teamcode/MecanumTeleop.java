@@ -17,22 +17,24 @@ public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
-    //DcMotor capballLift;
+    DcMotor capballLift;
     int rotations;
     int collecting;
     boolean collectSwitch;
     boolean reseting;
+    int directionModifier;
     DirectionObject direction;
 
     @Override
     public void init() {
+        directionModifier = 1;
         motors[0] = hardwareMap.dcMotor.get("m0");
         motors[1] = hardwareMap.dcMotor.get("m1");
         motors[2] = hardwareMap.dcMotor.get("m2");
         motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
-        //capballLift = hardwareMap.dcMotor.get("capballLift");
+        capballLift = hardwareMap.dcMotor.get("capballLift");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
@@ -50,7 +52,22 @@ public class MecanumTeleop extends OpMode {
         }
         //Sweep(gamepad1);
         resetMotors(gamepad1);
+        controlLift(gamepad2);
+        switchDirection(gamepad1);
     }
+
+    void switchDirection(Gamepad pad){
+        if(pad.dpad_up){
+            directionModifier = 1;
+        }if(pad.dpad_down){
+            directionModifier = -1;
+        }
+    }
+
+    void controlLift(Gamepad pad){
+        capballLift.setPower(Range.clip(pad.left_stick_y,-1,1));
+    }
+
     void resetMotors(Gamepad pad)
     {
         if(!reseting) {
@@ -67,7 +84,7 @@ public class MecanumTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(pad.right_stick_x, -pad.right_stick_y, pad.left_stick_x);
+        direction.setValues(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x * directionModifier);
 
         motors[0].setPower(direction.frontLeftSpeed());
         motors[1].setPower(direction.frontRightSpeed());
