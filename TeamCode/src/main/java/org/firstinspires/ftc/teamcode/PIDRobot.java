@@ -183,7 +183,7 @@ public class PIDRobot {
         While the average of all our color values is less than our threshold of 70...
          */
 
-        while(hardware.getAdjustedColorValues() < 70 && time.now() < endTime) {
+        while(hardware.getAdjustedColorValues() < colorSensorThreshold && time.now() < endTime) {
             loopTime = time.since(loopTime);
             correctValue = pid.getCorrectedValue(loopTime);
             applyLinearMove(correctValue, movement, motorSpeed, correctedSpeedScalar);

@@ -57,8 +57,6 @@ public class PIDController {
     }
 
     //Historical data for calculating rates over time for integral and derivative variables.
-    ArrayList<Float> derivativeData;
-    ArrayList<Float> integralData;
 
     //utility logfile
     public LogFile logFile = new LogFile("sdcard/log.file");
@@ -71,9 +69,7 @@ public class PIDController {
      */
 
     public PIDController(I2cDeviceSynch i2cSync) {
-        // Init non-primitives
-        derivativeData = new ArrayList<>();
-        integralData = new ArrayList<>();
+        //initialize the imu
         imuInit(i2cSync);
     }
 
@@ -86,29 +82,17 @@ public class PIDController {
     }
 
     /**
-     * Clears historical integral and derivative data. Must be called at the beginning of
-     * every movement function to get accurate correction data.
+     * Clears P, I, and D constants. Should be called at the beginning
+     * of every movement function. The only value that is absolutely necessary to zero out
+     * it I, since it is a running total, but P and D are cleared for consistency
+     *
      *
      */
+
     public void clearHistoricData() {
-        derivativeData.clear();
-        integralData.clear();
-    }
-
-    /**
-     * Shifts the latest heading into the previous, and sets the latest heading to a new
-     * angular orientation data point.
-     */
-
-    public void updateHeadings() {
-        //TODO: See if headings actually has to be updated twice...
-        headings[0] = headings[1];
-        // Then, we assign the new angle heading.
-        headings[1] = constrainAngleRange(imu.getAngularOrientation().firstAngle);
-
-        headings[0] = headings[1];
-        // Then, we assign the new angle heading.
-        headings[1] = constrainAngleRange(imu.getAngularOrientation().secondAngle);
+        P = 0;
+        I = 0;
+        D = 0;
     }
 
     /** Set the tuning constants
@@ -188,47 +172,6 @@ public class PIDController {
      *
      * @param deltaT Time since the last iteration of the loop, i.e., currentTime - previousTime
      */
-
-    /*public void calculateVars(float timeDiff) {
-        // Append to our data sets.
-        integralData.add(getComputedAngle() - getTarget());
-        derivativeData.add(getComputedAngle());
-
-        // Keep integralData and derivativeData from having an exceeding number of entries.
-        if (integralData.size() > 500){
-            integralData.remove(0);
-        }
-
-        if (derivativeData.size() > 5) {
-            derivativeData.remove(0);
-        }
-
-        // Set our P, I, and D values.
-        // `P` will be the ComputedAngle - target
-        P = getComputedAngle() - getTarget();
-
-        // `I` will be the average of the integralData (Cries softly at the lack of Java8 streams)
-
-        float IntegralAverage = 0;
-        for(float value : integralData) {
-            IntegralAverage += value;
-        }
-
-        I = IntegralAverage / integralData.size();
-
-        // `D` will be the difference of the ComputedAngle and the Derivative average divided by
-        // the time since the last loop in seconds multiplied by one plus half of the size of
-        // the Derivative data set size.
-
-
-        float DerivativeAverage = 0;
-        for(float value : derivativeData) {
-            DerivativeAverage += value;
-        }
-        DerivativeAverage /= derivativeData.size();
-
-        D = (getComputedAngle() - DerivativeAverage) / ((timeDiff / 1000) * (1 + (derivativeData.size() / 2)));
-    } */
 
     public void calculateVars(float deltaT) {
         calculateError();
@@ -331,4 +274,5 @@ public class PIDController {
         Log.d("PID CORRECTED ", Float.toString(corrected));
         return corrected;
     }
+
 }
