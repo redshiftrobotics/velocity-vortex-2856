@@ -38,9 +38,9 @@ public class TunePID extends LinearOpMode {
         // Create our driver
         myRobot = new Robot(imu, m0, m1, m2, m3, cs, cs, telemetry);
         // Give it default tunings
-        myRobot.Data.PID.PTuning = 20;
-        myRobot.Data.PID.ITuning = 20;
-        myRobot.Data.PID.DTuning = 20;
+        myRobot.Data.PID.PTuning = 40;
+        myRobot.Data.PID.ITuning = 0;
+        myRobot.Data.PID.DTuning = 0;
 
         // Give a default state
         state = TuneState.P;
@@ -59,14 +59,16 @@ public class TunePID extends LinearOpMode {
                     telemetry.addData("Tuning", "D");
                     state = TuneState.D;
                 }  else if(gamepad1.dpad_up){
-                    telemetry.addData("drive Direction", "Forwards");
-                    direction = DcMotor.Direction.FORWARD;
+                    telemetry.addData("OMG DRIving", "YAYAYYAYA");
+                    myRobot.AngleTurn(45f, 10, telemetry);
                 } else if(gamepad1.dpad_down){
-                    telemetry.addData("drive Direction", "Backwards");
-                    direction = DcMotor.Direction.REVERSE;
+                    telemetry.addData("OMG DRIving", "YAYAYYAYA");
+                    myRobot.AngleTurn(45f, 10, telemetry);
                 } else if (gamepad1.back) {
                     // Start the auto drive. Functionality should halt until the drive stops
-                    myRobot.Straight(40f, new Float[]{1f, 0f}, 10, telemetry);
+                    //myRobot.Straight(40f, new Float[]{1f, 0f}, 10, telemetry);
+                    telemetry.addData("OMG DRIving", "YAYAYYAYA");
+                    myRobot.AngleTurn(45f, 4, telemetry);
                 }
                 // Allow tuning of the values
                 switch (state) {

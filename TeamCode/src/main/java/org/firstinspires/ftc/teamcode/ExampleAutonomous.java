@@ -51,19 +51,19 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         //loop
         initVision();
 
-        Float[] forward = new Float[]{1f,0f};
-        Float[] backward = new Float[]{-1f,0f};
-        robot.Data.PID.PTuning = 30f;
-        robot.Data.PID.ITuning = 10f;
+        //Float[] forward = new Float[]{1f,0f};
+        //Float[] backward = new Float[]{-1f,0f};
+        robot.Data.PID.PTuning = 50f;
+        robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
         waitForStart();
-        telemetry.addData("beacon", beacon.getAnalysis().getColorString());
+        //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
         //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
-//        robot.AngleTurn(-55f, 10, telemetry);
+        robot.AngleTurn(45f, 4, telemetry);
 //        robot.Data.PID.PTuning = 100f;
 //        robot.Data.PID.ITuning = 30f;
 //        robot.Data.PID.DTuning = 0f;
-        robot.MoveToLine(forward, 0.2f, 10, telemetry);
+        //robot.MoveToLine(forward, 0.2f, 10, telemetry);
 
     }
 
