@@ -93,7 +93,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(.5f, forward, 10, telemetry); //.625
+        robot.Straight(.7f, forward, 10, telemetry); //.625
 
 
         turnConst();
@@ -113,7 +113,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         straightConst();
 
-        robot.Straight(.3f, forward, 10, telemetry);
+        robot.Straight(.1f, forward, 10, telemetry);
 
         turnConst();
 
@@ -123,7 +123,12 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         straightConst();
 
-        robot.Straight(1.1f, forward, 10, telemetry); //1.2 1.6
+
+        if(side == -1) { // red side
+            robot.Straight(1f, forward, 10, telemetry); //1.2 1.6
+        } else { // blue side
+            robot.Straight(1.1f, forward, 10, telemetry); //1.2 1.6
+        }
         //Thread.sleep(1000);
 
 
@@ -136,9 +141,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
         straightConst();
 
         //NEW
-        robot.MoveToLine(backward, 0.4f, 10, telemetry);
+        robot.MoveToLine(backward, 0.35f, 10, telemetry);
         Thread.sleep(500);
-        robot.MoveToLine(forward, 0.4f, 10, telemetry);
+        robot.MoveToLine(forward, 0.35f, 10, telemetry);
 
         Thread.sleep(1000);
 
@@ -166,9 +171,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
             telemetry.addData("beacon ", "right");
             telemetry.update();
             if(side == 1) { // if we are on BLUE SIDE
-                robot.Straight(0.12f, backward, 10, telemetry); // target is right so move backward
+                robot.Straight(0.8f, backward, 10, telemetry); // target is right so move backward
             } else { // we are on RED SIDE
-                robot.Straight(0.12f, forward, 10, telemetry); // target is right so move forward
+                //robot.Straight(0.12f, forward, 10, telemetry); // target is right so move forward
             }
         } else if (beacon.getAnalysis().getColorString().equals("???, ???")) {
             //do nothing
@@ -176,16 +181,38 @@ public class BlueAutonomous extends LinearVisionOpMode {
             telemetry.addData("beacon ", "left");
             telemetry.update();
             if(side == 1) { // for blue side
-                robot.Straight(0.12f, forward, 10, telemetry);
+                //robot.Straight(0.12f, forward, 10, telemetry);
             } else { // red side
-                robot.Straight(0.12f, backward, 10, telemetry);
+                robot.Straight(0.8f, backward, 10, telemetry);
             }
         }
 
+        //robot.Straight(3f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
+
+        //robot.Straight(3f, new Float[]{.707f, -.707f*side}, 4, telemetry); //this will timeout, intentional
+
+        m0.setPower(1*side);
+        m1.setPower(-1*side);
+        m2.setPower(1*side);
+        m3.setPower(-1*side);
+        Thread.sleep(3000);
+        m0.setPower(0);
+        m1.setPower(0);
+        m2.setPower(0);
+        m3.setPower(0);
+        Thread.sleep(500);
+        m0.setPower(1*side);
+        m1.setPower(-1*side);
+        m2.setPower(1*side);
+        m3.setPower(-1*side);
+        Thread.sleep(4000);
+        m0.setPower(0);
+        m1.setPower(0);
+        m2.setPower(0);
+        m3.setPower(0);
 
 
-        robot.Straight(1f, new Float[]{0f, -1f*side}, 4, telemetry); //this will timeout, intentional
-        robot.Straight(.45f, new Float[]{0f, 1f*side}, 10, telemetry);
+        //robot.Straight(.45f, new Float[]{0f, 1f*side}, 10, telemetry);
 /*
         //straight to clear existing line
         robot.Straight(1f, backward, 10, telemetry);
