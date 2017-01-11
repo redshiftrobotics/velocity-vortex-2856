@@ -215,6 +215,11 @@ public class PIDController {
         return imu.getAngularOrientation().firstAngle * -1;
     }
 
+    /** Updates currentError field within the corresponding
+     * object. Must be called in order for the value
+     * returned by {@link #getCurrentError()}
+     *
+     */
     public void calculateError() {
         lastError = currentError;
         Log.d("Current Error: ", Float.toString(currentError));
@@ -268,6 +273,11 @@ public class PIDController {
         return ((I * ITuning) / 100) + ((P * PTuning) / 100) + ((D * DTuning) / 100);
     }*/
 
+    /**
+     * Performs the PID formula, including updating all variables.
+     * @param deltaT the time since the last iteration
+     * @return corrected value obtained through the formula
+     */
     public float getCorrectedValue(float deltaT) {
         calculateVars(deltaT);
         float corrected = ((I * ITuning) / 2000) + ((P * PTuning) / 2000) + ((D * DTuning) / 2000);
