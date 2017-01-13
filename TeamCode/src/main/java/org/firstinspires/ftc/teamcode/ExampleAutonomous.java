@@ -3,20 +3,32 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+
+import org.lasarobotics.vision.android.Cameras;
+import org.lasarobotics.vision.ftc.resq.Beacon;
+import org.lasarobotics.vision.opmode.LinearVisionOpMode;
+import org.lasarobotics.vision.opmode.VisionOpMode;
+import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
+import org.lasarobotics.vision.util.ScreenOrientation;
+import org.opencv.core.Size;
 
 /**
  * Created by matt on 10/15/16.
  */
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
-public class ExampleAutonomous extends LinearOpMode {
+public class ExampleAutonomous extends LinearVisionOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
     Robot robot;
+    ColorSensor cs;
+    ColorSensor cs1;
+
 
 
     @Override
@@ -26,9 +38,10 @@ public class ExampleAutonomous extends LinearOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
+        cs = hardwareMap.colorSensor.get("cs");
+        cs1 = hardwareMap.colorSensor.get("cs1");
 
-        robot = new Robot(imu, m0, m1, m2, m3, telemetry);
-
+        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
 
         //working PIDs
         //P: 100
@@ -36,87 +49,41 @@ public class ExampleAutonomous extends LinearOpMode {
         //D: 0
 
         //loop
-        robot.Data.PID.PTuning = 100f;
-        robot.Data.PID.ITuning = 30f;
+        initVision();
+
+        //Float[] forward = new Float[]{1f,0f};
+        //Float[] backward = new Float[]{-1f,0f};
+        robot.Data.PID.PTuning = 50f;
+        robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
         waitForStart();
-        robot.Straight(30f, new Float[]{1f,0f}, 6, telemetry);
-
-//        boolean driving = false;
-//        TuneState state;
-//
-//        state = TuneState.P;
-//
-//        while (true) {
-//            if (!driving) {
-//                // Declare what we are tuning based on the
-//                if (gamepad1.a) {
-//                    telemetry.addData("Tuning", "P");
-//                    state = TuneState.P;
-//                } else if (gamepad1.b) {
-//                    telemetry.addData("Tuning", "I");
-//                    state = TuneState.I;
-//                } else if (gamepad1.x) {
-//                    telemetry.addData("Tuning", "D");
-//                    state = TuneState.D;
-//                } else if (gamepad1.back) {
-//                    // Start the auto drive. Functionality should halt until the drive stops
-//                    //forward and right are positive
-//                    //back and left are negative
-//                    //pick values using a unit circle: https://www.desmos.com/calculator/qmzx2skkzy
-//                    //robot.Straight(7f, new Float[]{1f,0f}, 4, telemetry);
-//                    robot.AngleTurn(90, 5, telemetry);
-//                }
-//
-//                // Allow tuning of the values
-//                switch (state) {
-//                    case P:
-//                        if (gamepad1.right_bumper) {
-//                            robot.Data.PID.PTuning += .1;
-//                        } else if (gamepad1.right_trigger == 1) {
-//                            robot.Data.PID.PTuning += 1;
-//                        } else if (gamepad1.left_bumper) {
-//                            robot.Data.PID.PTuning -= .1;
-//                        } else if (gamepad1.left_trigger == 1) {
-//                            robot.Data.PID.PTuning -= 1;
-//                        }
-//                        break;
-//
-//                    case I:
-//                        if (gamepad1.right_bumper) {
-//                            robot.Data.PID.ITuning += .1;
-//                        } else if (gamepad1.right_trigger == 1) {
-//                            robot.Data.PID.ITuning += 1;
-//                        } else if (gamepad1.left_bumper) {
-//                            robot.Data.PID.ITuning -= .1;
-//                        } else if (gamepad1.left_trigger == 1) {
-//                            robot.Data.PID.ITuning -= 1;
-//                        }
-//                        break;
-//                    case D:
-//                        if (gamepad1.right_bumper) {
-//                            robot.Data.PID.DTuning += .1;
-//                        } else if (gamepad1.right_trigger == 1) {
-//                            robot.Data.PID.DTuning += 1;
-//                        } else if (gamepad1.left_bumper) {
-//                            robot.Data.PID.DTuning -= .1;
-//                        } else if (gamepad1.left_trigger == 1) {
-//                            robot.Data.PID.DTuning -= 1;
-//                        }
-//                        break;
-//                }
-//                telemetry.addData("P", robot.Data.PID.PTuning);
-//                telemetry.addData("I", robot.Data.PID.ITuning);
-//                telemetry.addData("D", robot.Data.PID.DTuning);
-//                telemetry.update();
-//                Thread.sleep(100);
-//            }
-//
-//        }
-
+        //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
+        //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
+        robot.AngleTurn(45f, 4, telemetry);
+//        robot.Data.PID.PTuning = 100f;
+//        robot.Data.PID.ITuning = 30f;
+//        robot.Data.PID.DTuning = 0f;
+        //robot.MoveToLine(forward, 0.2f, 10, telemetry);
 
     }
 
+
+    private void initVision() {
+        setCamera(Cameras.SECONDARY);
+        new Size();
+        setFrameSize(new Size(1440,2560));
+        enableExtension(VisionOpMode.Extensions.BEACON);
+        enableExtension(VisionOpMode.Extensions.ROTATION);
+        enableExtension(VisionOpMode.Extensions.CAMERA_CONTROL);
+        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
+        beacon.setColorToleranceRed(0);
+        beacon.setColorToleranceBlue(0);
+        rotation.setIsUsingSecondaryCamera(false);
+        rotation.disableAutoRotate();
+        rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
+        cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
+        cameraControl.setAutoExposureCompensation();
+    }
     enum TuneState {
         P, I, D
     }
