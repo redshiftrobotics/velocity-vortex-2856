@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="#222">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BLUE"
+        android:id="@+id/blueButton"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@+id/textView3"
+        android:background="#0000FF"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp"
+        android:textStyle="bold"
+        android:textSize="50dp"
+        android:onClick="blueClicked" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RED"
+        android:id="@+id/redButton"
+        android:layout_alignTop="@+id/textView3"
+        android:layout_toRightOf="@+id/textView3"
+        android:background="#FF0000"
+        android:layout_alignBottom="@+id/blueButton"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="50dp"
+        android:textStyle="bold"
+        android:onClick="redClicked" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="|"
+        android:id="@+id/textView3"
+        android:layout_alignTop="@+id/blueButton"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Time to Wait At Start"
+        android:id="@+id/textView4"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="45dp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="(leave blank for 0)"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/textView4"
+        android:layout_centerHorizontal="true"
+        android:textColor="#FFF"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <EditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:ems="10"
+        android:id="@+id/editText"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:singleLine="false"
+        android:background="#FFF"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/textView5"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Currently Selected Side is:"
+        android:id="@+id/textView6"
+        android:layout_below="@+id/blueButton"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="10dp"
+        android:textStyle="bold"
+        android:textColor="#FFF" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="not set"
+        android:id="@+id/sideText"
+        android:layout_below="@+id/textView6"
+        android:layout_centerHorizontal="true"
+        android:textColor="#FFF"
+        android:textStyle="bold"
+        android:textSize="60dp" />
+
+</RelativeLayout>
