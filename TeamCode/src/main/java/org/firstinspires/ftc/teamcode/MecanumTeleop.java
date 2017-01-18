@@ -84,7 +84,7 @@ public class MecanumTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x * directionModifier);
+        direction.setValues(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x);
 
         motors[0].setPower(direction.frontLeftSpeed());
         motors[1].setPower(direction.frontRightSpeed());

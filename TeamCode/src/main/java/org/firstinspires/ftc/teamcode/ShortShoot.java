@@ -6,6 +6,11 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Created by matt on 1/11/17.
  */
@@ -22,6 +27,10 @@ public class ShortShoot extends LinearOpMode{
     ColorSensor cs1;
 
 
+    String sideText;
+
+    int side;
+
     DcMotor shooter;
 
     @Override
@@ -30,6 +39,41 @@ public class ShortShoot extends LinearOpMode{
 
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
+
+
+
+        // Retrieve file.
+        File file = new File("/sdcard/Pictures", "prefs");
+        StringBuilder text = new StringBuilder();
+        // Attempt to load line from file into the buffer.
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            // Ensure that the first line is not null.
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+            }
+            // Close the buffer reader
+            br.close();
+        }
+        // Catch exceptions... Or don't because that would require effort.
+        catch (IOException e) {
+        }
+
+        String colorTargetIsRight = "";
+
+        // Provide in a more user friendly form.
+        sideText = text.toString();
+
+        if(sideText.equals("red")) {
+            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
+            colorTargetIsRight = "blue, red";
+            side = -1;
+        } else if (sideText.equals("blue")) {
+            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
+            colorTargetIsRight = "red, blue";
+            side = 1;
+        }
 
         waitForStart();
 
@@ -43,7 +87,9 @@ public class ShortShoot extends LinearOpMode{
         Thread.sleep(2000);
         shooter.setPower(0);
 
-        robot.Straight(.5f, backward, 10, telemetry);
+
+        robot.AngleTurn(-60*side, 4, telemetry);
+        robot.Straight(1.3f, backward, 10, telemetry);
     }
 
     private void initDevices() {
