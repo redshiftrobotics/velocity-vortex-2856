@@ -29,8 +29,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     ColorSensor cs;
     ColorSensor cs1;
 
-
-
     @Override
     public void runOpMode() throws InterruptedException {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
