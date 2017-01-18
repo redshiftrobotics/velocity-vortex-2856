@@ -15,11 +15,6 @@ import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
 import org.lasarobotics.vision.util.ScreenOrientation;
 import org.opencv.core.Size;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
 /**
  * Created by matt on 10/15/16.
  */
@@ -34,12 +29,8 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     ColorSensor cs;
     ColorSensor cs1;
 
-    String sideText;
-
     @Override
     public void runOpMode() throws InterruptedException {
-
-
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
