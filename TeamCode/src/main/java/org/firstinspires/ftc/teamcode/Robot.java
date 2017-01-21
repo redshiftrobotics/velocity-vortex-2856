@@ -399,9 +399,9 @@ public class Robot {
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
 
-//            if(Math.abs(Direction) <= 0.03f) {
-//                break;
-//            }
+            if(Math.abs(Direction) <= 0.03f) {
+                break;
+            }
 
             Data.Drive.m0.setPower(-Direction);
             Data.Drive.m1.setPower(Direction);
