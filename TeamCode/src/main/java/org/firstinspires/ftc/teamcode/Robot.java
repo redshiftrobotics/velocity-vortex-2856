@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
@@ -21,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Created by Noah Rose Ledesma on 10/1/16.
@@ -34,7 +37,7 @@ public class Robot {
     public float IMURotations = 0;
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, ColorSensor cs1, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, ColorSensor cs1, ColorSensor lineSensor, UltrasonicSensor us, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -59,6 +62,8 @@ public class Robot {
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.colorSensor = cs; //instantiate color sensor
         Data.Drive.colorSensor1 = cs1; //instantiate color sensor
+        Data.Drive.lineSensor = lineSensor;
+        Data.Drive.us = us;
         Data.Drive.EncoderCount = 1400;
 
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
@@ -238,6 +243,110 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
+    private double filterUS(){
+        while(Data.Drive.us.getUltrasonicLevel()==0||Data.Drive.us.getUltrasonicLevel()==255);
+        return Data.Drive.us.getUltrasonicLevel();
+    }
+
+    public void ultraSeek(float distance, int tolerance, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+
+        double directionScalar;
+
+        Float[] movement = new Float[]{1f, 0f}; //forward by default
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+
+
+
+
+        while(Math.abs(filterUS() - distance) > tolerance){
+
+            directionScalar = ((distance - filterUS()) / -30) + .1*(distance - filterUS())/Math.abs(distance - filterUS()); //scale down based on what range we will normally be in
+
+            // First we check if we have exceeded our timeout and...
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
+                // ... stop our loop if we have.
+                break;
+            }
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            // Constrain our direction from being too intense.
+
+            //if(Direction > 50){ Direction = 50; }
+            //if(Direction < -50){ Direction = -50; }
+
+            // Define our motor power multiplier
+
+            //tm.addData("Direction ", Direction);
+            //tm.update();
+
+//            Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
+//            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
+//            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
+//            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
+//            tm.addData("P", Data.PID.P);
+//            if(Data.PID.P > 180) {
+            // we want full power for strafing but half power for straight
+
+            Data.Drive.m0.setPower(Range.clip(((movement[0] - movement[1]))*directionScalar - (Direction), -1, 1));
+            Data.Drive.m1.setPower(Range.clip(((movement[0] + movement[1]))*directionScalar + (Direction), -1, 1));
+            Data.Drive.m2.setPower(Range.clip(((movement[0] - movement[1]))*directionScalar + (Direction), -1, 1));
+            Data.Drive.m3.setPower(Range.clip(((movement[0] + movement[1]))*directionScalar - (Direction), -1, 1));
+//                tm.addData("DIRECTION IS", "NEGATIVE");
+//            } else {
+//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
+//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
+//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
+//                tm.addData("DIRECTION IS", "POSITIVE");
+//            }
+//
+//            tm.update();
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
     public void MoveToLine(Float[] movement, float speed, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
@@ -355,6 +464,7 @@ public class Robot {
 
         // Manually calculate our first target
         Data.PID.Target += angle;
+        tm.addData("Turning with: ", String.valueOf(Data.PID.Target));
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
@@ -372,9 +482,6 @@ public class Robot {
             CalculatePID(LoopTime, tm);
 
             // Calculate the Direction to travel to correct any rotational errors
-            tm.addData("P", Data.PID.P);
-            tm.addData("I", Data.PID.I);
-            tm.addData("D", Data.PID.D);
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
             // Constrain our direction from being too intense.
 
@@ -399,7 +506,7 @@ public class Robot {
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
 
-            if(Math.abs(Direction) <= 0.03f) {
+            if(Math.abs(Direction) <= 0.3f) {
                 break;
             }
 
@@ -411,14 +518,121 @@ public class Robot {
 //            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m3.setPower(-.5 * (Direction/Math.abs(Direction)));
-
-            tm.update();
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
         Data.Drive.m2.setPower(0);
         Data.Drive.m3.setPower(0);
+    }
+
+
+    public void SlowAngleTurn(float angle, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+
+        // Manually calculate our first target
+        Data.PID.Target += angle;
+        tm.addData("Turning with: ", String.valueOf(Data.PID.Target));
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while(StartTime + Timeout > Data.Time.CurrentTime()){
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            // Constrain our direction from being too intense.
+
+            if(Math.abs(Direction) <= 0.3f) {
+                break;
+            }
+
+            Data.Drive.m0.setPower(-Direction/4);
+            Data.Drive.m1.setPower(Direction/4);
+            Data.Drive.m2.setPower(Direction/4);
+            Data.Drive.m3.setPower(-Direction/4);
+//            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m3.setPower(-.5 * (Direction/Math.abs(Direction)));
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+
+    public void turnToLine(int turnDirection, int Timeout, Telemetry tm) {
+        float endTime = Data.Time.CurrentTime() + Timeout;
+        while((Data.Drive.lineSensor.red() + Data.Drive.lineSensor.blue() + Data.Drive.lineSensor.green())/3 < 70
+                && Data.Time.CurrentTime() < endTime) {
+
+            Data.Drive.m0.setPower(-.4*turnDirection);
+            Data.Drive.m1.setPower(.4*turnDirection);
+            Data.Drive.m2.setPower(.4*turnDirection);
+            Data.Drive.m3.setPower(-.4*turnDirection);
+            tm.update();
+        }
+
+        //Update IMU because we want to trust the line sensor.
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
+        Data.PID.Target = Data.PID.ComputedTarget;
+
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+    private float storedTarget;
+
+    public void storeTarget(Telemetry tm){
+        storedTarget = Data.PID.Target;
+        tm.addData("Storing", String.valueOf(storedTarget));
+        tm.update();
+    }
+
+    public void resetTarget(Telemetry tm){
+        Data.PID.Target = storedTarget;
+        tm.addData("Resetting", String.valueOf(Data.PID.Target));
+        tm.update();
     }
     
     // Private Methods
@@ -598,6 +812,8 @@ class Drive {
     DcMotor m3;
     ColorSensor colorSensor;
     ColorSensor colorSensor1;
+    UltrasonicSensor us;
+    ColorSensor lineSensor;
     int EncoderCount;
     final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
 }

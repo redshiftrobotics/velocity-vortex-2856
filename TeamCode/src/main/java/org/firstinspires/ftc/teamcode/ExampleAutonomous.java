@@ -21,13 +21,31 @@ import org.opencv.core.Size;
  */
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearVisionOpMode {
+    I2cDeviceSynch imu;
+    DcMotor m0;
+    DcMotor m1;
+    DcMotor m2;
+    DcMotor m3;
+    Robot robot;
+    ColorSensor cs;
+    ColorSensor cs1;
+    ColorSensor csFront;
     UltrasonicSensor us;
 
     @Override
     public void runOpMode() throws InterruptedException {
         us = hardwareMap.ultrasonicSensor.get("us");
+        imu = hardwareMap.i2cDeviceSynch.get("imu");
+        m0 = hardwareMap.dcMotor.get("m0");
+        m1 = hardwareMap.dcMotor.get("m1");
+        m2 = hardwareMap.dcMotor.get("m2");
+        m3 = hardwareMap.dcMotor.get("m3");
+        cs = hardwareMap.colorSensor.get("cs");
+        cs1 = hardwareMap.colorSensor.get("cs1");
+        csFront = hardwareMap.colorSensor.get("csFront");
+        us = hardwareMap.ultrasonicSensor.get("us");
 
-        //robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
 
         //working PIDs
         //P: 100
@@ -41,10 +59,13 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 //        robot.Data.PID.ITuning = 0f;
 //        robot.Data.PID.DTuning = 0f;
         waitForStart();
-        while(opModeIsActive()) {
-            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
-            telemetry.update();
-        }
+//        while(opModeIsActive()) {
+//            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
+//            telemetry.update();
+//        }
+        //robot.ultraSeek(20, 0, 100, telemetry);
+
+        robot.ultraSeek(30, 1, 5, telemetry);
         //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
         //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
 //        robot.AngleTurn(45f, 4, telemetry);
@@ -55,23 +76,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 
     }
 
-
-    private void initVision() {
-        setCamera(Cameras.SECONDARY);
-        new Size();
-        setFrameSize(new Size(1440,2560));
-        enableExtension(VisionOpMode.Extensions.BEACON);
-        enableExtension(VisionOpMode.Extensions.ROTATION);
-        enableExtension(VisionOpMode.Extensions.CAMERA_CONTROL);
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
-        rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
-        rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
-        cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
-        cameraControl.setAutoExposureCompensation();
-    }
     enum TuneState {
         P, I, D
     }
