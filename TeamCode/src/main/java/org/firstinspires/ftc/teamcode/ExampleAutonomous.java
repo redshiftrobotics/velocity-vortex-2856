@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.lasarobotics.vision.android.Cameras;
 import org.lasarobotics.vision.ftc.resq.Beacon;
@@ -20,26 +21,13 @@ import org.opencv.core.Size;
  */
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
 public class ExampleAutonomous extends LinearVisionOpMode {
-    I2cDeviceSynch imu;
-    DcMotor m0;
-    DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
-    Robot robot;
-    ColorSensor cs;
-    ColorSensor cs1;
+    UltrasonicSensor us;
 
     @Override
     public void runOpMode() throws InterruptedException {
-        imu = hardwareMap.i2cDeviceSynch.get("imu");
-        m0 = hardwareMap.dcMotor.get("m0");
-        m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
-        cs = hardwareMap.colorSensor.get("cs");
-        cs1 = hardwareMap.colorSensor.get("cs1");
+        us = hardwareMap.ultrasonicSensor.get("us");
 
-        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
+        //robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
 
         //working PIDs
         //P: 100
@@ -47,17 +35,19 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         //D: 0
 
         //loop
-        initVision();
-
         //Float[] forward = new Float[]{1f,0f};
         //Float[] backward = new Float[]{-1f,0f};
-        robot.Data.PID.PTuning = 50f;
-        robot.Data.PID.ITuning = 0f;
-        robot.Data.PID.DTuning = 0f;
+//        robot.Data.PID.PTuning = 50f;
+//        robot.Data.PID.ITuning = 0f;
+//        robot.Data.PID.DTuning = 0f;
         waitForStart();
+        while(opModeIsActive()) {
+            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
+            telemetry.update();
+        }
         //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
         //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
-        robot.AngleTurn(45f, 4, telemetry);
+//        robot.AngleTurn(45f, 4, telemetry);
 //        robot.Data.PID.PTuning = 100f;
 //        robot.Data.PID.ITuning = 30f;
 //        robot.Data.PID.DTuning = 0f;
