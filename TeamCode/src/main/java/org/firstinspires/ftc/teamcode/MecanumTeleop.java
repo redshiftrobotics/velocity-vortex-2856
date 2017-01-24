@@ -23,6 +23,9 @@ public class MecanumTeleop extends OpMode {
     boolean collectSwitch;
     boolean reseting;
     int directionModifier;
+    Servo leftPush;
+    Servo rightPush;
+
     DirectionObject direction;
 
     @Override
@@ -35,12 +38,16 @@ public class MecanumTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
+        leftPush = hardwareMap.servo.get("leftPush");
+        rightPush = hardwareMap.servo.get("rightPush");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
         rotations = shooter.getCurrentPosition();
+        leftPush.setPosition(1.0);
+        rightPush.setPosition(1.0);
     }
 
     @Override
