@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -37,8 +38,10 @@ public class BlueAutonomous extends LinearVisionOpMode {
     ColorSensor csFront;
     ColorSensor lineSensor;
     UltrasonicSensor us;
+    ModernRoboticsI2cColorSensor bs;
 
     private String sideText;
+    private String color;
 
     private int side; //1 for blue, -1 for red because everything will be flipped this is now determined by a file... see the beginning of runOpMode()
 
@@ -143,26 +146,53 @@ public class BlueAutonomous extends LinearVisionOpMode {
         //NEW
         robot.MoveToLine(backward, 0.4f, 10, telemetry);
         Thread.sleep(250);
-        robot.MoveToLine(forward, 0.4f, 10, telemetry);
-        robot.SlowAngleTurn(90*side, 2, telemetry);
-        robot.Straight(0.3f, forward, 2, telemetry); // SHOULD HIT THE WALL
-        robot.Straight(0.1f, backward, 2, telemetry); // back off from the wall
-            //PROCESS BEACONS
-            Thread.sleep(2000);
-        robot.Straight(0.3f, backward, 2, telemetry); // back off further so we can turn and go to the next beacon
-        robot.AngleTurn(-90*side, 5, telemetry);
+        robot.MoveToLine(forward, 0.35f, 10, telemetry);
+        //robot.Straight(0.03f, backward, 2, telemetry);
+        robot.AngleTurn(90*side, 2, telemetry);
+        robot.Straight(0.5f, forward, 2, telemetry); // SHOULD HIT THE WALL
 
-        robot.Straight(0.4f, forward, 5, telemetry);
-        robot.MoveToLine(forward, .35f, 10, telemetry);
-//        Thread.sleep(500);
-//        robot.MoveToLine(backward, .35f, 10, telemetry);
-
-        robot.SlowAngleTurn(90*side, 2, telemetry);
-        robot.Straight(0.3f, forward, 2, telemetry); // SHOULD HIT THE WALL
-        robot.Straight(0.1f, backward, 2, telemetry); // back off from the wall
             //PROCESS BEACONS
-            Thread.sleep(2000);
-        robot.Straight(.5f, backward, 2, telemetry);
+
+        if(bs.red()>bs.blue()){
+            telemetry.addData("Red", bs.red());
+            color = "Red";
+        }else if(bs.blue()>bs.red()){
+            telemetry.addData("Blue", bs.blue());
+            color = "Blue";
+        }
+
+
+        robot.Straight(0.05f, backward, 2, telemetry); // back off from the wall
+
+        if(side==1){
+            if(color=="Blue"){
+                robot.AngleTurn(-90, 2, telemetry);
+            }else if(color=="Red"){
+                robot.AngleTurn(90, 2, telemetry);
+            }
+        }else if(side==-1){
+            if(color=="Blue"){
+                robot.AngleTurn(90, 2, telemetry);
+            }else if(color=="Red"){
+                robot.AngleTurn(-90, 2, telemetry);
+            }
+        }
+
+//        Thread.sleep(2000);
+//        robot.Straight(0.3f, backward, 2, telemetry); // back off further so we can turn and go to the next beacon
+//        robot.AngleTurn(-90*side, 5, telemetry);
+//
+//        robot.Straight(0.4f, forward, 5, telemetry);
+//        robot.MoveToLine(forward, .35f, 10, telemetry);
+////        Thread.sleep(500);
+////        robot.MoveToLine(backward, .35f, 10, telemetry);
+//
+//        robot.SlowAngleTurn(90*side, 2, telemetry);
+//        robot.Straight(0.3f, forward, 2, telemetry); // SHOULD HIT THE WALL
+//        robot.Straight(0.1f, backward, 2, telemetry); // back off from the wall
+//            //PROCESS BEACONS
+//            Thread.sleep(2000);
+//        robot.Straight(.5f, backward, 2, telemetry);
 
 
         // this should only need to be here if the color sensor is offset from the camera
@@ -275,6 +305,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         cs1 = hardwareMap.colorSensor.get("cs1");
         csFront = hardwareMap.colorSensor.get("csFront");
         lineSensor = hardwareMap.colorSensor.get("csFront");
+        bs = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get("bs");
         us = hardwareMap.ultrasonicSensor.get("us");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
