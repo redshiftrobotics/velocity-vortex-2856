@@ -37,6 +37,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
     ColorSensor csFront;
     ColorSensor lineSensor;
     UltrasonicSensor us;
+    Servo leftActuator;
 
     private String sideText;
 
@@ -97,6 +98,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
 
         //hopper.setPosition(0.48);
         waitForStart();
+
         robot.Straight(.7f, forward, 10, telemetry); //.625
 
 
@@ -144,11 +146,33 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.MoveToLine(backward, 0.4f, 10, telemetry);
         Thread.sleep(250);
         robot.MoveToLine(forward, 0.4f, 10, telemetry);
-        robot.SlowAngleTurn(90*side, 2, telemetry);
+
+
+        //REMOVE THIS ONCE LINE SENSORS ARE MOVED
+        robot.Straight(0.05f, backward, 2, telemetry);
+
+        turnConst();
+
+        robot.AngleTurn(90*side, 5, telemetry);
+        //robot.AngleTurn(-30f*side, 2, telemetry);
+        //robot.Straight(0.2f, forward, 3, telemetry);
+        //robot.AngleTurn(50f*side, 2, telemetry);
+
+        //robot.Straight(.3f, forward, 2, telemetry);
+
+        //robot.Straight(1f, backward, 5, telemetry);
+
+
+        /*
+
+
         robot.Straight(0.3f, forward, 2, telemetry); // SHOULD HIT THE WALL
-        robot.Straight(0.1f, backward, 2, telemetry); // back off from the wall
+        robot.Straight(0.05f, backward, 2, telemetry); // back off from the wall
             //PROCESS BEACONS
+            robot.AngleTurn(-20f, 3, telemetry);
+            robot.Straight(0.3f, forward, 2, telemetry);
             Thread.sleep(2000);
+            robot.AngleTurn(20f, 2, telemetry);
         robot.Straight(0.3f, backward, 2, telemetry); // back off further so we can turn and go to the next beacon
         robot.AngleTurn(-90*side, 5, telemetry);
 
@@ -157,12 +181,23 @@ public class BlueAutonomous extends LinearVisionOpMode {
 //        Thread.sleep(500);
 //        robot.MoveToLine(backward, .35f, 10, telemetry);
 
+        //REMOVE THIS ONCE LINE SENSORS ARE MOVED
+        robot.Straight(0.05f, backward, 2, telemetry);
+
+
         robot.SlowAngleTurn(90*side, 2, telemetry);
         robot.Straight(0.3f, forward, 2, telemetry); // SHOULD HIT THE WALL
         robot.Straight(0.1f, backward, 2, telemetry); // back off from the wall
             //PROCESS BEACONS
+            robot.AngleTurn(-10f, 3, telemetry);
+            robot.Straight(0.3f, forward, 2, telemetry);
             Thread.sleep(2000);
+            robot.AngleTurn(10f, 2, telemetry);
         robot.Straight(.5f, backward, 2, telemetry);
+
+
+
+        */
 
 
         // this should only need to be here if the color sensor is offset from the camera
@@ -276,6 +311,8 @@ public class BlueAutonomous extends LinearVisionOpMode {
         csFront = hardwareMap.colorSensor.get("csFront");
         lineSensor = hardwareMap.colorSensor.get("csFront");
         us = hardwareMap.ultrasonicSensor.get("us");
+        leftActuator = hardwareMap.servo.get("la");
+        leftActuator.setPosition(.55);
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, lineSensor, us, telemetry);

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import org.lasarobotics.vision.android.Cameras;
@@ -31,6 +32,7 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     ColorSensor cs1;
     ColorSensor csFront;
     UltrasonicSensor us;
+    Servo la;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -44,9 +46,10 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         cs1 = hardwareMap.colorSensor.get("cs1");
         csFront = hardwareMap.colorSensor.get("csFront");
         us = hardwareMap.ultrasonicSensor.get("us");
-
+        la = hardwareMap.servo.get("la");
         robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
-
+        Float[] forward = new Float[]{1f,0f};
+        Float[] backward = new Float[]{-1f,0f};
         //working PIDs
         //P: 100
         //I: 30
@@ -65,7 +68,10 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 //        }
         //robot.ultraSeek(20, 0, 100, telemetry);
 
-        robot.ultraSeek(30, 1, 5, telemetry);
+        robot.Straight(0.3f, forward, 10, telemetry);
+        robot.AngleTurn(90f, 5, telemetry);
+        robot.Straight(0.3f, forward, 10, telemetry);
+
         //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
         //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
 //        robot.AngleTurn(45f, 4, telemetry);
