@@ -149,7 +149,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         robot.MoveToLine(forward, 0.35f, 10, telemetry);
         //robot.Straight(0.03f, backward, 2, telemetry);
         robot.AngleTurn(90*side, 2, telemetry);
-        robot.Straight(0.5f, forward, 2, telemetry); // SHOULD HIT THE WALL
+        robot.Straight(0.4f, forward, 2, telemetry); // SHOULD HIT THE WALL
 
             //PROCESS BEACONS
 
@@ -162,7 +162,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         }
 
 
-        robot.Straight(0.05f, backward, 2, telemetry); // back off from the wall
+        //robot.Straight(0f, backward, 2, telemetry); // back off from the wall
 
         if(side==1){
             if(color=="Blue"){
@@ -172,8 +172,11 @@ public class BlueAutonomous extends LinearVisionOpMode {
             }
         }else if(side==-1){
             if(color=="Blue"){
+                robot.AngleTurn(13, 1, telemetry);
+                robot.Straight(0.15f, forward, 1, telemetry);
                 robot.AngleTurn(90, 2, telemetry);
             }else if(color=="Red"){
+                robot.Straight(0.5f, forward, 1, telemetry);
                 robot.AngleTurn(-90, 2, telemetry);
             }
         }
