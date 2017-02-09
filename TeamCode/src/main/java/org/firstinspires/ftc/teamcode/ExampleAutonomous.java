@@ -43,7 +43,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         cs = hardwareMap.colorSensor.get("cs");
         cs1 = hardwareMap.colorSensor.get("cs1");
         csFront = hardwareMap.colorSensor.get("csFront");
-        us = hardwareMap.ultrasonicSensor.get("us");
 
         robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
 
@@ -53,19 +52,20 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         //D: 0
 
         //loop
-        //Float[] forward = new Float[]{1f,0f};
+        Float[] forward = new Float[]{1f,0f};
         //Float[] backward = new Float[]{-1f,0f};
 //        robot.Data.PID.PTuning = 50f;
 //        robot.Data.PID.ITuning = 0f;
 //        robot.Data.PID.DTuning = 0f;
         waitForStart();
+        robot.Straight(1f, forward, 10, telemetry);
 //        while(opModeIsActive()) {
 //            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
 //            telemetry.update();
 //        }
         //robot.ultraSeek(20, 0, 100, telemetry);
 
-        robot.ultraSeek(30, 1, 5, telemetry);
+        //robot.ultraSeek(30, 1, 5, telemetry);
         //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
         //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
 //        robot.AngleTurn(45f, 4, telemetry);
