@@ -12,8 +12,8 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Duncan on 11/5/2016.
  */
-@TeleOp(name="Mechanum")
-public class MecanumTeleop extends OpMode {
+@TeleOp(name="Stealth")
+public class StealthTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
@@ -23,8 +23,7 @@ public class MecanumTeleop extends OpMode {
     boolean collectSwitch;
     boolean reseting;
     int directionModifier;
-    Servo leftPush;
-    Servo rightPush;
+
 
     DirectionObject direction;
 
@@ -38,16 +37,12 @@ public class MecanumTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
-        leftPush = hardwareMap.servo.get("leftPush");
-        rightPush = hardwareMap.servo.get("rightPush");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
         rotations = shooter.getCurrentPosition();
-        leftPush.setPosition(1.0);
-        rightPush.setPosition(1.0);
     }
 
     @Override
@@ -72,7 +67,7 @@ public class MecanumTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip(pad.left_stick_y,-1,1));
+        capballLift.setPower(Range.clip(-(pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
     }
 
     void resetMotors(Gamepad pad)
@@ -91,7 +86,7 @@ public class MecanumTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x);
+        direction.setValues(/*pad.right_stick_x * directionModifier*/ 0, -(pad.right_stick_y) * directionModifier, -(pad.left_stick_x * pad.left_stick_x * pad.left_stick_x));
 
         motors[0].setPower(direction.frontLeftSpeed());
         motors[1].setPower(direction.frontRightSpeed());
