@@ -139,18 +139,10 @@ public class Robot {
 //            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
 //            tm.addData("P", Data.PID.P);
 //            if(Data.PID.P > 180) {
-            // we want full power for strafing but half power for straight
-            if(movement[0] > 0 || movement[0] < 0) {
-                Data.Drive.m0.setPower((((movement[0] - movement[1] * 2) * 0.65) - (Direction)) / 2);
-                Data.Drive.m1.setPower((((movement[0] + movement[1] * 2) * 0.65) + (Direction)) / 2);
-                Data.Drive.m2.setPower((((movement[0] - movement[1] * 2) * 0.65) + (Direction)) / 2);
-                Data.Drive.m3.setPower((((movement[0] + movement[1] * 2) * 0.65) - (Direction)) / 2);
-            } else {
-                Data.Drive.m0.setPower((((movement[0] - movement[1] * 2) * 0.65) - (Direction)));
-                Data.Drive.m1.setPower((((movement[0] + movement[1] * 2) * 0.65) + (Direction)));
-                Data.Drive.m2.setPower((((movement[0] - movement[1] * 2) * 0.65) + (Direction)));
-                Data.Drive.m3.setPower((((movement[0] + movement[1] * 2) * 0.65) - (Direction)));
-            }
+                Data.Drive.m0.setPower((movement[0] * 0.65/4) + Direction);
+                Data.Drive.m1.setPower((movement[0] * 0.65/4) - Direction);
+                Data.Drive.m2.setPower((movement[0] * 0.65/4) - Direction);
+                Data.Drive.m3.setPower((movement[0] * 0.65/4) + Direction);
 //                tm.addData("DIRECTION IS", "NEGATIVE");
 //            } else {
 //                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
@@ -235,10 +227,10 @@ public class Robot {
             //tm.addData("Direction ", Direction);
             //tm.update();
 
-            Data.Drive.m0.setPower((((movement[0] - movement[1]) * speed) - (Direction)) /2);
-            Data.Drive.m1.setPower((((movement[0] + movement[1]) * speed) + (Direction)) /2);
-            Data.Drive.m2.setPower((((movement[0] - movement[1]) * speed) + (Direction)) /2);
-            Data.Drive.m3.setPower((((movement[0] + movement[1]) * speed) - (Direction)) /2);
+            Data.Drive.m0.setPower((movement[0] * speed) + Direction);
+            Data.Drive.m1.setPower((movement[0] * speed) - Direction);
+            Data.Drive.m2.setPower((movement[0] * speed) - Direction);
+            Data.Drive.m3.setPower((movement[0] * speed) + Direction);
 //            tm.addData("P", Data.PID.P);
 //            if(Data.PID.P > 180) {
 //                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));

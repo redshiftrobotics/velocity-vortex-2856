@@ -27,15 +27,11 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        us = hardwareMap.ultrasonicSensor.get("us");
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        cs = hardwareMap.colorSensor.get("cs");
-        cs1 = hardwareMap.colorSensor.get("cs1");
-        csFront = hardwareMap.colorSensor.get("csFront");
         robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
@@ -46,11 +42,25 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 
         //loop
         //Float[] backward = new Float[]{-1f,0f};
-//        robot.Data.PID.PTuning = 50f;
-//        robot.Data.PID.ITuning = 0f;
-//        robot.Data.PID.DTuning = 0f;
+
+        robot.Data.PID.PTuning = 15f;
+        robot.Data.PID.ITuning = 0f;
+        robot.Data.PID.DTuning = 0f;
+
+
+        telemetry.addData("Tune val: ", robot.Data.PID.PTuning);
+
         waitForStart();
-        robot.Straight(1f, forward, 10, telemetry);
+
+        if(gamepad1.a) {
+            robot.Data.PID.PTuning -= 1;
+            Thread.sleep(10);
+        } else if(gamepad1.y) {
+            robot.Data.PID.PTuning += 1;
+            Thread.sleep(10);
+        }
+
+        robot.Straight(0.5f, forward, 10, telemetry);
 //        while(opModeIsActive()) {
 //            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
 //            telemetry.update();
