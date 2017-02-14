@@ -1,21 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
-
-import org.lasarobotics.vision.android.Cameras;
-import org.lasarobotics.vision.ftc.resq.Beacon;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-import org.lasarobotics.vision.opmode.VisionOpMode;
-import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
-import org.lasarobotics.vision.util.ScreenOrientation;
-import org.opencv.core.Size;
 
 /**
  * Created by matt on 10/15/16.
@@ -45,8 +36,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         cs = hardwareMap.colorSensor.get("cs");
         cs1 = hardwareMap.colorSensor.get("cs1");
         csFront = hardwareMap.colorSensor.get("csFront");
-        us = hardwareMap.ultrasonicSensor.get("us");
-        la = hardwareMap.servo.get("la");
         robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
@@ -56,29 +45,18 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         //D: 0
 
         //loop
-        //Float[] forward = new Float[]{1f,0f};
         //Float[] backward = new Float[]{-1f,0f};
 //        robot.Data.PID.PTuning = 50f;
 //        robot.Data.PID.ITuning = 0f;
 //        robot.Data.PID.DTuning = 0f;
         waitForStart();
+        robot.Straight(1f, forward, 10, telemetry);
 //        while(opModeIsActive()) {
 //            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
 //            telemetry.update();
 //        }
         //robot.ultraSeek(20, 0, 100, telemetry);
 
-        robot.Straight(0.3f, forward, 10, telemetry);
-        robot.AngleTurn(90f, 5, telemetry);
-        robot.Straight(0.3f, forward, 10, telemetry);
-
-        //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
-        //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
-//        robot.AngleTurn(45f, 4, telemetry);
-//        robot.Data.PID.PTuning = 100f;
-//        robot.Data.PID.ITuning = 30f;
-//        robot.Data.PID.DTuning = 0f;
-        //robot.MoveToLine(forward, 0.2f, 10, telemetry);
 
     }
 
