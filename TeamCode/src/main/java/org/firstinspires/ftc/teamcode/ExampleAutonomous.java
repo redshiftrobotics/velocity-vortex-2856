@@ -43,24 +43,52 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         //loop
         //Float[] backward = new Float[]{-1f,0f};
 
-        robot.Data.PID.PTuning = 15f;
+        robot.Data.PID.PTuning = 26f;
         robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
 
+        float forwardDistance = 2.4f;
 
         telemetry.addData("Tune val: ", robot.Data.PID.PTuning);
+        telemetry.update();
 
         waitForStart();
 
-        if(gamepad1.a) {
-            robot.Data.PID.PTuning -= 1;
-            Thread.sleep(10);
-        } else if(gamepad1.y) {
-            robot.Data.PID.PTuning += 1;
-            Thread.sleep(10);
+        while(opModeIsActive()) {
+            if (gamepad1.a) {
+                robot.Data.PID.DTuning -= .1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val D: ", robot.Data.PID.DTuning);
+                telemetry.update();
+            } else if (gamepad1.y) {
+                robot.Data.PID.DTuning += .1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val D: ", robot.Data.PID.DTuning);
+                telemetry.update();
+            } else if (gamepad1.x) {
+                robot.Data.PID.ITuning -= 1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val I: ", robot.Data.PID.ITuning);
+                telemetry.update();
+            } else if (gamepad1.b) {
+                robot.Data.PID.ITuning += 1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val I: ", robot.Data.PID.ITuning);
+                telemetry.update();
+            } else if (gamepad1.dpad_up) {
+                robot.Data.PID.PTuning -= 1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);
+                telemetry.update();
+            } else if (gamepad1.dpad_down) {
+                robot.Data.PID.PTuning += 1;
+                Thread.sleep(100);
+                telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);
+                telemetry.update();
+            } else if (gamepad1.left_bumper) {
+                robot.Straight(forwardDistance, forward, 10, telemetry);
+            }
         }
-
-        robot.Straight(0.5f, forward, 10, telemetry);
 //        while(opModeIsActive()) {
 //            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
 //            telemetry.update();

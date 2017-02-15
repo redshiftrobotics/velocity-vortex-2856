@@ -76,7 +76,7 @@ public class Robot {
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
     // corrected by PID control.
     public void Straight(float Rotations, Float[] movement, int Timeout, Telemetry tm){
-        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // We need two points of data from the IMU to do our aation. So lets take the first one
         // and put it into our "current" headings slot.
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
@@ -104,6 +104,8 @@ public class Robot {
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
 
+        float SystemTime = System.currentTimeMillis();
+
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
         while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
@@ -114,7 +116,9 @@ public class Robot {
             }
 
             // Record the time since the previous loop.
-            LoopTime = Data.Time.TimeFrom(LoopTime);
+            SystemTime = System.currentTimeMillis() - SystemTime;
+            tm.log().add(Float.toString(SystemTime));
+            tm.update();
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
             CalculateAngles(tm);
@@ -139,10 +143,10 @@ public class Robot {
 //            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
 //            tm.addData("P", Data.PID.P);
 //            if(Data.PID.P > 180) {
-                Data.Drive.m0.setPower((movement[0] * 0.65/4) + Direction);
-                Data.Drive.m1.setPower((movement[0] * 0.65/4) - Direction);
-                Data.Drive.m2.setPower((movement[0] * 0.65/4) - Direction);
-                Data.Drive.m3.setPower((movement[0] * 0.65/4) + Direction);
+                Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
+                Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
+                Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
+                Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
 //                tm.addData("DIRECTION IS", "NEGATIVE");
 //            } else {
 //                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
@@ -419,6 +423,9 @@ public class Robot {
         Data.PID.DerivativeData.add(Data.PID.ComputedTarget);
 
         // Keep IntegralData and DerivativeData from having an exceeding number of entries.
+
+        
+
         if (Data.PID.IntegralData.size() > 500){
             Data.PID.IntegralData.remove(0);
         }
