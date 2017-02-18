@@ -26,23 +26,31 @@ public class CustomSettingsActivity extends Activity {
 
     FileOutputStream outputStream;
     TextView sideText;
+    EditText autoConf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.custom_settings);
         sideText = (TextView) findViewById(R.id.sideText);
-        sideText.setText(readFromFile());
+        sideText.setText(readFromFile("/sdcard/Pictures/prefs"));
+
+        autoConf = (EditText) findViewById(R.id.autoConf);
+        autoConf.setText(readFromFile("/sdcard/autoprefs"));
     }
 
     public void blueClicked(View v) {
         writeToFile("blue");
-        sideText.setText(readFromFile());
+        sideText.setText(readFromFile("/sdcard/Pictures/prefs"));
     }
 
     public void redClicked(View v) {
         writeToFile("red");
-        sideText.setText(readFromFile());
+        sideText.setText(readFromFile("/sdcard/Pictures/prefs"));
+    }
+
+    public void updateAuto(View v) {
+        writeAutoFile(autoConf.getText().toString());
     }
 
     public void writeToFile (String string) {
@@ -58,10 +66,23 @@ public class CustomSettingsActivity extends Activity {
         }
     }
 
-    public String readFromFile () {
+    public void writeAutoFile (String string) {
+        try {
+            File file = new File("/sdcard", "autoprefs");
+
+            //outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
+            outputStream = new FileOutputStream(file,false);
+            outputStream.write(string.getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String readFromFile (String filePath) {
         // Read from preferences file written by the CustomSettingsActivity to determine what side we are on.
         // Retrieve file.
-        File file = new File("/sdcard/Pictures","prefs");
+        File file = new File(filePath);
         StringBuilder text = new StringBuilder();
         // Attempt to load line from file into the buffer.
         try {
