@@ -6,22 +6,22 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
+
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 /**
  * Created by matt on 10/15/16.
  */
-@Autonomous(name = "ExampleAutonomous", group = "pid-test")
-public class ExampleAutonomous extends LinearVisionOpMode {
+@Autonomous(name = "WallFollowTest", group = "pid-test")
+public class WallFollowTest extends LinearVisionOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
     Robot robot;
-    ColorSensor cs;
-    ColorSensor cs1;
-    ColorSensor csFront;
+    ColorSensor csf;
+    ColorSensor csb;
     UltrasonicSensor us;
     Servo la;
 
@@ -32,6 +32,8 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
+        csf = hardwareMap.colorSensor.get("csf");
+        csb = hardwareMap.colorSensor.get("csb");
         robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
@@ -49,7 +51,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
 
         float IMult = 0;
         float DMult = 0;
-        float forwardDistance = 2.4f;
 
         telemetry.addData("Tune val: ", robot.Data.PID.PTuning);
         telemetry.update();
@@ -90,9 +91,7 @@ public class ExampleAutonomous extends LinearVisionOpMode {
                 Thread.sleep(100);
                 telemetry.update();
             } else if (gamepad1.left_bumper) {
-                robot.Straight(2.1f, forward, 10, telemetry);
-            } else if (gamepad1.right_bumper) {
-                robot.Straight(2.1f, backward, 10, telemetry);
+                robot.WallFollow(forward, csb, 20, telemetry);
             }
 
             telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);
@@ -101,12 +100,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
             telemetry.update();
             Thread.sleep(100);
         }
-//        while(opModeIsActive()) {
-//            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
-//            telemetry.update();
-//        }
-        //robot.ultraSeek(20, 0, 100, telemetry);
-
 
     }
 

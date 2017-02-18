@@ -145,9 +145,9 @@ public class BlueAutonomous extends LinearVisionOpMode {
         straightConst();
 
         //NEW
-        robot.MoveToLine(backward, 0.4f, 10, telemetry);
+        robot.MoveToLine(backward, cs, 0.4f, 10, telemetry);
         Thread.sleep(250);
-        robot.MoveToLine(forward, 0.35f, 10, telemetry);
+        robot.MoveToLine(forward, cs, 0.35f, 10, telemetry);
         //robot.Straight(0.03f, backward, 2, telemetry);
         robot.AngleTurn(90*side, 2, telemetry);
         robot.Straight(0.4f, forward, 2, telemetry); // SHOULD HIT THE WALL
@@ -214,7 +214,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         us = hardwareMap.ultrasonicSensor.get("us");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, lineSensor, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
     }
 
     private void turnConst() {

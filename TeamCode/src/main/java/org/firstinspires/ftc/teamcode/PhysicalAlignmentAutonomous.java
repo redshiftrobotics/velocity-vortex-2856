@@ -32,10 +32,8 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
     DcMotor m2;
     DcMotor m3;
     Robot robot;
-    ColorSensor cs;
-    ColorSensor cs1;
-    ColorSensor csFront;
-    ColorSensor lineSensor;
+    ColorSensor csf;
+    ColorSensor csb;
     UltrasonicSensor us;
     ModernRoboticsI2cColorSensor bs;
 
@@ -115,10 +113,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
 
         //5A: Track to line
         straightConst();
-        robot.MoveToLine(forward, 0.4f, 2, telemetry);
+        robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
 
         //5B: Track closer to line
-        robot.MoveToLine(backward, 0.25f, 2, telemetry);
+        robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
 
         //6: Turn to beacon
         turnConst();
@@ -154,10 +152,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
         robot.Straight(1.3f, forward, 1, telemetry);
 
         //11A: Track to line
-        robot.MoveToLine(forward, 0.4f, 2, telemetry);
+        robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
 
         //11B: Track closer to line
-        robot.MoveToLine(backward, 0.25f, 2, telemetry);
+        robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
 
         //12: Turn to beacon
         turnConst();
@@ -193,10 +191,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
             robot.Straight(0.5f, backward, 2, telemetry);
 
             //2A: Track to line
-            robot.MoveToLine(backward, 0.4f, 1, telemetry);
+            robot.MoveToLine(backward, csf, 0.4f, 1, telemetry);
 
             //2B: Track closer to line
-            robot.MoveToLine(forward, 0.25f, 1, telemetry);
+            robot.MoveToLine(forward, csf, 0.25f, 1, telemetry);
 
             //3: Turn to beacon
             turnConst();
@@ -218,10 +216,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
             robot.Straight(0.5f, forward, 2, telemetry);
 
             //8A: Track to line
-            robot.MoveToLine(forward, 0.4f, 1, telemetry);
+            robot.MoveToLine(forward, csf, 0.4f, 1, telemetry);
 
             //8B: Track closer to line
-            robot.MoveToLine(backward, 0.25f, 1, telemetry);
+            robot.MoveToLine(backward, csf, 0.25f, 1, telemetry);
         }else{
             //Phase 2B:
             //1: Turn towards center vortex
@@ -304,15 +302,14 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
-        cs = hardwareMap.colorSensor.get("cs");
-        cs1 = hardwareMap.colorSensor.get("cs1");
-        csFront = hardwareMap.colorSensor.get("csFront");
-        lineSensor = hardwareMap.colorSensor.get("csFront");
+        csf = hardwareMap.colorSensor.get("csf");
+        csf = hardwareMap.colorSensor.get("csb");
+        csb = hardwareMap.colorSensor.get("csFront");
         bs = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get("bs");
         us = hardwareMap.ultrasonicSensor.get("us");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, lineSensor, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
     }
 
     private void turnConst() {

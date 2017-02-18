@@ -37,7 +37,7 @@ public class Robot {
     public float IMURotations = 0;
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, ColorSensor cs, ColorSensor cs1, ColorSensor lineSensor, UltrasonicSensor us, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, UltrasonicSensor us, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -60,10 +60,7 @@ public class Robot {
         Data.Drive.m3 = m3;
         Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
-        Data.Drive.colorSensor = cs; //instantiate color sensor
-        Data.Drive.colorSensor1 = cs1; //instantiate color sensor
-        Data.Drive.lineSensor = lineSensor;
-        Data.Drive.us = us;
+        Data.Drive.lus = us;
         Data.Drive.EncoderCount = 1400;
 
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
@@ -76,7 +73,7 @@ public class Robot {
     // Method that moves the robot forward variable number of Rotations. Orientation is verified and
     // corrected by PID control.
     public void Straight(float Rotations, Float[] movement, int Timeout, Telemetry tm){
-        // We need two points of data from the IMU to do our aation. So lets take the first one
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
@@ -165,12 +162,70 @@ public class Robot {
         Data.Drive.m3.setPower(0);
     }
 
-    private double filterUS(){
-        while(Data.Drive.us.getUltrasonicLevel()==0||Data.Drive.us.getUltrasonicLevel()==255);
-        return Data.Drive.us.getUltrasonicLevel();
+
+    public void WallFollow(Float[] movement, ColorSensor cs, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        CalculateAngles(tm);
+
+
+        // Do the same for Ultrasonic
+        FormatUltrasonic(tm);
+        FormatUltrasonic(tm);
+
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.uDerivativeData.clear();
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while((cs.red() + cs.blue() + cs.green())/3 < 70 && (cs.red() + cs.blue() + cs.green())/3 < 70){
+            // First we check if we have exceeded our timeout and...
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
+                // ... stop our loop if we have.
+                break;
+            }
+
+            // Calculate our angles. This method may modify the input Rotations.
+            // Calculate our PID
+            UltrasonicPID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.uI * Data.PID.ITuning) / 2000) + ((Data.PID.uP * Data.PID.PTuning) / 2000) + ((Data.PID.uD * Data.PID.DTuning) / 2000);
+
+            Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
+            Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
+            Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
+            Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
     }
 
-    public void MoveToLine(Float[] movement, float speed, int Timeout, Telemetry tm){
+    private double filterUS(){
+        while(Data.Drive.lus.getUltrasonicLevel()==0||Data.Drive.lus.getUltrasonicLevel()==255);
+        return Data.Drive.lus.getUltrasonicLevel();
+    }
+
+    public void MoveToLine(Float[] movement, ColorSensor cs, float speed, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
@@ -201,16 +256,13 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3 < 70 && (Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3 < 70){
+        while((cs.red() + cs.blue() + cs.green())/3 < 70 && (cs.red() + cs.blue() + cs.green())/3 < 70){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
                 break;
             }
 
-            tm.addData("cs", Float.toString((Data.Drive.colorSensor.red() + Data.Drive.colorSensor.blue() + Data.Drive.colorSensor.green())/3));
-            tm.addData("cs1", Float.toString((Data.Drive.colorSensor1.red() + Data.Drive.colorSensor1.blue() + Data.Drive.colorSensor1.green())/3));
-            tm.update();
             // Record the time since the previous loop.
             LoopTime = Data.Time.TimeFrom(LoopTime);
             // Calculate our angles. This method may modify the input Rotations.
@@ -328,21 +380,24 @@ public class Robot {
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
-
+//
             if(Math.abs(Direction) <= 0.3f) {
                 break;
             }
 
-            Data.Drive.m0.setPower(-Direction);
-            Data.Drive.m1.setPower(Direction);
-            Data.Drive.m2.setPower(Direction);
-            Data.Drive.m3.setPower(-Direction);
+            Data.Drive.m0.setPower((Direction*0.2/Math.abs(Direction)) + Direction);
+            Data.Drive.m1.setPower((Direction*0.2/Math.abs(Direction)) - Direction);
+            Data.Drive.m2.setPower((Direction*0.2/Math.abs(Direction)) - Direction);
+            Data.Drive.m3.setPower((Direction*0.2/Math.abs(Direction)) + Direction);
 //            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m3.setPower(-.5 * (Direction/Math.abs(Direction)));
         }
         // Our drive loop has completed! Stop the motors.
+        Data.PID.P = 0;
+        Data.PID.I = 0;
+        Data.PID.D = 0;
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
         Data.Drive.m2.setPower(0);
@@ -383,6 +438,15 @@ public class Robot {
         return Data.PID.Headings[1];
     }
 
+    private float FormatUltrasonic(Telemetry tm){
+        CalculateAngles(tm);
+        Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
+        float imuAngle = Data.PID.Headings[1];
+        float usDistance = 0f; //INPUT RAW US DATA
+        Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
+        return Data.PID.uHeadings[1];
+    }
+
     public void appendLog(String text)
     {
         File logFile = new File("sdcard/log.file");
@@ -419,20 +483,19 @@ public class Robot {
 
 
         // Append to our data sets.
-        Data.PID.IntegralData.add(Data.PID.ComputedTarget - Data.PID.Target);
-        Data.PID.DerivativeData.add(Data.PID.ComputedTarget);
+        //Data.PID.IntegralData.add(Data.PID.ComputedTarget - Data.PID.Target);
+        //Data.PID.DerivativeData.add(Data.PID.ComputedTarget);
 
-        // Keep IntegralData and DerivativeData from having an exceeding number of entries.
+        Data.PID.I += (Data.PID.ComputedTarget - Data.PID.Target) * Math.abs(LoopTime/1000);
 
-        
+//        // Keep IntegralData and DerivativeData from having an exceeding number of entries.
+//        if (Data.PID.IntegralData.size() > 500){
+//            Data.PID.IntegralData.remove(0);
+//        }
 
-        if (Data.PID.IntegralData.size() > 500){
-            Data.PID.IntegralData.remove(0);
-        }
-
-        if(Data.PID.DerivativeData.size() > 5){
-            Data.PID.DerivativeData.remove(0);
-        }
+//        if(Data.PID.DerivativeData.size() > 5){
+//            Data.PID.DerivativeData.remove(0);
+//        }
 
         // Set our P, I, and D values.
         // `P` will be the ComputedTarget - Target
@@ -440,11 +503,11 @@ public class Robot {
 
         // `I` will be the average of the IntegralData (Cries softly at the lack of Java8 streams)
 
-        float IntegralAverage = 0;
-        for(float value : Data.PID.IntegralData){
-            IntegralAverage += value;
-        }
-        Data.PID.I = IntegralAverage / Data.PID.IntegralData.size();
+//        float IntegralAverage = 0;
+//        for(float value : Data.PID.IntegralData){
+//            IntegralAverage += value;
+//        }
+//        Data.PID.I = IntegralAverage / Data.PID.IntegralData.size();
 
         // `D` will be the difference of the ComputedTarget and the Derivative average divided by
         // the time since the last loop in seconds multiplied by one plus half of the size of
@@ -454,9 +517,26 @@ public class Robot {
         for(float value : Data.PID.DerivativeData){
             DerivativeAverage += value;
         }
-        DerivativeAverage /= Data.PID.DerivativeData.size();
+        //DerivativeAverage /= Data.PID.DerivativeData.size();
+        Data.PID.D = ((Data.PID.ComputedTarget-Data.PID.Target)-Data.PID.LastError)/(LoopTime/1000);
+        //Data.PID.D = (Data.PID.ComputedTarget - DerivativeAverage) / ((LoopTime/1000) * (1 + (Data.PID.DerivativeData.size() / 2)));
+        Data.PID.LastError = Data.PID.ComputedTarget-Data.PID.Target;
+    }
 
-        Data.PID.D = (Data.PID.ComputedTarget - DerivativeAverage) / ((LoopTime/1000) * (1 + (Data.PID.DerivativeData.size() / 2)));
+
+    // Method that calculates P, I, and D. Requires the time
+    private void UltrasonicPID(float LoopTime, Telemetry tm){
+        float usTarget = 10;
+        Data.PID.uP = FormatUltrasonic(tm) - usTarget;
+        Data.PID.uI += (Data.PID.uP) * Math.abs(LoopTime/1000);
+
+        float DerivativeAverage = 0;
+        for(float value : Data.PID.uDerivativeData){
+            DerivativeAverage += value;
+        }
+        //DerivativeAverage /= Data.PID.DerivativeData.size();
+        Data.PID.uD = ((Data.PID.uP)-Data.PID.uLastError)/(LoopTime/1000);
+        Data.PID.uLastError = Data.PID.uP;
     }
 }
 
@@ -482,10 +562,16 @@ class RobotData {
 class PID {
     float ComputedTarget;
     float Target;
+    float uComputedTarget;
     float P, I, D;
+    float uP, uI, uD;
     float PTuning, ITuning, DTuning;
     float[] Headings = new float[2];
+    float[] uHeadings = new float[2];
+    float LastError;
+    float uLastError;
     ArrayList<Float> DerivativeData;
+    ArrayList<Float> uDerivativeData;
     ArrayList<Float> IntegralData;
     // Constructor
     PID(){
@@ -527,10 +613,8 @@ class Drive {
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
-    ColorSensor colorSensor;
-    ColorSensor colorSensor1;
-    UltrasonicSensor us;
-    ColorSensor lineSensor;
+    UltrasonicSensor lus;
+    UltrasonicSensor rus;
     int EncoderCount;
     final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
 }

@@ -41,13 +41,13 @@ public class LongShoot extends LinearOpMode{
         //hopper.setPosition(0.48);
         waitForStart();
         Thread.sleep(5000);
-        robot.Straight(1f, forward, 10, telemetry); //.625
+        robot.Straight(.85f, forward, 10, telemetry); //.625
 
         shooter.setPower(1);
-        Thread.sleep(2000);
+        Thread.sleep(1000);
         shooter.setPower(0);
 
-        robot.Straight(.7f, backward, 10, telemetry);
+        robot.Straight(.5f, backward, 10, telemetry);
     }
 
     private void initDevices() {
@@ -59,7 +59,7 @@ public class LongShoot extends LinearOpMode{
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, csFront, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
     }
 
     private void turnConst() {
