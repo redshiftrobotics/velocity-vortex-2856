@@ -124,36 +124,10 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-            // Constrain our direction from being too intense.
-
-            //if(Direction > 50){ Direction = 50; }
-            //if(Direction < -50){ Direction = -50; }
-
-            // Define our motor power multiplier
-
-            //tm.addData("Direction ", Direction);
-            //tm.update();
-
-//            Data.Drive.m0.setPower(Drive.POWER_CONSTANT - (Direction));
-//            Data.Drive.m1.setPower(Drive.POWER_CONSTANT + (Direction));
-//            Data.Drive.m2.setPower(Drive.POWER_CONSTANT + (Direction));
-//            Data.Drive.m3.setPower(Drive.POWER_CONSTANT - (Direction));
-//            tm.addData("P", Data.PID.P);
-//            if(Data.PID.P > 180) {
                 Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
                 Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
                 Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
                 Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
-//                tm.addData("DIRECTION IS", "NEGATIVE");
-//            } else {
-//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
-//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
-//                tm.addData("DIRECTION IS", "POSITIVE");
-//            }
-//
-//            tm.update();
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -241,15 +215,10 @@ public class Robot {
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
-        float StartPosition = Data.Drive.m0.getCurrentPosition();
 
         // Reset our Integral and Derivative data.
         Data.PID.IntegralData.clear();
         Data.PID.DerivativeData.clear();
-
-
-        //Calculate PIDS again because Isaac Zinda only knows
-
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
@@ -273,36 +242,11 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-            // Constrain our direction from being too intense.
-
-            //if(Direction > 50){ Direction = 50; }
-            //if(Direction < -50){ Direction = -50; }
-
-            // Define our motor power multiplier
-
-            //tm.addData("Direction ", Direction);
-            //tm.update();
 
             Data.Drive.m0.setPower((movement[0] * speed) + Direction);
             Data.Drive.m1.setPower((movement[0] * speed) - Direction);
             Data.Drive.m2.setPower((movement[0] * speed) - Direction);
             Data.Drive.m3.setPower((movement[0] * speed) + Direction);
-//            tm.addData("P", Data.PID.P);
-//            if(Data.PID.P > 180) {
-//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
-//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
-//                tm.addData("DIRECTION IS", "NEGATIVE");
-//            } else {
-//                Data.Drive.m0.setPower(((movement[0] - movement[1]) * 0.65) + (Direction));
-//                Data.Drive.m1.setPower(((movement[0] + movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m2.setPower(((movement[0] - movement[1]) * 0.65) - (Direction));
-//                Data.Drive.m3.setPower(((movement[0] + movement[1]) * 0.65) + (Direction));
-//                tm.addData("DIRECTION IS", "POSITIVE");
-//            }
-//
-//            tm.update();
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
