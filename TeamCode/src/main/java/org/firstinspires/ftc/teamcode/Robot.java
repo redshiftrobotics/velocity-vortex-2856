@@ -168,7 +168,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 70 && (cs.red() + cs.blue() + cs.green())/3 < 70){
+        while((cs.red() + cs.blue() + cs.green())/3 < 40){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -225,7 +225,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 70 && (cs.red() + cs.blue() + cs.green())/3 < 70){
+        while((cs.red() + cs.blue() + cs.green())/3 < 40){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -253,6 +253,10 @@ public class Robot {
         Data.Drive.m1.setPower(0);
         Data.Drive.m2.setPower(0);
         Data.Drive.m3.setPower(0);
+    }
+
+    public void UpdateTarget(float angle) {
+        Data.PID.Target += angle;
     }
 
     public void AngleTurn(float angle, int Timeout, Telemetry tm){
@@ -325,14 +329,19 @@ public class Robot {
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
 //
-            if(Math.abs(Direction) <= 0.3f) {
+//            if(Math.abs(Direction) <= 0.03f) {
+//                break;
+//            }
+
+            if (Math.abs(Data.PID.P) <= 1) {
+                tm.addData("DONE", "turning");
+                tm.update();
                 break;
             }
-
-            Data.Drive.m0.setPower((Direction*0.2/Math.abs(Direction)) + Direction);
-            Data.Drive.m1.setPower((Direction*0.2/Math.abs(Direction)) - Direction);
-            Data.Drive.m2.setPower((Direction*0.2/Math.abs(Direction)) - Direction);
-            Data.Drive.m3.setPower((Direction*0.2/Math.abs(Direction)) + Direction);
+            Data.Drive.m0.setPower((Direction*0.1/Math.abs(Direction)) + Direction);
+            Data.Drive.m1.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
+            Data.Drive.m2.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
+            Data.Drive.m3.setPower((Direction*0.1/Math.abs(Direction)) + Direction);
 //            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
