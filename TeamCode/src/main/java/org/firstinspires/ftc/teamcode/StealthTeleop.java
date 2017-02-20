@@ -24,6 +24,8 @@ public class StealthTeleop extends OpMode {
     boolean reseting;
     int directionModifier;
 
+    int constantMult = 1;
+
     //Servo capArm;
     //float capArmPos;
 
@@ -62,6 +64,24 @@ public class StealthTeleop extends OpMode {
         controlLift(gamepad2);
         switchDirection(gamepad1);
         //controlCap(gamepad2);
+
+        try {
+            constantMultChange(gamepad1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        telemetry.addData("Speed", constantMult);
+        telemetry.update();
+    }
+
+    void constantMultChange(Gamepad pad) throws InterruptedException {
+        if(pad.a){
+            constantMult++;
+            Thread.sleep(100);
+        }else if(pad.y&&constantMult!=1){
+            constantMult--;
+            Thread.sleep(100);
+        }
     }
 
     void switchDirection(Gamepad pad){
@@ -103,10 +123,10 @@ public class StealthTeleop extends OpMode {
     void Move(Gamepad pad){
         direction.setValues(/*pad.right_stick_x * directionModifier*/ 0, -(pad.right_stick_y) * directionModifier, -(pad.left_stick_x * pad.left_stick_x * pad.left_stick_x));
 
-        motors[0].setPower(direction.frontLeftSpeed());
-        motors[1].setPower(direction.frontRightSpeed());
-        motors[2].setPower(direction.backRightSpeed());
-        motors[3].setPower(direction.backLeftSpeed());
+        motors[0].setPower(direction.frontLeftSpeed()/constantMult);
+        motors[1].setPower(direction.frontRightSpeed()/constantMult);
+        motors[2].setPower(direction.backRightSpeed()/constantMult);
+        motors[3].setPower(direction.backLeftSpeed()/constantMult);
     }
 
 

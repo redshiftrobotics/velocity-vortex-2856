@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.UltrasonicSensor;
  * Created by matt on 1/11/17.
  */
 
-@Autonomous(name = "Long Shoot")
-public class LongShoot extends LinearOpMode{
+@Autonomous(name = "8693 (Cap Shoot)")
+public class CapShoot8693 extends LinearOpMode{
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -40,14 +40,14 @@ public class LongShoot extends LinearOpMode{
 
         //hopper.setPosition(0.48);
         waitForStart();
-        Thread.sleep(5000);
-        robot.Straight(.85f, forward, 10, telemetry); //.625
+        Thread.sleep(10000);
+        robot.Straight(1f, forward, 10, telemetry); //.625
 
         shooter.setPower(1);
-        Thread.sleep(1000);
+        Thread.sleep(2000);
         shooter.setPower(0);
 
-        robot.Straight(.5f, backward, 10, telemetry);
+        robot.Straight(.5f, forward, 10, telemetry);
     }
 
     private void initDevices() {

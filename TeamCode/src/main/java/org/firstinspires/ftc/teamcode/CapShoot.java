@@ -7,12 +7,17 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Created by matt on 1/11/17.
  */
 
-@Autonomous(name = "Long Shoot")
-public class LongShoot extends LinearOpMode{
+@Autonomous(name = "Cap Shoot")
+public class CapShoot extends LinearOpMode{
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -24,8 +29,11 @@ public class LongShoot extends LinearOpMode{
     ColorSensor csFront;
     UltrasonicSensor us;
 
+    private String sideText;
 
     DcMotor shooter;
+
+    private int side;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -34,20 +42,49 @@ public class LongShoot extends LinearOpMode{
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 
+
+        File file = new File("/sdcard/Pictures", "prefs");
+        StringBuilder text = new StringBuilder();
+        // Attempt to load line from file into the buffer.
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            // Ensure that the first line is not null.
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+            }
+            // Close the buffer reader
+            br.close();
+        }
+        // Catch exceptions... Or don't because that would require effort.
+        catch (IOException e) {
+        }
+
+
+        // Provide in a more user friendly form.
+        sideText = text.toString();
+        if(sideText.equals("red")) {
+            side = -1;
+        } else if (sideText.equals("blue")) {
+            side = 1;
+        }
+
         waitForStart();
 
         straightConst();
 
         //hopper.setPosition(0.48);
         waitForStart();
-        Thread.sleep(5000);
+        Thread.sleep(7000);
         robot.Straight(.85f, forward, 10, telemetry); //.625
-
         shooter.setPower(1);
         Thread.sleep(1000);
         shooter.setPower(0);
 
-        robot.Straight(.5f, backward, 10, telemetry);
+        if(side == 1) {
+            robot.AngleTurn(-20f, 3, telemetry);
+        }
+        robot.Straight(.6f, forward, 10, telemetry);
     }
 
     private void initDevices() {
