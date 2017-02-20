@@ -24,6 +24,7 @@ public class NeoAuto extends LinearVisionOpMode {
     DcMotor m1;
     DcMotor m2;
     DcMotor m3;
+    DcMotor shooter;
     Robot robot;
     ColorSensor csf;
     ColorSensor csb;
@@ -36,24 +37,51 @@ public class NeoAuto extends LinearVisionOpMode {
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         initDevices();
-        straightConst();
         side = getSide();
         waitForStart();
-        robot.Straight(.6f, forward, 10, telemetry);
+
+
+        straightConst();
+        robot.Straight(.5f, forward, 10, telemetry);
+        turnConst();
         if(side == -1) {
             //turn a little to the right
-            side = side; // useless to get rid of empty if body warnings
+            robot.AngleTurn(-25*side, 10, telemetry);
+            shooter.setPower(1);
+            Thread.sleep(1000);
+            shooter.setPower(0);
+            robot.AngleTurn(25*side, 10, telemetry);
+        } else {
+            robot.AngleTurn(0, 10, telemetry); // reset
+            shooter.setPower(1);
+            Thread.sleep(1000);
+            shooter.setPower(0);
         }
-        robot.AngleTurn(-45, 10, telemetry);
-        robot.Straight(.4f, forward, 10, telemetry);
-        robot.MoveToLine(forward, csf, .4f, 10, telemetry);
-        robot.AngleTurn(45f, 10, telemetry);
-        robot.MoveToLine(forward, csb, .4f, 10, telemetry);
+
+//        turnConst();
+//        robot.AngleTurn(-55*side, 10, telemetry);
+//        Thread.sleep(1000);
+//        straightConst();
+//        robot.Straight(0.2f, forward, 4, telemetry);
+//        lineConst();
+//        robot.MoveToLine(forward, csb, .2f, 10, telemetry);
     }
 
 
     private void straightConst() {
         robot.Data.PID.PTuning = 10f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+    }
+
+    private void turnConst() {
+        robot.Data.PID.PTuning = 7f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+    }
+
+    private void lineConst() {
+        robot.Data.PID.PTuning = 4f;
         robot.Data.PID.ITuning = 5f;
         robot.Data.PID.DTuning = 0f;
     }
@@ -64,9 +92,28 @@ public class NeoAuto extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
+        shooter = hardwareMap.dcMotor.get("shooter");
+        shooter.setDirection(DcMotor.Direction.REVERSE);
         csf = hardwareMap.colorSensor.get("csf");
-        csf = hardwareMap.colorSensor.get("csb");
+        csb = hardwareMap.colorSensor.get("csb");
+        la = hardwareMap.servo.get("la");
         robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+    }
+
+    public void push() {
+        la.setPosition(1.0);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        la.setPosition(0.8);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        la.setPosition(1.0);
     }
 
     private int getSide() {
