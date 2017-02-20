@@ -24,6 +24,8 @@ public class StealthTeleop extends OpMode {
     boolean reseting;
     int directionModifier;
 
+    //Servo capArm;
+    //float capArmPos;
 
     DirectionObject direction;
 
@@ -43,6 +45,9 @@ public class StealthTeleop extends OpMode {
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
         rotations = shooter.getCurrentPosition();
+        //capArm = hardwareMap.servo.get("capArm");
+        //capArm.setPosition(1.0);
+        //capArmPos = 1.0f;
     }
 
     @Override
@@ -56,6 +61,7 @@ public class StealthTeleop extends OpMode {
         resetMotors(gamepad1);
         controlLift(gamepad2);
         switchDirection(gamepad1);
+        //controlCap(gamepad2);
     }
 
     void switchDirection(Gamepad pad){
@@ -66,8 +72,17 @@ public class StealthTeleop extends OpMode {
         }
     }
 
+    /*void controlCap(Gamepad pad){
+        if(pad.a){
+            capArmPos = 0.0f;
+        }else if(pad.b){
+            capArmPos = 0.5f;
+        }
+        capArm.setPosition(capArmPos);
+    }*/
+
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip(-(pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
     }
 
     void resetMotors(Gamepad pad)
