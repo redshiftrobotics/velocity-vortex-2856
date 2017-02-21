@@ -75,12 +75,10 @@ public class StealthTeleop extends OpMode {
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {
-        if(pad.a){
-            constantMult++;
-            Thread.sleep(100);
-        }else if(pad.y&&constantMult!=1){
-            constantMult--;
-            Thread.sleep(100);
+        if(pad.right_stick_button || pad.left_stick_button) {
+            constantMult = 2;
+        } else {
+            constantMult = 1;
         }
     }
 
