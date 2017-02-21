@@ -154,36 +154,4 @@ public class StealthTeleop extends OpMode {
             motor.setPower(0);
         }
     }
-
-    void Sweep(Gamepad pad){
-
-        if(collecting!=1&&pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(-1.0);
-            collecting = 1;
-        }else if(collecting==1&&pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-        if(collecting!=-1&&pad.right_bumper&&collectSwitch){
-            collector.setPower(1.0);
-            collecting = -1;
-        }else if(collecting==-1&&pad.right_bumper&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-
-        if(pad.right_bumper||pad.right_trigger>0.1){
-            collectSwitch = false;
-        }else{
-            collectSwitch = true;
-        }
-
-//        if(pad.right_trigger>0.2){
-//            collector.setPower(-1.0);
-//        }else if(pad.right_bumper){
-//            collector.setPower(1.0);
-//        }else{
-//            collector.setPower(0.0);
-//        }
-    }
 }
