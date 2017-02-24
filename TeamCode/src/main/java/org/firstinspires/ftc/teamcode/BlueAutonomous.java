@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -37,7 +38,8 @@ public class BlueAutonomous extends LinearVisionOpMode {
     ColorSensor cs1;
     ColorSensor csFront;
     ColorSensor lineSensor;
-    UltrasonicSensor us;
+    I2cDevice lrs;
+    I2cDevice rrs;
     ModernRoboticsI2cColorSensor bs;
 
     private String sideText;
@@ -211,10 +213,11 @@ public class BlueAutonomous extends LinearVisionOpMode {
         csFront = hardwareMap.colorSensor.get("csFront");
         lineSensor = hardwareMap.colorSensor.get("csFront");
         bs = (ModernRoboticsI2cColorSensor) hardwareMap.colorSensor.get("bs");
-        us = hardwareMap.ultrasonicSensor.get("us");
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
     }
 
     private void turnConst() {

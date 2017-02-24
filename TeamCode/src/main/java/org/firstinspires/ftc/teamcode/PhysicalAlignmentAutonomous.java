@@ -309,7 +309,7 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
         us = hardwareMap.ultrasonicSensor.get("us");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        //robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
     }
 
     private void turnConst() {

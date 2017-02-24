@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
@@ -22,6 +23,8 @@ public class LongShoot extends LinearOpMode{
     ColorSensor cs;
     ColorSensor cs1;
     ColorSensor csFront;
+    I2cDevice lrs;
+    I2cDevice rrs;
     UltrasonicSensor us;
 
 
@@ -41,13 +44,13 @@ public class LongShoot extends LinearOpMode{
         //hopper.setPosition(0.48);
         waitForStart();
         Thread.sleep(5000);
-        robot.Straight(.85f, forward, 10, telemetry); //.625
+        robot.Straight(1.7f, forward, 10, telemetry); //.625
 
         shooter.setPower(1);
         Thread.sleep(1000);
         shooter.setPower(0);
 
-        robot.Straight(.5f, backward, 10, telemetry);
+        robot.Straight(1f, backward, 10, telemetry);
     }
 
     private void initDevices() {
@@ -59,7 +62,7 @@ public class LongShoot extends LinearOpMode{
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
     }
 
     private void turnConst() {

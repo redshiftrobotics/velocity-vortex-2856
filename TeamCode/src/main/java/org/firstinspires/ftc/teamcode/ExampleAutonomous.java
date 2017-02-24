@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -23,6 +24,8 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     ColorSensor cs1;
     ColorSensor csFront;
     UltrasonicSensor us;
+    I2cDevice lrs;
+    I2cDevice rrs;
     Servo la;
 
     @Override
@@ -32,7 +35,7 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs

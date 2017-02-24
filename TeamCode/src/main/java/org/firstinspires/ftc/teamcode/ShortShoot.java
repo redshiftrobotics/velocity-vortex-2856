@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
@@ -19,6 +20,8 @@ import java.io.IOException;
 @Autonomous(name = "Short Shoot")
 public class ShortShoot extends LinearOpMode{
     I2cDeviceSynch imu;
+    I2cDevice lrs;
+    I2cDevice rrs;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -84,7 +87,7 @@ public class ShortShoot extends LinearOpMode{
 
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(.6f, forward, 10, telemetry); //.625
+        robot.Straight(1.45f, forward, 10, telemetry); //.6
 
         shooter.setPower(1);
         Thread.sleep(1000);
@@ -92,11 +95,11 @@ public class ShortShoot extends LinearOpMode{
 
 
         robot.AngleTurn(-90*side, 4, telemetry);
-        robot.Straight(.5f, backward, 10, telemetry);
+        robot.Straight(1f, backward, 10, telemetry);
         robot.AngleTurn(30*side, 4, telemetry);
-        robot.Straight(.2f, backward, 4, telemetry);
+        robot.Straight(.4f, backward, 4, telemetry);
         robot.AngleTurn(-30*side, 4, telemetry);
-        robot.Straight(.6f, backward, 4, telemetry);
+        robot.Straight(1.2f, backward, 4, telemetry);
     }
 
     private void initDevices() {
@@ -108,7 +111,7 @@ public class ShortShoot extends LinearOpMode{
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
     }
 
     private void turnConst() {

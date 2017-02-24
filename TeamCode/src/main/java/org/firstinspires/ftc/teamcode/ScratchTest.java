@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -26,6 +27,8 @@ public class ScratchTest extends LinearVisionOpMode {
     UltrasonicSensor us;
     Servo la;
     ColorSensor bs;
+    I2cDevice lrs;
+    I2cDevice rrs;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -37,32 +40,56 @@ public class ScratchTest extends LinearVisionOpMode {
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
         bs = hardwareMap.colorSensor.get("bs");
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        rrs = hardwareMap.i2cDevice.get("rrs");
         bs.enableLed(false);
         la = hardwareMap.servo.get("la");
         la.setPosition(0);
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 
-        robot.Data.PID.PTuning = 4f;
-        robot.Data.PID.ITuning = 8f;
+        robot.Data.PID.PTuning = 5f;
+        robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
 
         waitForStart();
 //        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
 //        robot.MoveToLine(backward, csb, 0.1f, 10, telemetry);
-        if(bs.blue() > bs.red()) {
-            telemetry.addData("color", "BLUE > RED");
-            robot.Straight(0.1f, forward, 10, telemetry);
-            push();
-        } else {
-            telemetry.addData("color", "RED > BLUE");
-            push();
-        }
-        telemetry.update();
+//        if(bs.blue() > bs.red()) {
+//            telemetry.addData("color", "BLUE > RED");
+//            robot.Straight(0.1f, forward, 10, telemetry);
+//            push();
+//        } else {
+//            telemetry.addData("color", "RED > BLUE");
+//            push();
+//        }
+//        telemetry.update();
+
+
+        //robot.WallFollow(forward, "left", csb, 10, telemetry);
+
+        robot.Data.PID.PTuning = 10f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+        /*
+        robot.AngleTurn(-10f, 10, telemetry);
+        robot.AlignWithWall(forward, 10, telemetry);
+        robot.AngleTurn(10f, 10, telemetry);
+        */
+
+
+        push();
+        Thread.sleep(1000);
+        robot.Data.PID.PTuning = 4f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
+        robot.MoveToLine(backward, csb, 0.17f, 10, telemetry);
+        push();
     }
 
-    public void push() {
+    private void push() {
         la.setPosition(1.0);
         try {
             Thread.sleep(100);
@@ -76,5 +103,11 @@ public class ScratchTest extends LinearVisionOpMode {
             e.printStackTrace();
         }
         la.setPosition(1.0);
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        la.setPosition(0);
     }
 }

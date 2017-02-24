@@ -34,7 +34,7 @@ public class ThisIsDumb extends LinearOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        //robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
 
         // make a dummy MG because we need a pre-initialized one to parse the settings file
         MovementGenerator settingsGetter = new MovementGenerator(robot, new ArrayList<Movement>(), telemetry);

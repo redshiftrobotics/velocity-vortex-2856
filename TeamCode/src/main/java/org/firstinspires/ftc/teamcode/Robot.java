@@ -6,7 +6,10 @@ import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -14,6 +17,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.SensorMRRangeSensor;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -36,8 +40,21 @@ public class Robot {
 
     public float IMURotations = 0;
 
+
+    //RangeSensor Setup
+    //set up range sensor stuff for WallFollow()
+    byte[] rangeLeftCache;
+    byte[] rangeRightCache;
+    I2cDeviceSynch RANGE_LEFT_Reader;
+    I2cDeviceSynch RANGE_RIGHT_Reader;
+
+    I2cAddr RANGEADDRESS = new I2cAddr(0x14);
+    final int RANGE_REG_START = 0x04;
+    final int RANGE_READ_LENGTH = 2;
+
+
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, UltrasonicSensor us, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice lrs, I2cDevice rrs, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -60,13 +77,19 @@ public class Robot {
         Data.Drive.m3 = m3;
         Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
-        Data.Drive.lus = us;
         Data.Drive.EncoderCount = 1400;
 
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
 
         // Start the program clock
         Data.Time = new RobotTime();
+
+        // range sensor setup
+        RANGE_LEFT_Reader = new I2cDeviceSynchImpl(lrs, RANGEADDRESS, false);
+        RANGE_LEFT_Reader.engage();
+
+        RANGE_RIGHT_Reader = new I2cDeviceSynchImpl(rrs, RANGEADDRESS, false);
+        RANGE_RIGHT_Reader.engage();
     }
     // Public Interface Methods:
 
@@ -124,10 +147,84 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-                Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
-                Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
-                Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
-                Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
+                Data.Drive.m0.setPower((movement[0] * 0.5) + Direction);
+                Data.Drive.m1.setPower((movement[0] * 0.5) - Direction);
+                Data.Drive.m2.setPower((movement[0] * 0.5) - Direction);
+                Data.Drive.m3.setPower((movement[0] * 0.5) + Direction);
+        }
+        // Our drive loop has completed! Stop the motors.
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+        Data.Drive.m2.setPower(0);
+        Data.Drive.m3.setPower(0);
+    }
+
+    // for gettin just the raw distance
+    public int getDistance() {
+        rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+        return (rangeRightCache[0] & 0xFF);
+    }
+
+    public void AlignWithWall(int targetDistance, Float[] movement, int Timeout, Telemetry tm){
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
+        CalculateAngles(tm);
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        // We need to keep track of how much time passes between a loop.
+        float LoopTime = Data.Time.CurrentTime();
+
+        float SystemTime = System.currentTimeMillis();
+
+
+
+        rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while((rangeRightCache[0] & 0xFF) > targetDistance) {
+            // First we check if we have exceeded our timeout and...
+            if(StartTime + Timeout < Data.Time.CurrentTime()){
+                // ... stop our loop if we have.
+                break;
+            }
+
+            // Record the time since the previous loop.
+            SystemTime = System.currentTimeMillis() - SystemTime;
+            tm.log().add(Float.toString(SystemTime));
+            tm.update();
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors.
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
+            Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
+            Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
+            Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
+            rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -137,7 +234,7 @@ public class Robot {
     }
 
 
-    public void WallFollow(Float[] movement, ColorSensor cs, int Timeout, Telemetry tm){
+    public void WallFollow(Float[] movement, String side, ColorSensor cs, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
@@ -153,22 +250,22 @@ public class Robot {
 
 
         // Do the same for Ultrasonic
-        FormatUltrasonic(tm);
-        FormatUltrasonic(tm);
+        FormatUltrasonic(side, tm);
+        FormatUltrasonic(side, tm);
 
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
 
         // Reset our Integral and Derivative data.
-        Data.PID.uDerivativeData.clear();
+        //Data.PID.uDerivativeData.clear();
 
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 40){
+        while((cs.red() + cs.blue() + cs.green())/3 < 1000){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -177,15 +274,18 @@ public class Robot {
 
             // Calculate our angles. This method may modify the input Rotations.
             // Calculate our PID
-            UltrasonicPID(LoopTime, tm);
+            UltrasonicPID(LoopTime, side, tm);
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.uI * Data.PID.ITuning) / 2000) + ((Data.PID.uP * Data.PID.PTuning) / 2000) + ((Data.PID.uD * Data.PID.DTuning) / 2000);
 
-            Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
-            Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
-            Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
-            Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
+            //tm.addData("Direction", Direction);
+            //tm.update();
+
+            //Data.Drive.m0.setPower((movement[0] * 0.25) - Direction);
+            //Data.Drive.m1.setPower((movement[0] * 0.25) + Direction);
+            //Data.Drive.m2.setPower((movement[0] * 0.25) + Direction);
+            //Data.Drive.m3.setPower((movement[0] * 0.25) - Direction);
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -287,8 +387,6 @@ public class Robot {
 
         // Manually calculate our first target
         Data.PID.Target += angle;
-        tm.addData("Turning with: ", String.valueOf(Data.PID.Target));
-
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
 
@@ -328,16 +426,11 @@ public class Robot {
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
-//
-//            if(Math.abs(Direction) <= 0.03f) {
-//                break;
-//            }
 
-            if (Math.abs(Data.PID.P) <= 1) {
-                tm.addData("DONE", "turning");
-                tm.update();
+            if (Math.abs(Data.PID.P) <= Data.PID.turnPrecision) {
                 break;
             }
+
             Data.Drive.m0.setPower((Direction*0.1/Math.abs(Direction)) + Direction);
             Data.Drive.m1.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
             Data.Drive.m2.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
@@ -391,12 +484,26 @@ public class Robot {
         return Data.PID.Headings[1];
     }
 
-    private float FormatUltrasonic(Telemetry tm){
-        CalculateAngles(tm);
-        Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
-        float imuAngle = Data.PID.Headings[1];
-        float usDistance = 0f; //INPUT RAW US DATA
-        Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
+    private float FormatUltrasonic(String side, Telemetry tm){
+        if(side.equals("right")) {
+            rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+            CalculateAngles(tm);
+            Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
+            float imuAngle = Data.PID.Headings[1];
+            float usDistance = rangeRightCache[0] & 0xFF; //INPUT RAW US DATA
+            tm.addData("usDistanceLeft", usDistance);
+            //Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
+            Data.PID.uHeadings[1] = usDistance;
+        } else {
+            rangeLeftCache = RANGE_LEFT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+            CalculateAngles(tm);
+            Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
+            float imuAngle = Data.PID.Headings[1];
+            float usDistance = rangeLeftCache[0] & 0xFF; //INPUT RAW US DATA
+            tm.addData("usDistanceLeft", usDistance);
+            //Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
+            Data.PID.uHeadings[1] = usDistance;
+        }
         return Data.PID.uHeadings[1];
     }
 
@@ -478,17 +585,17 @@ public class Robot {
 
 
     // Method that calculates P, I, and D. Requires the time
-    private void UltrasonicPID(float LoopTime, Telemetry tm){
+    private void UltrasonicPID(float LoopTime, String side, Telemetry tm){
         float usTarget = 10;
-        Data.PID.uP = FormatUltrasonic(tm) - usTarget;
+        Data.PID.uP = FormatUltrasonic(side, tm) - usTarget;
         Data.PID.uI += (Data.PID.uP) * Math.abs(LoopTime/1000);
 
-        float DerivativeAverage = 0;
-        for(float value : Data.PID.uDerivativeData){
-            DerivativeAverage += value;
-        }
-        //DerivativeAverage /= Data.PID.DerivativeData.size();
-        Data.PID.uD = ((Data.PID.uP)-Data.PID.uLastError)/(LoopTime/1000);
+//        float uDerivativeAverage = 0;
+//        for(float value : Data.PID.uDerivativeData){
+//            uDerivativeAverage += value;
+//        }
+//        //DerivativeAverage /= Data.PID.DerivativeData.size();
+//        Data.PID.uD = ((Data.PID.uP)-Data.PID.uLastError)/(LoopTime/1000);
         Data.PID.uLastError = Data.PID.uP;
     }
 }
@@ -513,6 +620,7 @@ class RobotData {
 
 // PID data
 class PID {
+    public float turnPrecision = 1f;
     float ComputedTarget;
     float Target;
     float uComputedTarget;

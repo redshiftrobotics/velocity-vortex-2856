@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
@@ -22,6 +23,8 @@ public class WallFollowTest extends LinearVisionOpMode {
     Robot robot;
     ColorSensor csf;
     ColorSensor csb;
+    I2cDevice lrs;
+    I2cDevice rrs;
     UltrasonicSensor us;
     Servo la;
 
@@ -34,7 +37,9 @@ public class WallFollowTest extends LinearVisionOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
-        robot = new Robot(imu, m0, m1, m2, m3, us, telemetry);
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        rrs = hardwareMap.i2cDevice.get("rrs");
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs
@@ -91,7 +96,7 @@ public class WallFollowTest extends LinearVisionOpMode {
                 Thread.sleep(100);
                 telemetry.update();
             } else if (gamepad1.left_bumper) {
-                robot.WallFollow(forward, csb, 20, telemetry);
+                robot.WallFollow(forward, "left", csb, 20, telemetry);
             }
 
             telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);
