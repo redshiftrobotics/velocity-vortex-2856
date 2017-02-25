@@ -58,7 +58,7 @@ public class NeoAuto extends LinearVisionOpMode {
         if(side == -1) {
             //turn a little to the right
             robot.AngleTurn(-25*side, 10, telemetry);
-            //shooter.setPower(1);
+            shooter.setPower(1);
             Thread.sleep(1000);
             shooter.setPower(0);
             turnConst();
@@ -68,7 +68,7 @@ public class NeoAuto extends LinearVisionOpMode {
             robot.Data.PID.turnPrecision = 1;
         } else {
             robot.AngleTurn(0, 10, telemetry); // reset
-            //shooter.setPower(1);
+            shooter.setPower(1);
             Thread.sleep(1000);
             shooter.setPower(0);
             turnConst();
@@ -98,17 +98,18 @@ public class NeoAuto extends LinearVisionOpMode {
 
         straightConst();
 
-
         robot.AlignWithWall(7, forward, 10, telemetry); // 9 worked well, 8 was still to far I think
-
 
 
         turnConst();
 
 
 
-        robot.AngleTurn(-11*side, 10, telemetry); // added one degree bias to bring closer to beacon
+        robot.Data.PID.turnPrecision = 0.5f;
+        robot.AngleTurn(-10*side, 10, telemetry);
         robot.AngleTurn(0, 10, telemetry); // reset
+        robot.Data.PID.turnPrecision = 1f;
+
 
         lineConst();
         robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
@@ -117,7 +118,6 @@ public class NeoAuto extends LinearVisionOpMode {
         telemetry.log();
         telemetry.addData("Beacon 1", robot.getDistance());
         telemetry.update();
-        Thread.sleep(2000);
 
 
 
@@ -141,14 +141,16 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
-        robot.AngleTurn(11*side, 10, telemetry); // 1 DEG BIAS HERE ASWELL
+        robot.Data.PID.turnPrecision = 0.5f;
+        robot.AngleTurn(15*side, 10, telemetry);
+        robot.Data.PID.turnPrecision = 1f;
 
 
 
         straightConst();
 
 
-        robot.Straight(.6f, backward, 10, telemetry);
+        robot.Straight(.75f, backward, 10, telemetry); //.6 working
 //        robot.UpdateTarget(30*side);
 //        robot.Straight(0.3f, backward, 10, telemetry);
 
@@ -158,7 +160,7 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
-        robot.AngleTurn(-20*side, 10, telemetry);
+        robot.AngleTurn(-25*side, 10, telemetry);
 
 
         straightConst();
@@ -172,8 +174,10 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
+        robot.Data.PID.turnPrecision = 0.5f;
         robot.AngleTurn(10*side, 10, telemetry);
         robot.AngleTurn(0, 10, telemetry); // reset
+        robot.Data.PID.turnPrecision = 1f;
 
         lineConst();
         robot.MoveToLine(backward, csb, 0.2f, 10, telemetry);
@@ -212,8 +216,8 @@ public class NeoAuto extends LinearVisionOpMode {
     }
 
     private void lineConst() {
-        robot.Data.PID.PTuning = 4f;
-        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.PTuning = 4f; // working at 4
+        robot.Data.PID.ITuning = 5f; // working at 5
         robot.Data.PID.DTuning = 0f;
     }
 
@@ -234,10 +238,13 @@ public class NeoAuto extends LinearVisionOpMode {
     }
 
     public void push(int degrees) {
+        boolean wasFirst = true;
+
         if (side == -1) { // on red side
             if(bs.blue() > bs.red()) {
                 telemetry.addData("color", "BLUE > RED");
                 robot.Straight(0.2f, forward, 10, telemetry);
+                wasFirst = false;
             } else {
                 telemetry.addData("color", "RED > BLUE");
             }
@@ -250,13 +257,8 @@ public class NeoAuto extends LinearVisionOpMode {
             }
         }
         telemetry.update();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        if(degrees >= 20) {
+        if(degrees >= 20 && wasFirst) { // if it was not the first button, there is a large risk of pressing the first button if backing up
             robot.Straight(0.1f, backward, 10, telemetry);
         }
 
@@ -270,7 +272,7 @@ public class NeoAuto extends LinearVisionOpMode {
             e.printStackTrace();
         }
 
-        robot.AngleTurn(-degrees*side, 5, telemetry);
+        robot.AngleTurn(-degrees*side, 3, telemetry);
 
 
 
