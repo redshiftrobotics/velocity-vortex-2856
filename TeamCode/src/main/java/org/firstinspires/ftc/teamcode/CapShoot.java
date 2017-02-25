@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 
 @Autonomous(name = "Cap Shoot")
-public class CapShoot extends LinearOpMode{
+public class CapShoot extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;

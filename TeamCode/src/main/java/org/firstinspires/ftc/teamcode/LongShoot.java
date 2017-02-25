@@ -60,6 +60,8 @@ public class LongShoot extends LinearOpMode{
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
