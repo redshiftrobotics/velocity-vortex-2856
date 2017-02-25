@@ -75,12 +75,10 @@ public class StealthTeleop extends OpMode {
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {
-        if(pad.a){
-            constantMult++;
-            Thread.sleep(100);
-        }else if(pad.y&&constantMult!=1){
-            constantMult--;
-            Thread.sleep(100);
+        if(pad.right_stick_button || pad.left_stick_button) {
+            constantMult = 2;
+        } else {
+            constantMult = 1;
         }
     }
 
@@ -155,37 +153,5 @@ public class StealthTeleop extends OpMode {
         }else{
             motor.setPower(0);
         }
-    }
-
-    void Sweep(Gamepad pad){
-
-        if(collecting!=1&&pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(-1.0);
-            collecting = 1;
-        }else if(collecting==1&&pad.right_trigger>0.1&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-        if(collecting!=-1&&pad.right_bumper&&collectSwitch){
-            collector.setPower(1.0);
-            collecting = -1;
-        }else if(collecting==-1&&pad.right_bumper&&collectSwitch){
-            collector.setPower(0.0);
-            collecting = 0;
-        }
-
-        if(pad.right_bumper||pad.right_trigger>0.1){
-            collectSwitch = false;
-        }else{
-            collectSwitch = true;
-        }
-
-//        if(pad.right_trigger>0.2){
-//            collector.setPower(-1.0);
-//        }else if(pad.right_bumper){
-//            collector.setPower(1.0);
-//        }else{
-//            collector.setPower(0.0);
-//        }
     }
 }
