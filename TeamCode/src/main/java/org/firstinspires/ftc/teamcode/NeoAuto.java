@@ -53,7 +53,7 @@ public class NeoAuto extends LinearVisionOpMode {
         waitForStart();
 
         straightConst();
-        robot.Straight(1.4f, forward, 10, telemetry);
+        robot.Straight(1.4f * (35f/45f), forward, 10, telemetry);
         turnConst();
         if(side == -1) {
             //turn a little to the right
@@ -83,7 +83,7 @@ public class NeoAuto extends LinearVisionOpMode {
 //        robot.MoveToLine(forward, csf, .2f, 10, telemetry);
 
         //begin alignment
-        robot.Straight(2.45f, forward, 2, telemetry);
+        robot.Straight(2.37f * (35f/45f), forward, 2, telemetry); // 2.45 to 2.37
 
 
 
@@ -98,7 +98,7 @@ public class NeoAuto extends LinearVisionOpMode {
 
         straightConst();
 
-        robot.AlignWithWall(7, forward, 10, telemetry); // 9 worked well, 8 was still to far I think
+        robot.AlignWithWall(10, forward, 10, telemetry); // 9 worked well, 8 was still to far I think... update, with no lash 7 is too close, 8 is the butter zone for both now (yay continuity!)
 
 
         turnConst();
@@ -112,9 +112,9 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
         lineConst();
-        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
+        robot.MoveToLine(forward, csb, 0.2f * (35f/45f), 10, telemetry);
         Thread.sleep(100);
-        robot.MoveToLine(backward, csb, 0.1f, 10, telemetry);
+        robot.MoveToLine(backward, csb, 0.1f * (35f/45f), 10, telemetry);
         telemetry.log();
         telemetry.addData("Beacon 1", robot.getDistance());
         telemetry.update();
@@ -124,11 +124,11 @@ public class NeoAuto extends LinearVisionOpMode {
         turnConst();
 
 
-        if(robot.getDistance() >= 5 && robot.getDistance() < 8) { // ok
+        if(robot.getDistance() >= 6 && robot.getDistance() < 10) { // ok
             push(10); // turn in further to have a better chance of pressing
-        } else if (robot.getDistance() <= 4){ // good
+        } else if (robot.getDistance() <= 7){ // good
             push(5);
-        } else if (robot.getDistance() >= 8) { // extreme, fix
+        } else if (robot.getDistance() >= 10) { // extreme, fix
             push(20);
         }
 
@@ -137,52 +137,43 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
-        turnConst();
 
+        // for some reason at this point we end with a lot of variance... how much we had to press the beacon plays a large roll in it
+        // we almost never are two far away to correct but often are too close. but if we move farther intentionally, we _do_ get to far away.
+        // therefor, if we are closer than we like for running AlignWithWall (anything closer than a couple centimeters further out than our target),
+        // we want to move out much further, otherwise we just bump out a little bit.
+        turnConst();
 
 
         robot.Data.PID.turnPrecision = 0.5f;
-        robot.AngleTurn(15*side, 10, telemetry);
+        robot.AngleTurn(15*side, 10, telemetry); // turn out from the wall
         robot.Data.PID.turnPrecision = 1f;
-
-
-
         straightConst();
 
+        // move away from the wall to set up for AlignWithWall...
+        if (robot.getDistance() < 8) { // if we are closer than 10 cm we need to get out a little further for AlignWithWall to work
+            robot.Straight(1f * (35f/45f), backward, 10, telemetry); //.6 working
+        } else { // otherwise just out a little so we dont overshoot the line when Aligning
+            robot.Straight(.83f * (35f/45f), backward, 10, telemetry); //.6 working, then *****.75******
+        }
 
-        robot.Straight(.75f, backward, 10, telemetry); //.6 working
-//        robot.UpdateTarget(30*side);
-//        robot.Straight(0.3f, backward, 10, telemetry);
+        turnConst();
+        robot.AngleTurn(-25*side, 10, telemetry); // turn in to start the wall align
+        straightConst();
+        robot.AlignWithWall(10, backward, 10, telemetry); // if we are lashing we need to get in closer with 7, but if we keep the set screws tight, 8 or 9 has better chances
 
 
 
         turnConst();
-
-
-
-        robot.AngleTurn(-25*side, 10, telemetry);
-
-
-        straightConst();
-
-
-        robot.AlignWithWall(7, backward, 10, telemetry);
-
-
-
-        turnConst();
-
-
-
         robot.Data.PID.turnPrecision = 0.5f;
         robot.AngleTurn(10*side, 10, telemetry);
         robot.AngleTurn(0, 10, telemetry); // reset
         robot.Data.PID.turnPrecision = 1f;
 
         lineConst();
-        robot.MoveToLine(backward, csb, 0.2f, 10, telemetry);
+        robot.MoveToLine(backward, csb, 0.2f * (35f/45f), 10, telemetry);
         Thread.sleep(100);
-        robot.MoveToLine(forward, csb, 0.1f, 10, telemetry);
+        robot.MoveToLine(forward, csb, 0.1f * (35f/45f), 10, telemetry);
         telemetry.addData("Beacon 2", robot.getDistance());
         telemetry.update();
 
@@ -191,15 +182,17 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
-        if(robot.getDistance() > 8) {
-            push(17); // turn in further to have a better chance of pressing
-        } else if (robot.getDistance() <= 6){
-            push(0);
-        } else {
-            push(10);
+        if(robot.getDistance() >= 6 && robot.getDistance() < 10) { // ok
+            push(10); // turn in further to have a better chance of pressing
+        } else if (robot.getDistance() <= 7){ // good
+            push(5);
+        } else if (robot.getDistance() >= 10) { // extreme, fix
+            push(20);
         }
+
+
         robot.AngleTurn(-15f, 2, telemetry);
-        robot.Straight(3f, backward, 3, telemetry);
+        robot.Straight(3f * (35f/45f), backward, 3, telemetry);
     }
 
 
@@ -210,8 +203,8 @@ public class NeoAuto extends LinearVisionOpMode {
     }
 
     private void turnConst() {
-        robot.Data.PID.PTuning = 7f;
-        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.PTuning = 10f; // 7f
+        robot.Data.PID.ITuning = 8f; // 5f
         robot.Data.PID.DTuning = 0f;
     }
 
@@ -243,7 +236,7 @@ public class NeoAuto extends LinearVisionOpMode {
         if (side == -1) { // on red side
             if(bs.blue() > bs.red()) {
                 telemetry.addData("color", "BLUE > RED");
-                robot.Straight(0.2f, forward, 10, telemetry);
+                robot.Straight(0.2f * (35f/45f), forward, 10, telemetry);
                 wasFirst = false;
             } else {
                 telemetry.addData("color", "RED > BLUE");
@@ -253,13 +246,13 @@ public class NeoAuto extends LinearVisionOpMode {
                 telemetry.addData("color", "BLUE > RED");
             } else {
                 telemetry.addData("color", "RED > BLUE");
-                robot.Straight(0.2f, forward, 10, telemetry);
+                robot.Straight(0.2f * (35f/45f), forward, 10, telemetry);
             }
         }
         telemetry.update();
 
         if(degrees >= 20 && wasFirst) { // if it was not the first button, there is a large risk of pressing the first button if backing up
-            robot.Straight(0.1f, backward, 10, telemetry);
+            robot.Straight(0.07f * (35f/45f), backward, 10, telemetry);
         }
 
 

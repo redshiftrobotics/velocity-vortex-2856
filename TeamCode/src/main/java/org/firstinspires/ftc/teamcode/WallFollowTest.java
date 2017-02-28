@@ -96,7 +96,7 @@ public class WallFollowTest extends LinearVisionOpMode {
                 Thread.sleep(100);
                 telemetry.update();
             } else if (gamepad1.left_bumper) {
-                robot.WallFollow(forward, "left", csb, 20, telemetry);
+                //robot.WallFollow(10, forward, "left", csb, 20, telemetry);
             }
 
             telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);

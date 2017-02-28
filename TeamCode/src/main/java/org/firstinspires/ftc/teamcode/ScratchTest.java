@@ -39,7 +39,7 @@ public class ScratchTest extends LinearVisionOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
-        bs = hardwareMap.colorSensor.get("bs");
+        bs = hardwareMap.colorSensor.get("lbs");
         lrs = hardwareMap.i2cDevice.get("lrs");
         rrs = hardwareMap.i2cDevice.get("rrs");
         bs.enableLed(false);
@@ -69,9 +69,11 @@ public class ScratchTest extends LinearVisionOpMode {
 
         //robot.WallFollow(forward, "left", csb, 10, telemetry);
 
-        robot.Data.PID.PTuning = 10f;
-        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.PTuning = 6f;
+        robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
+        robot.WallFollow(10, forward, "left", csb, 20, telemetry);
+
         /*
         robot.AngleTurn(-10f, 10, telemetry);
         robot.AlignWithWall(forward, 10, telemetry);
@@ -79,14 +81,14 @@ public class ScratchTest extends LinearVisionOpMode {
         */
 
 
-        push();
-        Thread.sleep(1000);
-        robot.Data.PID.PTuning = 4f;
-        robot.Data.PID.ITuning = 5f;
-        robot.Data.PID.DTuning = 0f;
-        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
-        robot.MoveToLine(backward, csb, 0.17f, 10, telemetry);
-        push();
+//        push();
+//        Thread.sleep(1000);
+//        robot.Data.PID.PTuning = 4f;
+//        robot.Data.PID.ITuning = 5f;
+//        robot.Data.PID.DTuning = 0f;
+//        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
+//        robot.MoveToLine(backward, csb, 0.17f, 10, telemetry);
+//        push();
     }
 
     private void push() {

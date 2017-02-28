@@ -40,7 +40,6 @@ public class Robot {
 
     public float IMURotations = 0;
 
-
     //RangeSensor Setup
     //set up range sensor stuff for WallFollow()
     byte[] rangeLeftCache;
@@ -69,6 +68,7 @@ public class Robot {
         Data.imu.initialize(Data.imuParameters);
 
         Data.PID.Target = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+
 
         // Store the Robot Hardware
         Data.Drive.m0 = m0;
@@ -147,10 +147,10 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-                Data.Drive.m0.setPower((movement[0] * 0.5) + Direction);
-                Data.Drive.m1.setPower((movement[0] * 0.5) - Direction);
-                Data.Drive.m2.setPower((movement[0] * 0.5) - Direction);
-                Data.Drive.m3.setPower((movement[0] * 0.5) + Direction);
+                Data.Drive.m0.setPower(((movement[0] * 0.5) + Direction) * (35f/45f));
+                Data.Drive.m1.setPower(((movement[0] * 0.5) - Direction) * (35f/45f));
+                Data.Drive.m2.setPower(((movement[0] * 0.5) - Direction) * (35f/45f));
+                Data.Drive.m3.setPower(((movement[0] * 0.5) + Direction) * (35f/45f));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -203,7 +203,7 @@ public class Robot {
         // We use encoders to form a loop that corrects rotation until we reach our target.
         while((rangeRightCache[0] & 0xFF) > targetDistance) {
             // First we check if we have exceeded our timeout and...
-            if(StartTime + Timeout < Data.Time.CurrentTime()){
+            if(StartTime + Timeout < Data.Time.CurrentTime()) {
                 // ... stop our loop if we have.
                 break;
             }
@@ -220,10 +220,10 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-            Data.Drive.m0.setPower((movement[0] * 0.25) + Direction);
-            Data.Drive.m1.setPower((movement[0] * 0.25) - Direction);
-            Data.Drive.m2.setPower((movement[0] * 0.25) - Direction);
-            Data.Drive.m3.setPower((movement[0] * 0.25) + Direction);
+            Data.Drive.m0.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
+            Data.Drive.m1.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
+            Data.Drive.m2.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
+            Data.Drive.m3.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
             rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         }
         // Our drive loop has completed! Stop the motors.
@@ -234,9 +234,11 @@ public class Robot {
     }
 
 
-    public void WallFollow(Float[] movement, String side, ColorSensor cs, int Timeout, Telemetry tm){
+    public void WallFollow(int targetDistance, Float[] movement, String side, ColorSensor cs, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
+
+        float initAngle = Data.PID.Target;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
@@ -263,9 +265,28 @@ public class Robot {
         // We need to keep track of how much time passes between a loop.
         float LoopTime = Data.Time.CurrentTime();
 
+        float SystemTime = System.currentTimeMillis();
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 1000){
+        while((cs.red() + cs.blue() + cs.green())/3 < 50){
+
+
+            // Record the time since the previous loop.
+            SystemTime = System.currentTimeMillis() - SystemTime;
+
+            float targetAngle;
+            if (side.equals("left")) {
+                targetAngle = (getDistance() - targetDistance) * 3.5f; // as we get farther away, it gets more negative... const is scalar
+            } else {
+                targetAngle = (targetDistance - getDistance()) * 3.5f; // as we get farther away, it gets more positive... const is scalar
+            }
+
+            SetTarget(initAngle + Range.clip(targetAngle, -15f, 15f));
+
+            CalculateAngles(tm);
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -274,18 +295,15 @@ public class Robot {
 
             // Calculate our angles. This method may modify the input Rotations.
             // Calculate our PID
-            UltrasonicPID(LoopTime, side, tm);
-
-            // Calculate the Direction to travel to correct any rotational errors.
-            float Direction = ((Data.PID.uI * Data.PID.ITuning) / 2000) + ((Data.PID.uP * Data.PID.PTuning) / 2000) + ((Data.PID.uD * Data.PID.DTuning) / 2000);
+            //UltrasonicPID(LoopTime, side, tm);
 
             //tm.addData("Direction", Direction);
             //tm.update();
-
-            //Data.Drive.m0.setPower((movement[0] * 0.25) - Direction);
-            //Data.Drive.m1.setPower((movement[0] * 0.25) + Direction);
-            //Data.Drive.m2.setPower((movement[0] * 0.25) + Direction);
-            //Data.Drive.m3.setPower((movement[0] * 0.25) - Direction);
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            Data.Drive.m0.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
+            Data.Drive.m1.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
+            Data.Drive.m2.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
+            Data.Drive.m3.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -357,6 +375,10 @@ public class Robot {
 
     public void UpdateTarget(float angle) {
         Data.PID.Target += angle;
+    }
+
+    public void SetTarget(float angle) {
+        Data.PID.Target = angle; // hardset, dangerous, doesn't take into account starting pos... keep that in mind
     }
 
     public void AngleTurn(float angle, int Timeout, Telemetry tm){
@@ -431,10 +453,10 @@ public class Robot {
                 break;
             }
 
-            Data.Drive.m0.setPower((Direction*0.1/Math.abs(Direction)) + Direction);
-            Data.Drive.m1.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
-            Data.Drive.m2.setPower(-(Direction*0.1/Math.abs(Direction)) - Direction);
-            Data.Drive.m3.setPower((Direction*0.1/Math.abs(Direction)) + Direction);
+            Data.Drive.m0.setPower(((Direction*0.1/Math.abs(Direction)) + Direction) * (35f/45f));
+            Data.Drive.m1.setPower((-(Direction*0.1/Math.abs(Direction)) - Direction) * (35f/45f));
+            Data.Drive.m2.setPower((-(Direction*0.1/Math.abs(Direction)) - Direction) * (35f/45f));
+            Data.Drive.m3.setPower(((Direction*0.1/Math.abs(Direction)) + Direction) * (35f/45f));
 //            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
