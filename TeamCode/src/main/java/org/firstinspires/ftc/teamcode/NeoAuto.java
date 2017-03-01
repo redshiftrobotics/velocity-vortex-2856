@@ -32,7 +32,7 @@ public class NeoAuto extends LinearVisionOpMode {
     ColorSensor csf;
     ColorSensor csb;
     UltrasonicSensor us;
-    Servo la;
+    Servo actuator;
     ColorSensor bs; // beacon sensor
     int side;
 
@@ -46,8 +46,11 @@ public class NeoAuto extends LinearVisionOpMode {
 
         if(side == -1) { // on red side, thus using left side of robot
             bs = hardwareMap.colorSensor.get("lbs");
+            actuator = hardwareMap.servo.get("la");
         } else {
             bs = hardwareMap.colorSensor.get("rbs");
+            actuator = hardwareMap.servo.get("ra");
+            actuator.setDirection(Servo.Direction.REVERSE);
         }
 
         waitForStart();
@@ -224,7 +227,6 @@ public class NeoAuto extends LinearVisionOpMode {
         shooter.setDirection(DcMotor.Direction.REVERSE);
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
-        la = hardwareMap.servo.get("la");
         lrs = hardwareMap.i2cDevice.get("lrs");
         rrs = hardwareMap.i2cDevice.get("rrs");
         robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
@@ -258,7 +260,7 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
         // out first then turn into it... worked well with turning first too
-        la.setPosition(1.0);
+        actuator.setPosition(1.0);
         try {
             Thread.sleep(700);
         } catch (InterruptedException e) {
@@ -270,7 +272,7 @@ public class NeoAuto extends LinearVisionOpMode {
 
 
 
-        la.setPosition(0);
+        actuator.setPosition(0);
         robot.AngleTurn(degrees*side, 5, telemetry);
     }
 
