@@ -21,8 +21,7 @@ import java.io.IOException;
 @Autonomous(name = "2856 Button Autonomous")
 public class NeoAuto extends LinearVisionOpMode {
     I2cDeviceSynch imu;
-    I2cDevice lrs;
-    I2cDevice rrs;
+    I2cDevice rs;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -41,17 +40,20 @@ public class NeoAuto extends LinearVisionOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        initDevices();
         side = getSide();
 
         if(side == -1) { // on red side, thus using left side of robot
             bs = hardwareMap.colorSensor.get("lbs");
             actuator = hardwareMap.servo.get("la");
+            rs = hardwareMap.i2cDevice.get("lrs");
         } else {
             bs = hardwareMap.colorSensor.get("rbs");
             actuator = hardwareMap.servo.get("ra");
+            rs = hardwareMap.i2cDevice.get("rrs");
             actuator.setDirection(Servo.Direction.REVERSE);
         }
+
+        initDevices();
 
         waitForStart();
 
@@ -127,6 +129,8 @@ public class NeoAuto extends LinearVisionOpMode {
         turnConst();
 
 
+        telemetry.addData("BEACON 1 DIST", robot.getDistance());
+        telemetry.update();
         if(robot.getDistance() >= 6 && robot.getDistance() < 10) { // ok
             push(10); // turn in further to have a better chance of pressing
         } else if (robot.getDistance() <= 7){ // good
@@ -166,6 +170,8 @@ public class NeoAuto extends LinearVisionOpMode {
         robot.AlignWithWall(10, backward, 10, telemetry); // if we are lashing we need to get in closer with 7, but if we keep the set screws tight, 8 or 9 has better chances
 
 
+        telemetry.addData("AlignWithWall 2 distance", robot.getDistance());
+        telemetry.update();
 
         turnConst();
         robot.Data.PID.turnPrecision = 0.5f;
@@ -227,9 +233,7 @@ public class NeoAuto extends LinearVisionOpMode {
         shooter.setDirection(DcMotor.Direction.REVERSE);
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
-        lrs = hardwareMap.i2cDevice.get("lrs");
-        rrs = hardwareMap.i2cDevice.get("rrs");
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, rs, telemetry);
     }
 
     public void push(int degrees) {

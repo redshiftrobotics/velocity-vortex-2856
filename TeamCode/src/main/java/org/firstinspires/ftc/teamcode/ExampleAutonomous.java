@@ -25,7 +25,6 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     ColorSensor csFront;
     UltrasonicSensor us;
     I2cDevice lrs;
-    I2cDevice rrs;
     Servo la;
 
     @Override
@@ -35,7 +34,8 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs

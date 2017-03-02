@@ -39,7 +39,7 @@ public class WallFollowTest extends LinearVisionOpMode {
         csb = hardwareMap.colorSensor.get("csb");
         lrs = hardwareMap.i2cDevice.get("lrs");
         rrs = hardwareMap.i2cDevice.get("rrs");
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, lrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs

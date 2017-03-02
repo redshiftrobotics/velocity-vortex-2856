@@ -42,10 +42,8 @@ public class Robot {
 
     //RangeSensor Setup
     //set up range sensor stuff for WallFollow()
-    byte[] rangeLeftCache;
-    byte[] rangeRightCache;
-    I2cDeviceSynch RANGE_LEFT_Reader;
-    I2cDeviceSynch RANGE_RIGHT_Reader;
+    byte[] rangeCache;
+    I2cDeviceSynch RANGE_Reader;
 
     I2cAddr RANGEADDRESS = new I2cAddr(0x14);
     final int RANGE_REG_START = 0x04;
@@ -53,7 +51,7 @@ public class Robot {
 
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice lrs, I2cDevice rrs, Telemetry tm) {
+    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice rs, Telemetry tm) {
 
 
         tm.addData("IMU ", "Innitializing");
@@ -85,11 +83,8 @@ public class Robot {
         Data.Time = new RobotTime();
 
         // range sensor setup
-        RANGE_LEFT_Reader = new I2cDeviceSynchImpl(lrs, RANGEADDRESS, false);
-        RANGE_LEFT_Reader.engage();
-
-        RANGE_RIGHT_Reader = new I2cDeviceSynchImpl(rrs, RANGEADDRESS, false);
-        RANGE_RIGHT_Reader.engage();
+        RANGE_Reader = new I2cDeviceSynchImpl(rs, RANGEADDRESS, false);
+        RANGE_Reader.engage();
     }
     // Public Interface Methods:
 
@@ -161,8 +156,8 @@ public class Robot {
 
     // for gettin just the raw distance
     public int getDistance() {
-        rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
-        return (rangeRightCache[0] & 0xFF);
+        rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+        return (rangeCache[0] & 0xFF);
     }
 
     public void AlignWithWall(int targetDistance, Float[] movement, int Timeout, Telemetry tm){
@@ -198,10 +193,10 @@ public class Robot {
 
 
 
-        rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+        rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((rangeRightCache[0] & 0xFF) > targetDistance) {
+        while((rangeCache[0] & 0xFF) > targetDistance) {
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()) {
                 // ... stop our loop if we have.
@@ -224,7 +219,7 @@ public class Robot {
             Data.Drive.m1.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
             Data.Drive.m2.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
             Data.Drive.m3.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
-            rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+            rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -507,26 +502,15 @@ public class Robot {
     }
 
     private float FormatUltrasonic(String side, Telemetry tm){
-        if(side.equals("right")) {
-            rangeRightCache = RANGE_RIGHT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
+            rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
             CalculateAngles(tm);
             Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
             float imuAngle = Data.PID.Headings[1];
-            float usDistance = rangeRightCache[0] & 0xFF; //INPUT RAW US DATA
+            float usDistance = rangeCache[0] & 0xFF; //INPUT RAW US DATA
             tm.addData("usDistanceLeft", usDistance);
             //Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
             Data.PID.uHeadings[1] = usDistance;
-        } else {
-            rangeLeftCache = RANGE_LEFT_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
-            CalculateAngles(tm);
-            Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
-            float imuAngle = Data.PID.Headings[1];
-            float usDistance = rangeLeftCache[0] & 0xFF; //INPUT RAW US DATA
-            tm.addData("usDistanceLeft", usDistance);
-            //Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
-            Data.PID.uHeadings[1] = usDistance;
-        }
-        return Data.PID.uHeadings[1];
+            return Data.PID.uHeadings[1];
     }
 
     public void appendLog(String text)

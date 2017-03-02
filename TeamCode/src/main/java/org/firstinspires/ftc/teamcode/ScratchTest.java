@@ -27,8 +27,7 @@ public class ScratchTest extends LinearVisionOpMode {
     UltrasonicSensor us;
     Servo la;
     ColorSensor bs;
-    I2cDevice lrs;
-    I2cDevice rrs;
+    I2cDevice rs;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,12 +39,11 @@ public class ScratchTest extends LinearVisionOpMode {
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
         bs = hardwareMap.colorSensor.get("lbs");
-        lrs = hardwareMap.i2cDevice.get("lrs");
-        rrs = hardwareMap.i2cDevice.get("rrs");
+        rs = hardwareMap.i2cDevice.get("rrs");
         bs.enableLed(false);
         la = hardwareMap.servo.get("la");
         la.setPosition(0);
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, rrs, telemetry);
+        robot = new Robot(imu, m0, m1, m2, m3, rs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 
@@ -54,6 +52,10 @@ public class ScratchTest extends LinearVisionOpMode {
         robot.Data.PID.DTuning = 0f;
 
         waitForStart();
+        while(opModeIsActive()) {
+            telemetry.addData("Dist", robot.getDistance());
+            telemetry.update();
+        }
 //        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);
 //        robot.MoveToLine(backward, csb, 0.1f, 10, telemetry);
 //        if(bs.blue() > bs.red()) {
@@ -69,10 +71,10 @@ public class ScratchTest extends LinearVisionOpMode {
 
         //robot.WallFollow(forward, "left", csb, 10, telemetry);
 
-        robot.Data.PID.PTuning = 6f;
-        robot.Data.PID.ITuning = 0f;
-        robot.Data.PID.DTuning = 0f;
-        robot.WallFollow(10, forward, "left", csb, 20, telemetry);
+//        robot.Data.PID.PTuning = 6f;
+//        robot.Data.PID.ITuning = 0f;
+//        robot.Data.PID.DTuning = 0f;
+//        robot.WallFollow(10, forward, "left", csb, 20, telemetry);
 
         /*
         robot.AngleTurn(-10f, 10, telemetry);
