@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 /**
  * Created by Duncan on 2/11/2017.
  */
-
+@Disabled
 @Autonomous(name = "Optical Distance")
 public class OpticalDistance extends LinearOpMode{
 

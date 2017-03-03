@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * Created by matt on 2/15/17.
  */
 
-
+@Disabled
 @Autonomous(name = "ThisIsDumb")
 public class ThisIsDumb extends LinearOpMode {
     I2cDeviceSynch imu;

@@ -19,7 +19,7 @@ import java.io.IOException;
 /**
  * Created by matt on 10/15/16.
  */
-@Autonomous(name = "2856 Button Autonomous")
+@Autonomous(name = "New 2856 Autonomous")
 public class NeoAuto extends LinearOpMode {
     I2cDeviceSynch imu;
     I2cDevice rs;

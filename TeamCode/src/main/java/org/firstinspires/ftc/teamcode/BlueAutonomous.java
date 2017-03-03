@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -26,6 +27,7 @@ import java.io.IOException;
 /**
  * Created by matt on 11/10/16.
  */
+@Disabled
 @Autonomous(name = "2856 Autonomous")
 public class BlueAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;

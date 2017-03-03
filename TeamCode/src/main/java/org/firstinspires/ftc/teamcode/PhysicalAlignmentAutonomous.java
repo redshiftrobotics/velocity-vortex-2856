@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -22,7 +23,7 @@ import java.io.IOException;
 /**
  * Created by Duncan on 2/11/2017.
  */
-
+@Disabled
 @Autonomous(name = "Physical Alignment Autonomous")
 public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
 

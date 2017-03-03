@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,6 +16,7 @@ import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 /**
  * Created by matt on 10/15/16.
  */
+@Disabled
 @Autonomous(name = "ScratchTest", group = "pid-test")
 public class ScratchTest extends LinearOpMode {
     I2cDeviceSynch imu;

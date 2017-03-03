@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Duncan on 11/5/2016.
  */
-@TeleOp(name="Stealth")
+@TeleOp(name="2856 Stealth Teleop")
 public class StealthTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
