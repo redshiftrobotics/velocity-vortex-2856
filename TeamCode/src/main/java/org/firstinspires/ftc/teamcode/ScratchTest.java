@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -15,7 +16,7 @@ import org.lasarobotics.vision.opmode.LinearVisionOpMode;
  * Created by matt on 10/15/16.
  */
 @Autonomous(name = "ScratchTest", group = "pid-test")
-public class ScratchTest extends LinearVisionOpMode {
+public class ScratchTest extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -38,12 +39,12 @@ public class ScratchTest extends LinearVisionOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
-        bs = hardwareMap.colorSensor.get("lbs");
+        bs = hardwareMap.colorSensor.get("rbs");
         rs = hardwareMap.i2cDevice.get("rrs");
         bs.enableLed(false);
         la = hardwareMap.servo.get("la");
         la.setPosition(0);
-        robot = new Robot(imu, m0, m1, m2, m3, rs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 
@@ -53,7 +54,7 @@ public class ScratchTest extends LinearVisionOpMode {
 
         waitForStart();
         while(opModeIsActive()) {
-            telemetry.addData("Dist", robot.getDistance());
+            telemetry.addData("Color", bs.red() + ":" + bs.blue());
             telemetry.update();
         }
 //        robot.MoveToLine(forward, csb, 0.2f, 10, telemetry);

@@ -27,7 +27,7 @@ import java.io.IOException;
  * Created by matt on 11/10/16.
  */
 @Autonomous(name = "2856 Autonomous")
-public class BlueAutonomous extends LinearVisionOpMode {
+public class BlueAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -84,8 +84,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
             side = 1;
         }
 
-        waitForVisionStart();
-        initVision();
+        waitForStart();
         initDevices();
 
         Float[] forward = new Float[]{1f,0f};
@@ -185,22 +184,6 @@ public class BlueAutonomous extends LinearVisionOpMode {
         }
     }
 
-    private void initVision() {
-        setCamera(Cameras.SECONDARY);
-        setFrameSize(new Size(1440,2560));
-        enableExtension(Extensions.BEACON);
-        enableExtension(Extensions.ROTATION);
-        enableExtension(Extensions.CAMERA_CONTROL);
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
-        rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
-        rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
-        cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
-        cameraControl.setAutoExposureCompensation();
-    }
-
     private void initDevices() {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
@@ -217,7 +200,7 @@ public class BlueAutonomous extends LinearVisionOpMode {
         rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
     }
 
     private void turnConst() {

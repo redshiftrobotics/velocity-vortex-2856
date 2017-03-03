@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -49,10 +50,13 @@ public class Robot {
     final int RANGE_REG_START = 0x04;
     final int RANGE_READ_LENGTH = 2;
 
+    LinearOpMode opMode;
 
     //changed from I2cDevice
-    public Robot(I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice rs, Telemetry tm) {
+    public Robot(LinearOpMode op, I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice rs, Telemetry tm) {
 
+
+        opMode = op;
 
         tm.addData("IMU ", "Innitializing");
         tm.update();
@@ -123,7 +127,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount){
+        while(Math.abs(StartPosition - Data.Drive.m0.getCurrentPosition()) < Math.abs(Rotations) * Data.Drive.EncoderCount && opMode.opModeIsActive()){
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -142,10 +146,10 @@ public class Robot {
 
             // Calculate the Direction to travel to correct any rotational errors.
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
-                Data.Drive.m0.setPower(((movement[0] * 0.5) + Direction) * (35f/45f));
-                Data.Drive.m1.setPower(((movement[0] * 0.5) - Direction) * (35f/45f));
-                Data.Drive.m2.setPower(((movement[0] * 0.5) - Direction) * (35f/45f));
-                Data.Drive.m3.setPower(((movement[0] * 0.5) + Direction) * (35f/45f));
+                Data.Drive.m0.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) + Direction) * (35f/45f));
+                Data.Drive.m1.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) - Direction) * (35f/45f));
+                Data.Drive.m2.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) - Direction) * (35f/45f));
+                Data.Drive.m3.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) + Direction) * (35f/45f));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
@@ -196,7 +200,7 @@ public class Robot {
         rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((rangeCache[0] & 0xFF) > targetDistance) {
+        while((rangeCache[0] & 0xFF) > targetDistance && opMode.opModeIsActive()) {
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()) {
                 // ... stop our loop if we have.
@@ -263,7 +267,7 @@ public class Robot {
         float SystemTime = System.currentTimeMillis();
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 50){
+        while((cs.red() + cs.blue() + cs.green())/3 < 50 && opMode.opModeIsActive()){
 
 
             // Record the time since the previous loop.
@@ -338,7 +342,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 50){ // 40 working
+        while((cs.red() + cs.blue() + cs.green())/3 < 50 && opMode.opModeIsActive()){ // 40 working
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -409,7 +413,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(StartTime + Timeout > Data.Time.CurrentTime()){
+        while(StartTime + Timeout > Data.Time.CurrentTime() && opMode.opModeIsActive()){
 
             // Record the time since the previous loop.
             LoopTime = Data.Time.TimeFrom(LoopTime);
@@ -683,5 +687,5 @@ class Drive {
     UltrasonicSensor lus;
     UltrasonicSensor rus;
     int EncoderCount;
-    final static float POWER_CONSTANT = (3/8f); // I believe this value does not change. 0.5*(3/4)
+    static float STRAIGHT_POWER_CONSTANT = 0.7f;
 }

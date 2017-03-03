@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
@@ -13,7 +14,7 @@ import org.lasarobotics.vision.opmode.LinearVisionOpMode;
  * Created by matt on 10/15/16.
  */
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
-public class ExampleAutonomous extends LinearVisionOpMode {
+public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -35,7 +36,7 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
         lrs = hardwareMap.i2cDevice.get("lrs");
-        robot = new Robot(imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs
