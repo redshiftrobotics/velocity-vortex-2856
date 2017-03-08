@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 /**
@@ -63,6 +64,8 @@ public class LongShoot extends LinearOpMode{
         lrs = hardwareMap.i2cDevice.get("lrs");
         rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
+        Servo capServo = hardwareMap.servo.get("cap");
+        capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
     }

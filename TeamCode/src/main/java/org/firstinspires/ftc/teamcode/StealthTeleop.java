@@ -18,6 +18,7 @@ public class StealthTeleop extends OpMode {
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
+    Servo capServo;
     int rotations;
     int collecting;
     boolean collectSwitch;
@@ -41,6 +42,11 @@ public class StealthTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
+        capServo = hardwareMap.servo.get("cap");
+        capServo.setPosition(0.3);
+        Servo actuator = hardwareMap.servo.get("ra");
+        actuator.setDirection(Servo.Direction.REVERSE);
+        actuator.setPosition(0);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
@@ -101,6 +107,12 @@ public class StealthTeleop extends OpMode {
 
     void controlLift(Gamepad pad){
         capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+
+        if(pad.y) {
+            capServo.setPosition(1);
+        } else if (pad.x) {
+            capServo.setPosition(0.6);
+        }
     }
 
     void resetMotors(Gamepad pad)

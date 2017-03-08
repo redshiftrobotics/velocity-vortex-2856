@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 import java.io.BufferedReader;
@@ -98,6 +99,8 @@ public class CapShoot extends LinearOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
+        Servo capServo = hardwareMap.servo.get("cap");
+        capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
     }

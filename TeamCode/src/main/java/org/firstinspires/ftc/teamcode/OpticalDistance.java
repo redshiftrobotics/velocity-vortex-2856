@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 /**
  * Created by Duncan on 2/11/2017.
  */
-@Disabled
 @Autonomous(name = "Optical Distance")
 public class OpticalDistance extends LinearOpMode{
 
@@ -16,7 +15,7 @@ public class OpticalDistance extends LinearOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        ODS = hardwareMap.opticalDistanceSensor.get("ods");
+        ODS = hardwareMap.opticalDistanceSensor.get("csb");
 
         waitForStart();
         while(opModeIsActive()) {

@@ -114,10 +114,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
 
         //5A: Track to line
         straightConst();
-        robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
+        //robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
 
         //5B: Track closer to line
-        robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
+        //robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
 
         //6: Turn to beacon
         turnConst();
@@ -153,10 +153,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
         robot.Straight(1.3f, forward, 1, telemetry);
 
         //11A: Track to line
-        robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
+        //robot.MoveToLine(forward, csf, 0.4f, 2, telemetry);
 
         //11B: Track closer to line
-        robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
+        //robot.MoveToLine(backward, csf, 0.25f, 2, telemetry);
 
         //12: Turn to beacon
         turnConst();
@@ -192,10 +192,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
             robot.Straight(0.5f, backward, 2, telemetry);
 
             //2A: Track to line
-            robot.MoveToLine(backward, csf, 0.4f, 1, telemetry);
+            //robot.MoveToLine(backward, csf, 0.4f, 1, telemetry);
 
             //2B: Track closer to line
-            robot.MoveToLine(forward, csf, 0.25f, 1, telemetry);
+            //robot.MoveToLine(forward, csf, 0.25f, 1, telemetry);
 
             //3: Turn to beacon
             turnConst();
@@ -217,10 +217,10 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
             robot.Straight(0.5f, forward, 2, telemetry);
 
             //8A: Track to line
-            robot.MoveToLine(forward, csf, 0.4f, 1, telemetry);
+            //robot.MoveToLine(forward, csf, 0.4f, 1, telemetry);
 
             //8B: Track closer to line
-            robot.MoveToLine(backward, csf, 0.25f, 1, telemetry);
+            //robot.MoveToLine(backward, csf, 0.25f, 1, telemetry);
         }else{
             //Phase 2B:
             //1: Turn towards center vortex

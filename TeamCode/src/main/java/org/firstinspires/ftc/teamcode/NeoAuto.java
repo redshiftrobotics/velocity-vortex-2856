@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
@@ -29,8 +30,7 @@ public class NeoAuto extends LinearOpMode {
     DcMotor m3;
     DcMotor shooter;
     Robot robot;
-    ColorSensor csf;
-    ColorSensor csb;
+    OpticalDistanceSensor csb;
     UltrasonicSensor us;
     Servo actuator;
     Servo bAlign;
@@ -50,6 +50,9 @@ public class NeoAuto extends LinearOpMode {
         bAlign.setPosition(0);
         fAlign.setPosition(0);
 
+        Servo capServo = hardwareMap.servo.get("cap");
+        capServo.setPosition(0.3);
+
         bs = hardwareMap.colorSensor.get("rbs");
         actuator = hardwareMap.servo.get("ra");
         rs = hardwareMap.i2cDevice.get("rrs");
@@ -68,23 +71,27 @@ public class NeoAuto extends LinearOpMode {
         turnConst();
         if(side == -1) {
             //turn a little to the right
+            robot.Data.PID.turnPrecision = 2f;
             robot.AngleTurn(-25*side, 10, telemetry);
-            shooter.setPower(1);
+            //shooter.setPower(1);
             Thread.sleep(1000);
             shooter.setPower(0);
             turnConst();
-
+            robot.Data.PID.turnPrecision = 5f;
             robot.AngleTurn((180)*side, 10, telemetry);
+            robot.Data.PID.turnPrecision = 1f;
             robot.AngleTurn((75+25)*side, 10, telemetry);
+            robot.AngleTurn(0, 10, telemetry);
             forward = new Float[]{-1f,0f};
             backward = new Float[]{1f,0f};
         } else {
             robot.AngleTurn(0, 10, telemetry); // reset
-            shooter.setPower(1);
+            //shooter.setPower(1);
             Thread.sleep(1000);
             shooter.setPower(0);
             turnConst();
             robot.AngleTurn(75*side, 10, telemetry);
+            robot.AngleTurn(0, 10, telemetry);
         }
 
         straightConst();
@@ -102,13 +109,16 @@ public class NeoAuto extends LinearOpMode {
         //robot.AngleTurn(-60*side, 10, telemetry);
 
 
-        robot.AngleTurn(-65*side, 10, telemetry);
+        robot.AngleTurn(-60*side, 10, telemetry); //-65 for 10 degrees towards wall, but -60 for 15 degrees
+        robot.AngleTurn(0, 4, telemetry);
+
 
         robot.Data.PID.PTuning = 16;
         robot.Data.PID.ITuning = 0;
         robot.Straight(0.9f, forward, 3, telemetry);
+        robot.UpdateTarget(-5*side); //less steep
 
-        Thread.sleep(1000);
+        //Thread.sleep(1000);
 
         lineConst();
         robot.Data.PID.ITuning = 0;
@@ -134,6 +144,12 @@ public class NeoAuto extends LinearOpMode {
         robot.MoveToLine(forward, csb, 0.15f * (35f/45f), 3, telemetry);
 
         push(0);
+
+        bAlign.setPosition(0);
+        fAlign.setPosition(0);
+
+        robot.AngleTurn(45*side, 10, telemetry);
+        robot.Straight(1f, backward, 3, telemetry);
 
     }
 
@@ -164,14 +180,18 @@ public class NeoAuto extends LinearOpMode {
         m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
-        csf = hardwareMap.colorSensor.get("csf");
-        csb = hardwareMap.colorSensor.get("csb");
+        csb = hardwareMap.opticalDistanceSensor.get("csb");
         robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
     }
 
     public void push(int degrees) {
-        forward = new Float[]{1f,0f};
-        backward = new Float[]{-1f,0f};
+
+        if(side == -1) {
+            forward = new Float[]{1f, 0f};
+            backward = new Float[]{-1f, 0f};
+        }
+
+
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.2f;
 
         if (side == -1) { // on red side
@@ -192,20 +212,16 @@ public class NeoAuto extends LinearOpMode {
         telemetry.update();
 
 
-
-
-        forward = new Float[]{-1f,0f};
-        backward = new Float[]{1f,0f};
-
-
-
-
+        if(side == -1) {
+            forward = new Float[]{-1f, 0f};
+            backward = new Float[]{1f, 0f};
+        }
 
 
         // out first then turn into it... worked well with turning first too
         actuator.setPosition(1.0);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
