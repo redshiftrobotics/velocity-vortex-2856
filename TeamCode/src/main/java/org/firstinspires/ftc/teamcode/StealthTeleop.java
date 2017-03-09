@@ -47,6 +47,10 @@ public class StealthTeleop extends OpMode {
         Servo actuator = hardwareMap.servo.get("ra");
         actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
+        Servo ba = hardwareMap.servo.get("balign");
+        Servo fa = hardwareMap.servo.get("falign");
+        ba.setPosition(0.2);
+        fa.setPosition(0.2);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
