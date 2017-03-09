@@ -197,7 +197,7 @@ public class NeoAuto extends LinearOpMode {
         if (side == -1) { // on red side
             if(bs.blue() > bs.red()) {
                 telemetry.addData("color", "BLUE > RED");
-                robot.Straight(0.35f * (35f/45f), forward, 10, telemetry);
+                robot.Straight(0.3f * (35f/45f), forward, 10, telemetry);
             } else {
                 telemetry.addData("color", "RED > BLUE");
             }
@@ -206,7 +206,7 @@ public class NeoAuto extends LinearOpMode {
                 telemetry.addData("color", "BLUE > RED");
             } else {
                 telemetry.addData("color", "RED > BLUE");
-                robot.Straight(0.35f * (35f/45f), forward, 10, telemetry);
+                robot.Straight(0.3f * (35f/45f), forward, 10, telemetry);
             }
         }
         telemetry.update();

@@ -91,8 +91,10 @@ public class StealthTeleop extends OpMode {
     void switchDirection(Gamepad pad){
         if(pad.dpad_up){
             directionModifier = 1;
+            constantMult = 1;
         }if(pad.dpad_down){
             directionModifier = -1;
+            constantMult = 2;
         }
     }
 
