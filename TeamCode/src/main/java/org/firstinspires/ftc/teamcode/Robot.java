@@ -87,7 +87,7 @@ public class Robot {
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
 
         // Start the program clock
-        Data.Time = new RobotTime();
+
 
         // range sensor setup
         RANGE_Reader = new I2cDeviceSynchImpl(rs, RANGEADDRESS, false);
@@ -100,6 +100,8 @@ public class Robot {
     public void Straight(float Rotations, Float[] movement, int Timeout, Telemetry tm){
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
+
+        Data.Time = new RobotTime();
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
@@ -314,6 +316,7 @@ public class Robot {
     }
 
     public void MoveToLine(Float[] movement, OpticalDistanceSensor cs, float speed, int Timeout, Telemetry tm){
+        Data.Time = new RobotTime();
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
@@ -378,6 +381,7 @@ public class Robot {
     }
 
     public void AngleTurn(float angle, int Timeout, Telemetry tm){
+        Data.Time = new RobotTime();
         tm.addData("Started", "TURNING");
         tm.update();
 
