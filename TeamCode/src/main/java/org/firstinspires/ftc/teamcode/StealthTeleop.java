@@ -60,6 +60,7 @@ public class StealthTeleop extends OpMode {
         ba.setPosition(0.2);
         fa.setPosition(0.1);
         rejector = hardwareMap.colorSensor.get("rejector");
+        rejector.enableLed(true);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
@@ -157,7 +158,7 @@ public class StealthTeleop extends OpMode {
     }
 
     public void ControlCollector(Gamepad pad) {
-        Float colorThreshold = 10f; // tune this, if rejection is too aggressive or not aggressive enough
+        Float colorThreshold = 4f; // tune this, if rejection is too aggressive or not aggressive enough
 
         if (side == -1) { // -1 indicates red side
             // color sensor is at the top of the if statement because we want it to override joystick collection
@@ -169,7 +170,7 @@ public class StealthTeleop extends OpMode {
                 collector.setPower(-1);
             }
         } else { // 1 indicates blue side
-            if (rejector.blue() < rejector.red() + colorThreshold) { // if red is significantly larger than blue, spit out ball
+            if (rejector.red() > rejector.blue() + colorThreshold) { // if red is significantly larger than blue, spit out ball
                 collector.setPower(-1);
             } else if(pad.left_trigger > 0.1) {
                 collector.setPower(1);
