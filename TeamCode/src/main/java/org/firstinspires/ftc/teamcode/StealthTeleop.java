@@ -14,18 +14,18 @@ import com.qualcomm.robotcore.util.Range;
  */
 @TeleOp(name="2856 Stealth Teleop")
 public class StealthTeleop extends OpMode {
+    public static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
     DcMotor motors[] = new DcMotor[4];
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
     Servo capServo;
     int rotations;
-    int collecting;
-    boolean collectSwitch;
-    boolean reseting;
     int directionModifier;
 
     int constantMult = 1;
+
+    public static int START_SHOOTER_POSITION = 300;
 
     //Servo capArm;
     //float capArmPos;
@@ -65,16 +65,12 @@ public class StealthTeleop extends OpMode {
     @Override
     public void loop() {
         Move(gamepad1);
-        if(!reseting) {
-            SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
-            SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
-        }
-        //Sweep(gamepad1);
-        resetMotors(gamepad1);
+        SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
+        ControlShooter(gamepad1);
+        //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
-        //controlCap(gamepad2);
-
+        telemetry.addData("Shooter position: ", Integer.toString(Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT)));
         try {
             constantMultChange(gamepad1);
         } catch (InterruptedException e) {
@@ -102,15 +98,6 @@ public class StealthTeleop extends OpMode {
         }
     }
 
-    /*void controlCap(Gamepad pad){
-        if(pad.a){
-            capArmPos = 0.0f;
-        }else if(pad.b){
-            capArmPos = 0.5f;
-        }
-        capArm.setPosition(capArmPos);
-    }*/
-
     void controlLift(Gamepad pad){
         capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
@@ -118,21 +105,6 @@ public class StealthTeleop extends OpMode {
             capServo.setPosition(1);
         } else if (pad.x) {
             capServo.setPosition(0.6);
-        }
-    }
-
-    void resetMotors(Gamepad pad)
-    {
-        if(!reseting) {
-            if (pad.a) {
-                reseting = true;
-            }
-        }else{
-            if(shooter.getCurrentPosition()%1440<rotations){
-                shooter.setPower(-1.0);
-            }else{
-                reseting = false;
-            }
         }
     }
 
@@ -166,10 +138,22 @@ public class StealthTeleop extends OpMode {
     void SpinMotor(int power, int power2, DcMotor motor){
         if(power==1||power==-1){
             motor.setPower(power);
-        }else if(power2==1||power==-1){
+        }else if(power2==1) {
             motor.setPower(power2);
-        }else{
+        } else {
             motor.setPower(0);
+        }
+    }
+
+    public void ControlShooter(Gamepad pad) {
+        if(pad.right_trigger>0.1) {
+            shooter.setPower(-1.0);
+        } else if(pad.right_bumper) {
+            shooter.setPower(1.0);
+        } else if (Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT) > START_SHOOTER_POSITION) {
+            shooter.setPower(-1.0);
+        } else {
+            shooter.setPower(0.0);
         }
     }
 }
