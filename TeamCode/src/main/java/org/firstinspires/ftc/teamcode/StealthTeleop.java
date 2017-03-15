@@ -66,7 +66,7 @@ public class StealthTeleop extends OpMode {
     public void loop() {
         Move(gamepad1);
         SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
-        ControlShooter(gamepad1);
+        ControlShooter(gamepad1, gamepad2);
         //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
@@ -145,13 +145,15 @@ public class StealthTeleop extends OpMode {
         }
     }
 
-    public void ControlShooter(Gamepad pad) {
+    public void ControlShooter(Gamepad pad, Gamepad pad2) {
         if(pad.right_trigger>0.1) {
             shooter.setPower(-1.0);
         } else if(pad.right_bumper) {
             shooter.setPower(1.0);
-        } else if (Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT) > START_SHOOTER_POSITION) {
+        } else if (pad2.a && Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT) > START_SHOOTER_POSITION) {
             shooter.setPower(-1.0);
+        } else if (pad2.a) {
+            shooter.setPower(0.0);
         } else {
             shooter.setPower(0.0);
         }
