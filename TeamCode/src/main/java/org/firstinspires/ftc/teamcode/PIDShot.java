@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -18,9 +19,10 @@ import java.io.IOException;
  * Created by matt on 1/11/17.
  */
 
-@Autonomous(name = "Cap Shoot")
-public class CapShoot extends LinearOpMode {
+@Autonomous(name = "PID Shot")
+public class PIDShot extends LinearOpMode{
     I2cDeviceSynch imu;
+    int side;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -30,52 +32,26 @@ public class CapShoot extends LinearOpMode {
     ColorSensor cs1;
     ColorSensor csFront;
     I2cDevice lrs;
+    I2cDevice rrs;
     UltrasonicSensor us;
 
-    private String sideText;
-
     DcMotor shooter;
-
-    private int side;
 
     @Override
     public void runOpMode() throws InterruptedException {
         initDevices();
 
+       /* Thread.sleep(500);
+
+        while(gamepad2.a){
+            telemetry.addData("IMU", imu.getConnectionInfo());
+            telemetry.update();
+        }*/
+
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 
-
-        File file = new File("/sdcard/Pictures", "prefs");
-        StringBuilder text = new StringBuilder();
-        // Attempt to load line from file into the buffer.
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(file));
-            String line;
-            // Ensure that the first line is not null.
-            while ((line = br.readLine()) != null) {
-                text.append(line);
-            }
-            // Close the buffer reader
-            br.close();
-        }
-        // Catch exceptions... Or don't because that would require effort.
-        catch (IOException e) {
-        }
-
-
-
-        // Provide in a more user friendly form.
-        sideText = text.toString();
-        if(sideText.equals("red")) {
-            side = -1;
-        } else if (sideText.equals("blue")) {
-            side = 1;
-        }
-
-
-
-
+        side = getSide();
         waitForStart();
 
         straightConst();
@@ -83,20 +59,36 @@ public class CapShoot extends LinearOpMode {
         //hopper.setPosition(0.48);
         waitForStart();
         Thread.sleep(10000);
-        robot.Straight(1.82f, forward, 10, telemetry); //.625
+        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
+        robot.Straight(0.3f, forward, 10, telemetry); //.625
+
+
+        turnConst();
+        robot.AngleTurn(42f * side, 10, telemetry);
+        robot.AngleTurn(0, 10, telemetry);
+
+        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.7f;
+        robot.Straight(1.7f, forward, 10, telemetry); //.625
+
+        if (side == 1) {
+            robot.AngleTurn(25f * side, 10, telemetry);
+            robot.AngleTurn(0, 10, telemetry);
+        }
+
         shooter.setPower(1);
-        Thread.sleep(1000);
+        Thread.sleep(1500);
         shooter.setPower(0);
 
-        if(side == 1) {
-            turnConst();
-            robot.AngleTurn(-20f, 3, telemetry);
-            straightConst();
+        if (side == 1) {
+            robot.AngleTurn(72 - 25f * side, 5, telemetry);
+            robot.AngleTurn(0, 10, telemetry);
+        } else {
+            robot.AngleTurn(72f * side, 5, telemetry);
+            robot.AngleTurn(0, 10, telemetry);
         }
-        robot.Straight(1.2f, forward, 10, telemetry);
+
+        robot.Straight(3.5f, forward, 6, telemetry);
     }
-
-
 
     private void initDevices() {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
@@ -118,7 +110,6 @@ public class CapShoot extends LinearOpMode {
         capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
-        telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 
     private void straightConst() {
@@ -131,5 +122,37 @@ public class CapShoot extends LinearOpMode {
         robot.Data.PID.PTuning = 10f; // 7f
         robot.Data.PID.ITuning = 8f; // 5f
         robot.Data.PID.DTuning = 0f;
+    }
+
+    private int getSide() {
+        int s;
+        // Retrieve file.
+        File file = new File("/sdcard/Pictures", "prefs");
+        StringBuilder text = new StringBuilder();
+        // Attempt to load line from file into the buffer.
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            String line;
+            // Ensure that the first line is not null.
+            while ((line = br.readLine()) != null) {
+                text.append(line);
+            }
+            // Close the buffer reader
+            br.close();
+        }
+        // Catch exceptions... Or don't because that would require effort.
+        catch (IOException e) {
+        }
+
+        // Provide in a more user friendly form.
+        String sideText = text.toString();
+        if(sideText.equals("red")) {
+            s = -1;
+        } else if (sideText.equals("blue")) {
+            s = 1;
+        } else { //this should never happen
+            s = 1;
+        }
+        return s;
     }
 }

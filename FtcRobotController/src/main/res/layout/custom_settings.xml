@@ -110,24 +110,15 @@
         android:textStyle="bold"
         android:textSize="60dp" />
 
-    <EditText
+    <ToggleButton
+        android:text="vortextoggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"
-        android:text="This is a test"
-        android:ems="10"
-        android:layout_below="@+id/textView4"
-        android:layout_toEndOf="@+id/textView4"
-        android:id="@+id/autoConf"
-        android:textColor="@color/white"/>
-
-    <Button
-        android:text="Update"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/blueButton"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/autoUpdate"
-        android:onClick="updateAuto"/>
+        android:id="@+id/toggleButton"
+        android:textOff="Moving for Capball"
+        android:textOn="Moving for Corner Vortex"
+        android:checked="false" />
 
 </RelativeLayout>

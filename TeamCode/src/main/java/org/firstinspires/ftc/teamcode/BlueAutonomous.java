@@ -148,9 +148,9 @@ public class BlueAutonomous extends LinearOpMode {
         straightConst();
 
         //NEW
-        robot.MoveToLine(backward, cs, 0.4f, 10, telemetry);
+        //robot.MoveToLine(backward, cs, 0.4f, 10, telemetry);
         Thread.sleep(250);
-        robot.MoveToLine(forward, cs, 0.35f, 10, telemetry);
+        //robot.MoveToLine(forward, cs, 0.35f, 10, telemetry);
         //robot.Straight(0.03f, backward, 2, telemetry);
         robot.AngleTurn(90*side, 2, telemetry);
         robot.Straight(0.4f, forward, 2, telemetry); // SHOULD HIT THE WALL

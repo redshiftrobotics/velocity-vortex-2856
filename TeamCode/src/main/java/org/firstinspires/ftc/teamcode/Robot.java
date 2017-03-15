@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -58,7 +59,7 @@ public class Robot {
 
         opMode = op;
 
-        tm.addData("IMU ", "Innitializing");
+        tm.addData("IMU ", "Initializing...");
         tm.update();
         // Initialize the IMU & its parameters. We will always be using Degrees for angle
         // measurement and Meters per sec per sec for acceleration.
@@ -69,8 +70,10 @@ public class Robot {
         Data.imu = new AdafruitBNO055IMU(imu);
         Data.imu.initialize(Data.imuParameters);
 
-        Data.PID.Target = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Target = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
+        tm.addData("IMU ", "Initialized.");
+        tm.update();
 
         // Store the Robot Hardware
         Data.Drive.m0 = m0;
@@ -84,7 +87,7 @@ public class Robot {
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
 
         // Start the program clock
-        Data.Time = new RobotTime();
+
 
         // range sensor setup
         RANGE_Reader = new I2cDeviceSynchImpl(rs, RANGEADDRESS, false);
@@ -98,15 +101,17 @@ public class Robot {
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
-        Data.PID.Headings[0] = Data.PID.Headings[1];
-        // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.Time = new RobotTime();
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
-        CalculateAngles(tm);
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
+
+        updateHeadings();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -140,7 +145,7 @@ public class Robot {
             tm.update();
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
-            CalculateAngles(tm);
+            updateHeadings();
             // Calculate our PID
             CalculatePID(LoopTime, tm);
 
@@ -170,13 +175,13 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
-        CalculateAngles(tm);
+        updateHeadings();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -213,7 +218,7 @@ public class Robot {
             tm.update();
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
-            CalculateAngles(tm);
+            updateHeadings();
             // Calculate our PID
             CalculatePID(LoopTime, tm);
 
@@ -241,19 +246,13 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
-        CalculateAngles(tm);
-
-
-        // Do the same for Ultrasonic
-        FormatUltrasonic(side, tm);
-        FormatUltrasonic(side, tm);
-
+        updateHeadings();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -282,7 +281,7 @@ public class Robot {
 
             SetTarget(initAngle + Range.clip(targetAngle, -15f, 15f));
 
-            CalculateAngles(tm);
+            updateHeadings();
             // Calculate our PID
             CalculatePID(LoopTime, tm);
 
@@ -316,19 +315,20 @@ public class Robot {
         return Data.Drive.lus.getUltrasonicLevel();
     }
 
-    public void MoveToLine(Float[] movement, ColorSensor cs, float speed, int Timeout, Telemetry tm){
+    public void MoveToLine(Float[] movement, OpticalDistanceSensor cs, float speed, int Timeout, Telemetry tm){
+        Data.Time = new RobotTime();
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
-        CalculateAngles(tm);
+        updateHeadings();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -342,7 +342,7 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while((cs.red() + cs.blue() + cs.green())/3 < 50 && opMode.opModeIsActive()){ // 40 working
+        while(cs.getLightDetected() * 1024 < 500 && opMode.opModeIsActive()){ // 40 working
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
@@ -353,7 +353,7 @@ public class Robot {
             LoopTime = Data.Time.TimeFrom(LoopTime);
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
-            CalculateAngles(tm);
+            updateHeadings();
             // Calculate our PID
             CalculatePID(LoopTime, tm);
 
@@ -373,17 +373,21 @@ public class Robot {
     }
 
     public void UpdateTarget(float angle) {
-        Data.PID.Target += angle;
+        Data.PID.Target += angle - Data.PID.TARGET_MODIFIER;
     }
 
     public void SetTarget(float angle) {
-        Data.PID.Target = angle; // hardset, dangerous, doesn't take into account starting pos... keep that in mind
+        Data.PID.Target = angle - Data.PID.TARGET_MODIFIER; // hardset, dangerous, doesn't take into account starting pos... keep that in mind
     }
 
     public void AngleTurn(float angle, int Timeout, Telemetry tm){
+        Data.Time = new RobotTime();
+        tm.addData("Started", "TURNING");
+        tm.update();
+
         // We need two points of data from the IMU to do our calculation. So lets take the first one
         // and put it into our "current" headings slot.
-        CalculateAngles(tm);
+        updateHeadings();
 
         // Get the current program time and starting encoder position before we start our drive loop
         float StartTime = Data.Time.CurrentTime();
@@ -399,17 +403,19 @@ public class Robot {
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
 
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
+
+        float LoopTime = Data.Time.CurrentTime();
+        CalculatePID(LoopTime, tm);
 
 
         // Manually calculate our first target
-        Data.PID.Target += angle;
+        Data.PID.Target += angle - Data.PID.TARGET_MODIFIER;
         // We need to keep track of how much time passes between a loop.
-        float LoopTime = Data.Time.CurrentTime();
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
@@ -419,7 +425,7 @@ public class Robot {
             LoopTime = Data.Time.TimeFrom(LoopTime);
             // Calculate our angles. This method may modify the input Rotations.
             //IMURotations =
-            CalculateAngles(tm);
+            updateHeadings();
             // Calculate our PID
             CalculatePID(LoopTime, tm);
 
@@ -435,20 +441,9 @@ public class Robot {
             //tm.addData("Direction ", Direction);
             //tm.update();
 
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            ////////////////////UNCOMMENT THE BELOW THING/////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-
             if (Math.abs(Data.PID.P) <= Data.PID.turnPrecision) {
+                tm.addData("Finished", Math.abs(Data.PID.P) + " <= " + Data.PID.turnPrecision);
+                tm.update();
                 break;
             }
 
@@ -461,6 +456,7 @@ public class Robot {
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m3.setPower(-.5 * (Direction/Math.abs(Direction)));
         }
+
         // Our drive loop has completed! Stop the motors.
         Data.PID.P = 0;
         Data.PID.I = 0;
@@ -472,49 +468,11 @@ public class Robot {
     }
 
     // Private Methods
-
-    // Method that grabs the IMU data and calculates a new ComputedTarget.
-    private float CalculateAngles(Telemetry tm){
-        // First we will move the current angle heading into the previous angle heading slot.
+    private void updateHeadings() {
         Data.PID.Headings[0] = Data.PID.Headings[1];
         // Then, we assign the new angle heading.
 
-        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180) % 360;
-
-
-        appendLog("Raw IMU: " + Math.abs(Data.imu.getAngularOrientation().firstAngle) + " " + Data.imu.getAngularOrientation().secondAngle + " " + Data.imu.getAngularOrientation().thirdAngle);
-
-
-        // Finally we calculate a ComputedTarget from the current angle heading.
-        Data.PID.ComputedTarget = Data.PID.Headings[1] + (IMURotations * 360);
-
-        Log.e("#####################", "About to increment IMURotations");
-        // Now we determine if we need to re-calculate the angles.
-        Log.e("############### current", Float.toString(Data.PID.Headings[1]));
-        Log.e("############### past", Float.toString(Data.PID.Headings[0]));
-        if(Data.PID.Headings[0] > 300 && Data.PID.Headings[1] < 60) {
-            Log.e("################# ####", "Adding to IMURotations");
-            IMURotations++; //rotations of 360 degrees
-            CalculateAngles(tm);
-        //} else if(Data.PID.Headings[0] < 300 && Data.PID.Headings[1] > 60) {
-        } else if(Data.PID.Headings[0] < 60 && Data.PID.Headings[1] > 300) {
-            Log.e("#####################", "Subtracting from IMURotations");
-            IMURotations--;
-            CalculateAngles(tm);
-        }
-        return Data.PID.Headings[1];
-    }
-
-    private float FormatUltrasonic(String side, Telemetry tm){
-            rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
-            CalculateAngles(tm);
-            Data.PID.uHeadings[0] = Data.PID.uHeadings[1];
-            float imuAngle = Data.PID.Headings[1];
-            float usDistance = rangeCache[0] & 0xFF; //INPUT RAW US DATA
-            tm.addData("usDistanceLeft", usDistance);
-            //Data.PID.uHeadings[1] = (float) (Math.cos((double) imuAngle) * (double) usDistance);
-            Data.PID.uHeadings[1] = usDistance;
-            return Data.PID.uHeadings[1];
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
     }
 
     public void appendLog(String text)
@@ -556,7 +514,7 @@ public class Robot {
         //Data.PID.IntegralData.add(Data.PID.ComputedTarget - Data.PID.Target);
         //Data.PID.DerivativeData.add(Data.PID.ComputedTarget);
 
-        Data.PID.I += (Data.PID.ComputedTarget - Data.PID.Target) * Math.abs(LoopTime/1000);
+        Data.PID.I += (Data.PID.P) * Math.abs(LoopTime/1000);
 
 //        // Keep IntegralData and DerivativeData from having an exceeding number of entries.
 //        if (Data.PID.IntegralData.size() > 500){
@@ -567,9 +525,15 @@ public class Robot {
 //            Data.PID.DerivativeData.remove(0);
 //        }
 
+        if (Data.PID.Headings[1] + 360 - Data.PID.Target <= 180) {
+            Data.PID.P = (Data.PID.Headings[1] -  Data.PID.Target + 360);
+        } else if ( Data.PID.Target + 360 - Data.PID.Headings[1] <= 180) {
+            Data.PID.P = ( Data.PID.Target - Data.PID.Headings[1] + 360) * -1;
+        } else if (Data.PID.Headings[1] -  Data.PID.Target <= 180) {
+            Data.PID.P = (Data.PID.Headings[1] -  Data.PID.Target);
+        }
         // Set our P, I, and D values.
         // `P` will be the ComputedTarget - Target
-        Data.PID.P = Data.PID.ComputedTarget - Data.PID.Target;
 
         // `I` will be the average of the IntegralData (Cries softly at the lack of Java8 streams)
 
@@ -588,26 +552,11 @@ public class Robot {
             DerivativeAverage += value;
         }
         //DerivativeAverage /= Data.PID.DerivativeData.size();
-        Data.PID.D = ((Data.PID.ComputedTarget-Data.PID.Target)-Data.PID.LastError)/(LoopTime/1000);
+        Data.PID.D = ((Data.PID.P)-Data.PID.LastError)/(LoopTime/1000);
         //Data.PID.D = (Data.PID.ComputedTarget - DerivativeAverage) / ((LoopTime/1000) * (1 + (Data.PID.DerivativeData.size() / 2)));
-        Data.PID.LastError = Data.PID.ComputedTarget-Data.PID.Target;
+        Data.PID.LastError = Data.PID.P;
     }
 
-
-    // Method that calculates P, I, and D. Requires the time
-    private void UltrasonicPID(float LoopTime, String side, Telemetry tm){
-        float usTarget = 10;
-        Data.PID.uP = FormatUltrasonic(side, tm) - usTarget;
-        Data.PID.uI += (Data.PID.uP) * Math.abs(LoopTime/1000);
-
-//        float uDerivativeAverage = 0;
-//        for(float value : Data.PID.uDerivativeData){
-//            uDerivativeAverage += value;
-//        }
-//        //DerivativeAverage /= Data.PID.DerivativeData.size();
-//        Data.PID.uD = ((Data.PID.uP)-Data.PID.uLastError)/(LoopTime/1000);
-        Data.PID.uLastError = Data.PID.uP;
-    }
 }
 
 
@@ -630,6 +579,7 @@ class RobotData {
 
 // PID data
 class PID {
+    float TARGET_MODIFIER = 0f;
     public float turnPrecision = 1f;
     float ComputedTarget;
     float Target;
@@ -687,5 +637,5 @@ class Drive {
     UltrasonicSensor lus;
     UltrasonicSensor rus;
     int EncoderCount;
-    static float STRAIGHT_POWER_CONSTANT = 0.7f;
+    static float STRAIGHT_POWER_CONSTANT = 1f;
 }

@@ -26,7 +26,6 @@ public class CustomSettingsActivity extends Activity {
 
     FileOutputStream outputStream;
     TextView sideText;
-    EditText autoConf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,9 +33,6 @@ public class CustomSettingsActivity extends Activity {
         setContentView(R.layout.custom_settings);
         sideText = (TextView) findViewById(R.id.sideText);
         sideText.setText(readFromFile("/sdcard/Pictures/prefs"));
-
-        autoConf = (EditText) findViewById(R.id.autoConf);
-        autoConf.setText(readFromFile("/sdcard/autoprefs"));
     }
 
     public void blueClicked(View v) {
@@ -49,26 +45,9 @@ public class CustomSettingsActivity extends Activity {
         sideText.setText(readFromFile("/sdcard/Pictures/prefs"));
     }
 
-    public void updateAuto(View v) {
-        writeAutoFile(autoConf.getText().toString());
-    }
-
     public void writeToFile (String string) {
         try {
             File file = new File("/sdcard/Pictures", "prefs");
-
-            //outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream = new FileOutputStream(file,false);
-            outputStream.write(string.getBytes());
-            outputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void writeAutoFile (String string) {
-        try {
-            File file = new File("/sdcard", "autoprefs");
 
             //outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
             outputStream = new FileOutputStream(file,false);

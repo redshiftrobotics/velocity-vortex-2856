@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
 /**
@@ -27,7 +28,6 @@ public class LongShoot extends LinearOpMode{
     I2cDevice rrs;
     UltrasonicSensor us;
 
-
     DcMotor shooter;
 
     @Override
@@ -43,8 +43,8 @@ public class LongShoot extends LinearOpMode{
 
         //hopper.setPosition(0.48);
         waitForStart();
-        Thread.sleep(5000);
-        robot.Straight(1.7f, forward, 10, telemetry); //.625
+        Thread.sleep(15000);
+        robot.Straight(1.82f, forward, 10, telemetry); //.625
 
         shooter.setPower(1);
         Thread.sleep(1000);
@@ -59,23 +59,32 @@ public class LongShoot extends LinearOpMode{
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
+        lrs = hardwareMap.i2cDevice.get("rrs");
         shooter = hardwareMap.dcMotor.get("shooter");
-        lrs = hardwareMap.i2cDevice.get("lrs");
-        rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
+        Servo capServo = hardwareMap.servo.get("cap");
+        Servo bAlign = hardwareMap.servo.get("balign");
+        Servo fAlign = hardwareMap.servo.get("falign");
+        Servo actuator = hardwareMap.servo.get("ra");
+        actuator.setDirection(Servo.Direction.REVERSE);
+        actuator.setPosition(0);
+        bAlign.setPosition(0.2);
+        fAlign.setPosition(0.1);
+        capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
-    }
-
-    private void turnConst() {
-        robot.Data.PID.PTuning = 50f;
-        robot.Data.PID.ITuning = 0f;
-        robot.Data.PID.DTuning = 0f;
+        telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 
     private void straightConst() {
-        robot.Data.PID.PTuning = 63f;
-        robot.Data.PID.ITuning = 10f;
+        robot.Data.PID.PTuning = 10f;
+        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+    }
+
+    private void turnConst() {
+        robot.Data.PID.PTuning = 10f; // 7f
+        robot.Data.PID.ITuning = 8f; // 5f
         robot.Data.PID.DTuning = 0f;
     }
 }
