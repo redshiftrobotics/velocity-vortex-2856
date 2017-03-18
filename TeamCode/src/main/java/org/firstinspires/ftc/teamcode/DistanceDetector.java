@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.util.Range;
  * Created by adam on 3/13/17.
  */
 public class DistanceDetector {
-    public static int DISTANCE_INTERVAL = 5;
-
     public DistanceSensor distanceSensor;
 
     public static ShooterPosition[] positions = {
@@ -20,10 +18,16 @@ public class DistanceDetector {
        distanceSensor = s;
     }
 
-    private int getIndex(int reading) {
+    /*private int getIndex(int reading) {
         int i = Range.clip(reading / DISTANCE_INTERVAL, 0, positions.length);
         Log.d("index: ", Integer.toString(i));
         return i;
+    }*/
+
+    private int getIndex(int reading) {
+
+
+        return 0;
     }
 
     public double getServoAngle() {
