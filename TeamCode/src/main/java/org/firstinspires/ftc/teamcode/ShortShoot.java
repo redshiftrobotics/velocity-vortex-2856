@@ -115,17 +115,18 @@ public class ShortShoot extends LinearOpMode{
         capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
-    }
-
-    private void turnConst() {
-        robot.Data.PID.PTuning = 50f;
-        robot.Data.PID.ITuning = 0f;
-        robot.Data.PID.DTuning = 0f;
+        telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 
     private void straightConst() {
         robot.Data.PID.PTuning = 10f;
         robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.DTuning = 0f;
+    }
+
+    private void turnConst() {
+        robot.Data.PID.PTuning = 10f; // 7f
+        robot.Data.PID.ITuning = 8f; // 5f
         robot.Data.PID.DTuning = 0f;
     }
 }
