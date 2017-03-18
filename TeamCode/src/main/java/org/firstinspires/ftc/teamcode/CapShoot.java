@@ -18,11 +18,9 @@ import java.io.IOException;
  * Created by matt on 1/11/17.
  */
 
-@Autonomous(name = "Short Shoot")
-public class ShortShoot extends LinearOpMode{
+@Autonomous(name = "Cap Shoot")
+public class CapShoot extends LinearOpMode {
     I2cDeviceSynch imu;
-    I2cDevice lrs;
-    I2cDevice rrs;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -31,14 +29,15 @@ public class ShortShoot extends LinearOpMode{
     ColorSensor cs;
     ColorSensor cs1;
     ColorSensor csFront;
+    I2cDevice lrs;
+    I2cDevice rrs;
     UltrasonicSensor us;
 
-
-    String sideText;
-
-    int side;
+    private String sideText;
 
     DcMotor shooter;
+
+    private int side;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -48,8 +47,6 @@ public class ShortShoot extends LinearOpMode{
         Float[] backward = new Float[]{-1f,0f};
 
 
-
-        // Retrieve file.
         File file = new File("/sdcard/Pictures", "prefs");
         StringBuilder text = new StringBuilder();
         // Attempt to load line from file into the buffer.
@@ -67,18 +64,12 @@ public class ShortShoot extends LinearOpMode{
         catch (IOException e) {
         }
 
-        String colorTargetIsRight = "";
 
         // Provide in a more user friendly form.
         sideText = text.toString();
-
         if(sideText.equals("red")) {
-            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
-            colorTargetIsRight = "blue, red";
             side = -1;
         } else if (sideText.equals("blue")) {
-            //the string for which the color you want to press is on the right... so for a blue auto it would be "red, blue" and for red it would be "blue, red"
-            colorTargetIsRight = "red, blue";
             side = 1;
         }
 
@@ -88,19 +79,16 @@ public class ShortShoot extends LinearOpMode{
 
         //hopper.setPosition(0.48);
         waitForStart();
-        robot.Straight(1.45f, forward, 10, telemetry); //.6
-
+        Thread.sleep(7000);
+        robot.Straight(1.7f, forward, 10, telemetry); //.625
         shooter.setPower(1);
         Thread.sleep(1000);
         shooter.setPower(0);
 
-
-        robot.AngleTurn(-90*side, 4, telemetry);
-        robot.Straight(1f, backward, 10, telemetry);
-        robot.AngleTurn(30*side, 4, telemetry);
-        robot.Straight(.4f, backward, 4, telemetry);
-        robot.AngleTurn(-30*side, 4, telemetry);
-        robot.Straight(1.2f, backward, 4, telemetry);
+        if(side == 1) {
+            robot.AngleTurn(-20f, 3, telemetry);
+        }
+        robot.Straight(1.2f, forward, 10, telemetry);
     }
 
     private void initDevices() {
@@ -124,8 +112,8 @@ public class ShortShoot extends LinearOpMode{
     }
 
     private void straightConst() {
-        robot.Data.PID.PTuning = 10f;
-        robot.Data.PID.ITuning = 5f;
+        robot.Data.PID.PTuning = 63f;
+        robot.Data.PID.ITuning = 10f;
         robot.Data.PID.DTuning = 0f;
     }
 }

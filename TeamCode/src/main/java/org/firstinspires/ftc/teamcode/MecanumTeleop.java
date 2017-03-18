@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Duncan on 11/5/2016.
  */
+@Disabled
 @TeleOp(name="Mechanum")
 public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
@@ -23,6 +25,9 @@ public class MecanumTeleop extends OpMode {
     boolean collectSwitch;
     boolean reseting;
     int directionModifier;
+    Servo leftPush;
+    Servo rightPush;
+
     DirectionObject direction;
 
     @Override
@@ -35,12 +40,16 @@ public class MecanumTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
+        leftPush = hardwareMap.servo.get("leftPush");
+        rightPush = hardwareMap.servo.get("rightPush");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
         rotations = shooter.getCurrentPosition();
+        leftPush.setPosition(1.0);
+        rightPush.setPosition(1.0);
     }
 
     @Override
