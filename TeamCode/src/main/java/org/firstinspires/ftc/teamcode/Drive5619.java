@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Duncan on 11/5/2016.
  */
+@Disabled
 @TeleOp(name="5619")
 public class Drive5619 extends OpMode {
     DcMotor motors[] = new DcMotor[4];

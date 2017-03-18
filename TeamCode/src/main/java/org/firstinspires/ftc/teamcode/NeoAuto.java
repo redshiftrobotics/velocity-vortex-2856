@@ -48,8 +48,8 @@ public class NeoAuto extends LinearOpMode {
 
         bAlign = hardwareMap.servo.get("balign");
         fAlign = hardwareMap.servo.get("falign");
-        bAlign.setPosition(0);
-        fAlign.setPosition(0);
+        bAlign.setPosition(0.2);
+        fAlign.setPosition(0.1);
 
         Servo capServo = hardwareMap.servo.get("cap");
         capServo.setPosition(0.3);
@@ -63,6 +63,8 @@ public class NeoAuto extends LinearOpMode {
         initDevices();
 
         waitForStart();
+
+        robot.Data.PID.I = 0;
 
         bAlign.setPosition(1);
         fAlign.setPosition(1);
@@ -80,7 +82,7 @@ public class NeoAuto extends LinearOpMode {
 
 
 
-            robot.Straight(.2f * (35f/45f), forward, 10, telemetry);
+            //robot.Straight(.2f * (35f/45f), forward, 10, telemetry);
 
 
             turnConst();
@@ -115,15 +117,13 @@ public class NeoAuto extends LinearOpMode {
 //        robot.MoveToLine(forward, csf, .2f, 10, telemetry);
 
         //begin alignment
-        robot.Straight(2.3f * (35f/45f), forward, 2, telemetry); // 2.45 to 2.37
+        robot.Straight(2.17f * (35f/45f), forward, 2, telemetry); // 2.45 to 2.37
 
 
 
         turnConst();
 
         //robot.AngleTurn(-60*side, 10, telemetry);
-
-
 
 
         /////////////////////////////////////////////////
@@ -136,7 +136,7 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
         robot.Data.PID.PTuning = 16;
         robot.Data.PID.ITuning = 0;
-        robot.Straight(0.9f, forward, 3, telemetry);
+        robot.Straight(1.1f, forward, 3, telemetry);
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.7f;
 
         //robot.UpdateTarget(-5*side); //less steep
@@ -146,9 +146,9 @@ public class NeoAuto extends LinearOpMode {
         lineConst();
         robot.Data.PID.ITuning = 0;
 
-        robot.MoveToLine(forward, csb, 0.2f * (35f/45f), 10, telemetry);
+        robot.MoveToLine(forward, csb, 0.35f * (35f/45f), 10, telemetry);
         Thread.sleep(100);
-        robot.MoveToLine(backward, csb, 0.15f * (35f/45f), 3, telemetry);
+        robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 3, telemetry);
         push(0);
 
 
@@ -162,9 +162,9 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.PID.ITuning = 0;
 
         robot.Straight(0.4f, backward, 10, telemetry);
-        robot.MoveToLine(backward, csb, 0.2f * (35f/45f), 15, telemetry);
+        robot.MoveToLine(backward, csb, 0.35f * (35f/45f), 15, telemetry);
         Thread.sleep(100);
-        robot.MoveToLine(forward, csb, 0.15f * (35f/45f), 3, telemetry);
+        robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 3, telemetry);
 
         push(0);
 
@@ -213,6 +213,8 @@ public class NeoAuto extends LinearOpMode {
         shooter.setDirection(DcMotor.Direction.REVERSE);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
         robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
+        telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
+        telemetry.addData("Color Sensor: ", bs.red());
     }
 
     public void push(int degrees) {
@@ -231,19 +233,43 @@ public class NeoAuto extends LinearOpMode {
 
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.2f;
 
-        if (side == -1) { // on red side
-            if(bs.blue() > bs.red()) {
-                telemetry.addData("color", "BLUE > RED");
-                robot.Straight((0.30f + pushShift) * (35f/45f), forward, 10, telemetry);
-            } else {
-                telemetry.addData("color", "RED > BLUE");
-            }
-        } else { // on blue side
-            if(bs.blue() > bs.red()) {
-                telemetry.addData("color", "BLUE > RED");
-            } else {
-                telemetry.addData("color", "RED > BLUE");
-                robot.Straight((0.30f  + pushShift) * (35f/45f), forward, 10, telemetry);
+        if (bs.blue() != bs.red()) {
+            if (side == -1) { // on red side
+                if (bs.blue() > bs.red()) {
+                    telemetry.addData("color", "BLUE > RED");
+                    robot.Straight((0.30f + pushShift) * (35f / 45f), forward, 10, telemetry);
+                    if (bs.blue() > bs.red()) {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        actuate();
+                    } else {
+                        actuate();
+                    }
+                } else {
+                    telemetry.addData("color", "RED > BLUE");
+                    actuate();
+                }
+            } else { // on blue side
+                if (bs.blue() > bs.red()) {
+                    telemetry.addData("color", "BLUE > RED");
+                    actuate();
+                } else {
+                    telemetry.addData("color", "RED > BLUE");
+                    robot.Straight((0.30f + pushShift) * (35f / 45f), forward, 10, telemetry);
+                    if (bs.red() > bs.blue()) {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        actuate();
+                    } else {
+                        actuate();
+                    }
+                }
             }
         }
         telemetry.update();
@@ -255,7 +281,11 @@ public class NeoAuto extends LinearOpMode {
             backward = new Float[]{1f, 0f};
         }
 
+        //actuate();
 
+    }
+
+    private void actuate() {
         // out first then turn into it... worked well with turning first too
         actuator.setPosition(1.0);
         try {
