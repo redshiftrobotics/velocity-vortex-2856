@@ -5,21 +5,18 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-
-import org.lasarobotics.vision.android.Cameras;
-import org.lasarobotics.vision.ftc.resq.Beacon;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-import org.lasarobotics.vision.opmode.VisionOpMode;
-import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
-import org.lasarobotics.vision.util.ScreenOrientation;
-import org.opencv.core.Size;
 
 /**
  * Created by matt on 10/15/16.
  */
+@Disabled
 @Autonomous(name = "ExampleAutonomous", group = "pid-test")
-public class ExampleAutonomous extends LinearVisionOpMode {
+public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
@@ -28,6 +25,10 @@ public class ExampleAutonomous extends LinearVisionOpMode {
     Robot robot;
     ColorSensor cs;
     ColorSensor cs1;
+    ColorSensor csFront;
+    UltrasonicSensor us;
+    I2cDevice lrs;
+    Servo la;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -36,52 +37,85 @@ public class ExampleAutonomous extends LinearVisionOpMode {
         m1 = hardwareMap.dcMotor.get("m1");
         m2 = hardwareMap.dcMotor.get("m2");
         m3 = hardwareMap.dcMotor.get("m3");
-        cs = hardwareMap.colorSensor.get("cs");
-        cs1 = hardwareMap.colorSensor.get("cs1");
-
-        robot = new Robot(imu, m0, m1, m2, m3, cs, cs1, telemetry);
-
+        lrs = hardwareMap.i2cDevice.get("lrs");
+        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        Float[] forward = new Float[]{1f,0f};
+        Float[] backward = new Float[]{-1f,0f};
         //working PIDs
         //P: 100
         //I: 30
         //D: 0
 
         //loop
-        initVision();
-
-        //Float[] forward = new Float[]{1f,0f};
         //Float[] backward = new Float[]{-1f,0f};
-        robot.Data.PID.PTuning = 50f;
+
+        robot.Data.PID.PTuning = 26f;
         robot.Data.PID.ITuning = 0f;
         robot.Data.PID.DTuning = 0f;
+
+        float IMult = 0;
+        float DMult = 0;
+        float forwardDistance = 2.4f;
+
+        telemetry.addData("Tune val: ", robot.Data.PID.PTuning);
+        telemetry.update();
+
         waitForStart();
-        //telemetry.addData("beacon", beacon.getAnalysis().getColorString());
-        //robot.Push(5f, new Float[]{0f,-1f}, 7, telemetry);
-        robot.AngleTurn(45f, 4, telemetry);
-//        robot.Data.PID.PTuning = 100f;
-//        robot.Data.PID.ITuning = 30f;
-//        robot.Data.PID.DTuning = 0f;
-        //robot.MoveToLine(forward, 0.2f, 10, telemetry);
+
+        while(opModeIsActive()) {
+            if (gamepad1.a) {
+                DMult -= .01;
+                robot.Data.PID.DTuning = DMult * robot.Data.PID.PTuning;
+                telemetry.update();
+                Thread.sleep(100);
+            } else if (gamepad1.y) {
+                DMult += .01;
+                robot.Data.PID.DTuning = DMult * robot.Data.PID.PTuning;
+                telemetry.update();
+                Thread.sleep(100);
+            } else if (gamepad1.x) {
+                IMult -= .01;
+                robot.Data.PID.ITuning = IMult * robot.Data.PID.PTuning;
+                telemetry.update();
+                Thread.sleep(100);
+            } else if (gamepad1.b) {
+                IMult += .01;
+                robot.Data.PID.ITuning = IMult * robot.Data.PID.PTuning;
+                telemetry.update();
+                Thread.sleep(100);
+            } else if (gamepad1.dpad_up) {
+                robot.Data.PID.PTuning -= 1;
+                robot.Data.PID.ITuning = IMult * robot.Data.PID.PTuning;
+                robot.Data.PID.DTuning = DMult * robot.Data.PID.PTuning;
+                Thread.sleep(100);
+                telemetry.update();
+            } else if (gamepad1.dpad_down) {
+                robot.Data.PID.PTuning += 1;
+                robot.Data.PID.ITuning = IMult * robot.Data.PID.PTuning;
+                robot.Data.PID.DTuning = DMult * robot.Data.PID.PTuning;
+                Thread.sleep(100);
+                telemetry.update();
+            } else if (gamepad1.left_bumper) {
+                robot.Straight(2.1f, forward, 10, telemetry);
+            } else if (gamepad1.right_bumper) {
+                robot.Straight(2.1f, backward, 10, telemetry);
+            }
+
+            telemetry.addData("Tune val P: ", robot.Data.PID.PTuning);
+            telemetry.addData("Tune val I: ", robot.Data.PID.ITuning);
+            telemetry.addData("Tune val D: ", robot.Data.PID.DTuning);
+            telemetry.update();
+            Thread.sleep(100);
+        }
+//        while(opModeIsActive()) {
+//            telemetry.addData("Distance", String.valueOf(us.getUltrasonicLevel()));
+//            telemetry.update();
+//        }
+        //robot.ultraSeek(20, 0, 100, telemetry);
+
 
     }
 
-
-    private void initVision() {
-        setCamera(Cameras.SECONDARY);
-        new Size();
-        setFrameSize(new Size(1440,2560));
-        enableExtension(VisionOpMode.Extensions.BEACON);
-        enableExtension(VisionOpMode.Extensions.ROTATION);
-        enableExtension(VisionOpMode.Extensions.CAMERA_CONTROL);
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
-        rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
-        rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
-        cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
-        cameraControl.setAutoExposureCompensation();
-    }
     enum TuneState {
         P, I, D
     }

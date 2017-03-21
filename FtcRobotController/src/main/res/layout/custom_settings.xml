@@ -110,4 +110,15 @@
         android:textStyle="bold"
         android:textSize="60dp" />
 
+    <ToggleButton
+        android:text="vortextoggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/toggleButton"
+        android:textOff="Moving for Capball"
+        android:textOn="Moving for Corner Vortex"
+        android:checked="false" />
+
 </RelativeLayout>
