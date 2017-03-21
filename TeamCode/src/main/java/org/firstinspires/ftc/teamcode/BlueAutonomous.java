@@ -12,13 +12,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.android.Cameras;
-import org.lasarobotics.vision.ftc.resq.Beacon;
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
-import org.lasarobotics.vision.util.ScreenOrientation;
-import org.opencv.core.Size;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -33,8 +26,8 @@ public class BlueAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    //DcMotor m2;
+    //DcMotor m3;
     Robot robot;
     ColorSensor cs;
     ColorSensor cs1;
@@ -190,8 +183,8 @@ public class BlueAutonomous extends LinearOpMode {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
+        //m2 = hardwareMap.dcMotor.get("m2");
+        //m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         cs = hardwareMap.colorSensor.get("cs");
         cs1 = hardwareMap.colorSensor.get("cs1");
@@ -202,7 +195,7 @@ public class BlueAutonomous extends LinearOpMode {
         rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ lrs, telemetry);
     }
 
     private void turnConst() {

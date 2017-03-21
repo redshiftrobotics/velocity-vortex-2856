@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,8 +25,8 @@ public class NeoAuto extends LinearOpMode {
     I2cDevice rs;
     DcMotor m0;
     DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    //DcMotor m2;
+    //DcMotor m3;
     DcMotor shooter;
     Robot robot;
     OpticalDistanceSensor csb;
@@ -207,12 +206,12 @@ public class NeoAuto extends LinearOpMode {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
+        //m2 = hardwareMap.dcMotor.get("m2");
+        //m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
-        robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ rs, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
         telemetry.addData("Color Sensor: ", bs.red());
     }

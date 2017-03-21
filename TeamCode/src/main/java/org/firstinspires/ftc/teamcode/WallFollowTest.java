@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 /**
  * Created by matt on 10/15/16.
@@ -21,8 +20,8 @@ public class WallFollowTest extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    //DcMotor m2;
+    //DcMotor m3;
     Robot robot;
     ColorSensor csf;
     ColorSensor csb;
@@ -36,13 +35,13 @@ public class WallFollowTest extends LinearOpMode {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
+        //m2 = hardwareMap.dcMotor.get("m2");
+        //m3 = hardwareMap.dcMotor.get("m3");
         csf = hardwareMap.colorSensor.get("csf");
         csb = hardwareMap.colorSensor.get("csb");
         lrs = hardwareMap.i2cDevice.get("lrs");
         rrs = hardwareMap.i2cDevice.get("rrs");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ lrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs

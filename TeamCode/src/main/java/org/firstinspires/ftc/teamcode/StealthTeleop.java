@@ -21,7 +21,7 @@ import java.io.IOException;
 @TeleOp(name="2856 Stealth Teleop")
 public class StealthTeleop extends OpMode {
     public static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
-    DcMotor motors[] = new DcMotor[4];
+    DcMotor motors[] = new DcMotor[2];
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
@@ -45,8 +45,8 @@ public class StealthTeleop extends OpMode {
         directionModifier = 1;
         motors[0] = hardwareMap.dcMotor.get("m0");
         motors[1] = hardwareMap.dcMotor.get("m1");
-        motors[2] = hardwareMap.dcMotor.get("m2");
-        motors[3] = hardwareMap.dcMotor.get("m3");
+        //motors[2] = hardwareMap.dcMotor.get("m2");
+        //motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
@@ -124,8 +124,8 @@ public class StealthTeleop extends OpMode {
 
         motors[0].setPower(direction.frontLeftSpeed()/constantMult);
         motors[1].setPower(direction.frontRightSpeed()/constantMult);
-        motors[2].setPower(direction.backRightSpeed()/constantMult);
-        motors[3].setPower(direction.backLeftSpeed()/constantMult);
+        //motors[2].setPower(direction.backRightSpeed()/constantMult);
+        //motors[3].setPower(direction.backLeftSpeed()/constantMult);
     }
 
 

@@ -9,7 +9,6 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 /**
  * Created by matt on 10/15/16.
@@ -20,8 +19,8 @@ public class ExampleAutonomous extends LinearOpMode {
     I2cDeviceSynch imu;
     DcMotor m0;
     DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    //DcMotor m2;
+    //DcMotor m3;
     Robot robot;
     ColorSensor cs;
     ColorSensor cs1;
@@ -35,10 +34,10 @@ public class ExampleAutonomous extends LinearOpMode {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
+        //m2 = hardwareMap.dcMotor.get("m2");
+        //m3 = hardwareMap.dcMotor.get("m3");
         lrs = hardwareMap.i2cDevice.get("lrs");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ lrs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
         //working PIDs

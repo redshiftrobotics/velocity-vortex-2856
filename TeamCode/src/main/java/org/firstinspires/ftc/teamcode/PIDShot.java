@@ -25,8 +25,8 @@ public class PIDShot extends LinearOpMode{
     int side;
     DcMotor m0;
     DcMotor m1;
-    DcMotor m2;
-    DcMotor m3;
+    //DcMotor m2;
+    //DcMotor m3;
     Robot robot;
     ColorSensor cs;
     ColorSensor cs1;
@@ -94,8 +94,8 @@ public class PIDShot extends LinearOpMode{
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
+        //m2 = hardwareMap.dcMotor.get("m2");
+        //m3 = hardwareMap.dcMotor.get("m3");
         lrs = hardwareMap.i2cDevice.get("rrs");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
@@ -109,7 +109,7 @@ public class PIDShot extends LinearOpMode{
         fAlign.setPosition(0.1);
         capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ lrs, telemetry);
     }
 
     private void straightConst() {
