@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
 
 /**
  * Created by matt on 10/15/16.
@@ -46,7 +44,7 @@ public class ScratchTest extends LinearOpMode {
         bs.enableLed(false);
         la = hardwareMap.servo.get("la");
         la.setPosition(0);
-        robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
+        robot = new Robot(this, imu, m0, m1, /*m2, m3,*/ rs, telemetry);
         Float[] forward = new Float[]{1f,0f};
         Float[] backward = new Float[]{-1f,0f};
 

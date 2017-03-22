@@ -25,11 +25,14 @@ public class StealthTeleop extends OpMode {
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
+    DcMotor ledMotors;
     Servo capServo;
     ColorSensor rejector;
     int rotations;
     int directionModifier;
     int side;
+
+    int colorControler = 0;
 
     int constantMult = 1;
 
@@ -64,11 +67,13 @@ public class StealthTeleop extends OpMode {
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
+        collector.setDirection(DcMotorSimple.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
         rotations = shooter.getCurrentPosition();
         //capArm = hardwareMap.servo.get("capArm");
         //capArm.setPosition(1.0);
         //capArmPos = 1.0f;
+        ledMotors = hardwareMap.dcMotor.get("leds");
         side = getSide();
     }
 
@@ -81,6 +86,7 @@ public class StealthTeleop extends OpMode {
         //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
+        controlLeds(gamepad2);
         telemetry.addData("Shooter position: ", Integer.toString(Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT)));
         try {
             constantMultChange(gamepad1);
@@ -106,6 +112,24 @@ public class StealthTeleop extends OpMode {
         }if(pad.dpad_down){
             directionModifier = -1;
             constantMult = 2;
+        }
+    }
+
+    void controlLeds(Gamepad pad){
+         if(colorControler<10){
+             ledMotors.setPower(0);
+         }else if(colorControler<20){
+             ledMotors.setPower(1);
+         }else if(colorControler>20) {
+             colorControler=1;
+         }else {
+             ledMotors.setPower(0);
+         }
+
+        if(pad.left_trigger>0.1){
+            colorControler++;
+        }else if(colorControler>0){
+            colorControler++;
         }
     }
 
@@ -167,14 +191,18 @@ public class StealthTeleop extends OpMode {
                 collector.setPower(1);
             } else if (pad.left_bumper) {
                 collector.setPower(-1);
+            }else{
+                collector.setPower(0);
             }
         } else { // 1 indicates blue side
-            if (rejector.blue() < rejector.red() + colorThreshold) { // if red is significantly larger than blue, spit out ball
+            if (rejector.blue() > rejector.red() + colorThreshold) { // if red is significantly larger than blue, spit out ball
                 collector.setPower(-1);
             } else if(pad.left_trigger > 0.1) {
                 collector.setPower(1);
             } else if (pad.left_bumper) {
                 collector.setPower(-1);
+            }else{
+                collector.setPower(0);
             }
         }
 
@@ -185,7 +213,7 @@ public class StealthTeleop extends OpMode {
             shooter.setPower(-1.0);
         } else if(pad.right_bumper) {
             shooter.setPower(1.0);
-        } else if (pad2.a && Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT) > START_SHOOTER_POSITION) {
+        } else if (pad2.a && Math.abs(shooter.getCurrentPosition() % (MAX_ENCODER_COUNT/2)) > START_SHOOTER_POSITION) {
             shooter.setPower(-1.0);
         } else if (pad2.a) {
             shooter.setPower(0.0);
