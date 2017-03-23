@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-
 /**
  * Created by matt on 10/15/16.
  */

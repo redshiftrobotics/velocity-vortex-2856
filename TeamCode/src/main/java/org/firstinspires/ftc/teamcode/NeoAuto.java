@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
