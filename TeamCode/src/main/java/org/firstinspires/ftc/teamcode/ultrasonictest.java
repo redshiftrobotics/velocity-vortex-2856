@@ -56,10 +56,8 @@ public class ultrasonictest extends OpMode {
                 startNewReading();
                 lastPressedB = !lastPressedB;
             } else if (!gamepad1.b && lastPressedB) {
-                lastPressedB = !lastPressedB;
+                lastPressedB = false;
             }
-
-
 
             timerOffset = System.currentTimeMillis();
         } else {
