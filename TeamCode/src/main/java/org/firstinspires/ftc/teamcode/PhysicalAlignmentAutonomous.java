@@ -3,17 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cColorSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.UltrasonicSensor;
 
-import org.lasarobotics.vision.android.Cameras;
-import org.lasarobotics.vision.ftc.resq.Beacon;
-import org.lasarobotics.vision.opmode.LinearVisionOpMode;
-import org.lasarobotics.vision.opmode.extensions.CameraControlExtension;
-import org.lasarobotics.vision.util.ScreenOrientation;
-import org.opencv.core.Size;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +20,7 @@ import java.io.IOException;
  */
 @Disabled
 @Autonomous(name = "Physical Alignment Autonomous")
-public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
+public class PhysicalAlignmentAutonomous extends LinearOpMode {
 
     I2cDeviceSynch imu;
     DcMotor m0;
@@ -86,8 +81,7 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
             sideColor = "Blue";
         }
 
-        waitForVisionStart();
-        initVision();
+
         initDevices();
 
         Float[] forward = new Float[]{1f,0f};
@@ -280,21 +274,7 @@ public class PhysicalAlignmentAutonomous extends LinearVisionOpMode{
         robot.Straight(1.5f, backward, 2, telemetry);
     }
 
-    private void initVision() {
-        setCamera(Cameras.SECONDARY);
-        setFrameSize(new Size(1440,2560));
-        enableExtension(Extensions.BEACON);
-        enableExtension(Extensions.ROTATION);
-        enableExtension(Extensions.CAMERA_CONTROL);
-        beacon.setAnalysisMethod(Beacon.AnalysisMethod.COMPLEX);
-        beacon.setColorToleranceRed(0);
-        beacon.setColorToleranceBlue(0);
-        rotation.setIsUsingSecondaryCamera(false);
-        rotation.disableAutoRotate();
-        rotation.setActivityOrientationFixed(ScreenOrientation.PORTRAIT);
-        cameraControl.setColorTemperature(CameraControlExtension.ColorTemperature.AUTO);
-        cameraControl.setAutoExposureCompensation();
-    }
+
 
     private void initDevices() {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
