@@ -26,26 +26,26 @@ public enum ShooterAim {
 
     static {
         //TODO: change these values to actual shooter measurements.
-        Angles.put(ShooterAim.LOB.dist(), 0.0f);
-        Angles.put(ShooterAim.FAR.dist(), 0.01f);
-        Angles.put(ShooterAim.FAR.dist(), 0.02f);
-        Angles.put(ShooterAim.MEDIUM.dist(), 0.03f);
-        Angles.put(ShooterAim.NEAR.dist(), 0.04f);
+        Angles.put(ShooterAim.LOB.get(), 0.0f);
+        Angles.put(ShooterAim.FAR.get(), 0.01f);
+        Angles.put(ShooterAim.FAR.get(), 0.02f);
+        Angles.put(ShooterAim.MEDIUM.get(), 0.03f);
+        Angles.put(ShooterAim.NEAR.get(), 0.04f);
     }
 
-    public float dist() { return dist; }
+    public float get() { return dist; }
 
 
     public static ShooterAim resolveDistance(float angle) {
-        if (angle <= ShooterAim.FAR.dist()) {
+        if (angle <= ShooterAim.FAR.get()) {
             return ShooterAim.LOB;
         }
 
-        if (angle > ShooterAim.FAR.dist() && angle <= ShooterAim.MEDIUM.dist()) {
+        if (angle > ShooterAim.FAR.get() && angle <= ShooterAim.MEDIUM.get()) {
             return ShooterAim.FAR;
         }
 
-        if (angle > ShooterAim.MEDIUM.dist() && angle <= ShooterAim.NEAR.dist()) {
+        if (angle > ShooterAim.MEDIUM.get() && angle <= ShooterAim.NEAR.get()) {
             return ShooterAim.MEDIUM;
         }
 
@@ -53,7 +53,7 @@ public enum ShooterAim {
     }
 
     public float getServoAngle() {
-        return ShooterAim.Angles.get(this.dist());
+        return ShooterAim.Angles.get(this.get());
     }
 
     ShooterAim(float dist) {

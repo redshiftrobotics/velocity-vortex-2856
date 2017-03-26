@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
@@ -111,8 +113,25 @@ public class DistanceSensor {
         this.sensor.close();
     }
 
-    public int getUnsanitizedReading() {
+   public int getLastRawReading() {
         return this.lastReading;
+    }
+
+    public int getUnsanitizedReading(Telemetry t) {
+        if (timer.end() != 0 && timer.end() < WAIT_TIME) {
+            return this.lastReading;
+        }
+
+        t.addData("End: ", timer.end());
+        t.update();
+        sensor.setReadWindow(readWindow);
+        byte[] readings = sensor.read(SENSOR_REGISTER, DATA_LENGTH);
+        int distance = (readings[0] << 8) | readings[1];
+        lastReading = distance;
+
+        timer.start();
+
+        return distance;
     }
 
 

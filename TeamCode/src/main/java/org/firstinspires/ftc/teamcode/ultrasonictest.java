@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -44,8 +46,8 @@ public class ultrasonictest extends OpMode {
             sensor.startReading();
             int reading = sensor.getNextReading();
             telemetry.addData("US value", Integer.toString(reading));
-            telemetry.addData("Average value", Integer.toString(sensor.getNextReading()));
-            telemetry.addData("Unsanitized", Integer.toString(sensor.getUnsanitizedReading()));
+           // telemetry.addData("Average value", Integer.toString(sensor.getNextReading()));
+            telemetry.addData("Unsanitized", Integer.toString(sensor.getUnsanitizedReading(telemetry)));
 
             if (gamepad1.a) {
                 telemetry.addData("Status", "recording");
