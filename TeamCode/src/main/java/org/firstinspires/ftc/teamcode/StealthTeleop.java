@@ -30,6 +30,7 @@ public class StealthTeleop extends OpMode {
     DcMotor collector;
     DcMotor capballLift;
     DcMotor ledMotors;
+    Servo shooterServo;
     Servo capServo;
     ColorSensor rejector;
     int rotations;
@@ -60,6 +61,10 @@ public class StealthTeleop extends OpMode {
         //motors[2] = hardwareMap.dcMotor.get("m2");
         //motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
+        shooterServo = hardwareMap.servo.get("shooterServo");
+
+        shooterServo.setPosition(0.5);
+
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
         capServo = hardwareMap.servo.get("cap");
@@ -91,6 +96,10 @@ public class StealthTeleop extends OpMode {
         aimer.start();
     }
 
+    int uFar = 110;
+    int uMedium = 60;
+    int uNear = 50;
+
     @Override
     public void loop() {
 
@@ -110,10 +119,19 @@ public class StealthTeleop extends OpMode {
         }
 
         if (gamepad2.b) {
-            telemetry.addData("Distance: ", sharedDistance.get());
+            int shareCache = sharedDistance.get();
+            telemetry.addData("Distance: ", shareCache);
             telemetry.update();
+//            if(shareCache >= uFar) { // far
+//                shooterServo.setPosition(ShooterAim.FAR.get());
+//            } else if (shareCache < uFar && shareCache >= uMedium) { // medium
+//                shooterServo.setPosition(ShooterAim.MEDIUM.get());
+//            } else if (shareCache < uMedium && shareCache >= uNear) { // near
+//                shooterServo.setPosition(ShooterAim.NEAR.get());
+//            }
+            shooterServo.setPosition(2.5049/shareCache + 0.49513);
         }
-        
+
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {

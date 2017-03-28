@@ -12,11 +12,9 @@ public enum ShooterAim {
 
     // our actual fields. Change accordingly.
     LOB (0.2f),
-    FAR (0.3f),
-    MEDIUM (0.4f),
+    FAR (0.52f),
+    MEDIUM (0.53f),
     NEAR (0.55f);
-
-
 
     //represents internal enum state, i.e. LOB | FAR | MEDIUM | NEAR
     private float dist;
