@@ -110,10 +110,8 @@ public class StealthTeleop extends OpMode {
             }
 
             if (gamepad2.b) {
-                synchronized (sharedDistance) {
-                    telemetry.addData("Distance: ", sharedDistance.get());
-                    telemetry.update();
-                }
+                telemetry.addData("Distance: ", sharedDistance.get());
+                telemetry.update();
             }
     }
 
