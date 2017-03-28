@@ -94,25 +94,26 @@ public class StealthTeleop extends OpMode {
     @Override
     public void loop() {
 
-            Move(gamepad1);
-            ControlCollector(gamepad1);
-            //SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
-            ControlShooter(gamepad1, gamepad2);
-            //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
-            controlLift(gamepad2);
-            switchDirection(gamepad1);
-            controlLed(gamepad2);
-            //telemetry.addData("Shooter position: ", Integer.toString(Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT)));
-            try {
-                constantMultChange(gamepad1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        Move(gamepad1);
+        ControlCollector(gamepad1);
+        //SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
+        ControlShooter(gamepad1, gamepad2);
+        //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
+        controlLift(gamepad2);
+        switchDirection(gamepad1);
+        controlLed(gamepad2);
+        //telemetry.addData("Shooter position: ", Integer.toString(Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT)));
+        try {
+            constantMultChange(gamepad1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-            if (gamepad2.b) {
-                telemetry.addData("Distance: ", sharedDistance.get());
-                telemetry.update();
-            }
+        if (gamepad2.b) {
+            telemetry.addData("Distance: ", sharedDistance.get());
+            telemetry.update();
+        }
+        
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {
