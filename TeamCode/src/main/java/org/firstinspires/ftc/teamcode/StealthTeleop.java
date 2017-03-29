@@ -78,7 +78,7 @@ public class StealthTeleop extends OpMode {
         ba.setPosition(0.2);
         fa.setPosition(0.1);
         rejector = hardwareMap.colorSensor.get("rejector");
-        rejector.setI2cAddress(new I2cAddr(0x22));
+        rejector.setI2cAddress(new I2cAddr(0x11));
         rejector.enableLed(true);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
@@ -227,7 +227,7 @@ public class StealthTeleop extends OpMode {
                 collector.setPower(1);
             } else if (pad.left_bumper) {
                 collector.setPower(-1);
-            }else{
+            }else {
                 collector.setPower(0);
             }
         } else { // 1 indicates blue side
