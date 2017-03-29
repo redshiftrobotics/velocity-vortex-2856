@@ -433,6 +433,11 @@ public class FtcRobotControllerActivity extends Activity {
       parameters.putIntent(intentConfigure);
       startActivityForResult(intentConfigure, LaunchActivityConstantsList.FTC_CONFIGURE_REQUEST_CODE_ROBOT_CONTROLLER);
     }
+    else if(id == R.id.action_custom_settings) {
+        Intent settingsIntent = new Intent(this, CustomSettingsActivity.class);
+        startActivityForResult(settingsIntent, 0);
+        return true;
+    }
     else if (id == R.id.action_settings) {
       Intent settingsIntent = new Intent(FtcRobotControllerSettingsActivity.launchIntent);
       startActivityForResult(settingsIntent, LaunchActivityConstantsList.FTC_CONFIGURE_REQUEST_CODE_ROBOT_CONTROLLER);
