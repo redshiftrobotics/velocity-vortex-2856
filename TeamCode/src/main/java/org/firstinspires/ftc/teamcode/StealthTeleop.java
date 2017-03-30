@@ -289,7 +289,7 @@ public class StealthTeleop extends OpMode {
         }
 
         /**The following glorious comment has been preserved within the depths of this source file,
-         * as a reminder to Matthew Kelsey (https://gihub.com/matthewkelsey)
+         * as a reminder to Matthew Kelsey  (https://gihub.com/mattkelsey)
          * that he should always handle errors and exceptions!
          * */
 
@@ -320,6 +320,7 @@ public class StealthTeleop extends OpMode {
     }
 
     @Override
+
     public void stop() {
        aimer.stop();
     }
