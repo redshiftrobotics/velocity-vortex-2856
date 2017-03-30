@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -39,7 +40,11 @@ public class StealthTeleop extends OpMode {
 
     int colorControler = 0;
 
+    public final float REJECT_LATENCY = 500;
+
     int constantMult = 1;
+    public long timeDiff;
+    public long lastRejection;
 
     public static int START_SHOOTER_POSITION = 300;
 
@@ -216,23 +221,30 @@ public class StealthTeleop extends OpMode {
     }
 
     public void ControlCollector(Gamepad pad) {
-        Float colorThreshold = 4f; // tune this, if rejection is too aggressive or not aggressive enough
+        timeDiff = System.currentTimeMillis() - lastRejection;
+        Float colorThreshold = 0f; // WAS 4f tune this, if rejection is too aggressive or not aggressive enough
 
         if (side == -1) { // -1 indicates red side
             // color sensor is at the top of the if statement because we want it to override joystick collection
             telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
             if (rejector.red() > rejector.blue() + colorThreshold) { // if blue is significantly larger than red, spit out ball
                 collector.setPower(-1);
+                lastRejection = System.currentTimeMillis();
+            } else if (timeDiff < REJECT_LATENCY) {
+                collector.setPower(-1);
             } else if(pad.left_trigger > 0.1) {
                 collector.setPower(1);
             } else if (pad.left_bumper) {
                 collector.setPower(-1);
-            }else {
+            } else {
                 collector.setPower(0);
             }
         } else { // 1 indicates blue side
             telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
             if (rejector.blue() > rejector.red() + colorThreshold) { // if red is significantly larger than blue, spit out ball
+                collector.setPower(-1);
+                lastRejection = System.currentTimeMillis();
+            } else if (timeDiff < REJECT_LATENCY) {
                 collector.setPower(-1);
             } else if(pad.left_trigger > 0.1) {
                 collector.setPower(1);
