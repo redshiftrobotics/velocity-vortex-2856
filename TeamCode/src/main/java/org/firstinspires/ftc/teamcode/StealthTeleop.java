@@ -287,9 +287,25 @@ public class StealthTeleop extends OpMode {
             // Close the buffer reader
             br.close();
         }
-        // Catch exceptions... Or don't because that would require effort.
+
+        /**The following glorious comment has been preserved within the depths of this source file,
+         * as a reminder to Matthew Kelsey  (https://gihub.com/mattkelsey)
+         * that he should always handle errors and exceptions!
+         * */
+
+        /** ______________________________________________________________**/
+        /**
+         * Catch exceptions... Or don't because that would require effort
+         **/
+
+
         catch (IOException e) {
+            telemetry.addData("Error", "Failed to read from preferences file!");
+            telemetry.update();
+            e.printStackTrace();
         }
+
+
 
         // Provide in a more user friendly form.
         String sideText = text.toString();
@@ -304,6 +320,7 @@ public class StealthTeleop extends OpMode {
     }
 
     @Override
+
     public void stop() {
        aimer.stop();
     }
