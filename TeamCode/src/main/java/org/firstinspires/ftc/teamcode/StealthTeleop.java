@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -31,14 +32,16 @@ public class StealthTeleop extends OpMode {
     DcMotor collector;
     DcMotor capballLift;
     DcMotor ledMotors;
+    DcMotor ledDisplay;
     Servo shooterServo;
     Servo capServo;
     ColorSensor rejector;
+    OpticalDistanceSensor ODS;
     int rotations;
     int directionModifier;
     int side;
 
-    int colorControler = 0;
+    boolean ballInHopper = false;
 
     public final float REJECT_LATENCY = 500;
 
@@ -96,9 +99,11 @@ public class StealthTeleop extends OpMode {
         //capArm.setPosition(1.0);
         //capArmPos = 1.0f;
         ledMotors = hardwareMap.dcMotor.get("leds");
+        ledDisplay = hardwareMap.dcMotor.get("display");
         side = getSide();
         aimer = new ConcurrentAimer(distance, sharedDistance);
         aimer.start();
+        ODS = hardwareMap.opticalDistanceSensor.get("hopper");
     }
 
     int uFar = 110;
@@ -115,8 +120,15 @@ public class StealthTeleop extends OpMode {
         //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
-        controlLed(gamepad2);
-        //telemetry.addData("Shooter position: ", Integer.toString(Math.abs(shooter.getCurrentPosition() % MAX_ENCODER_COUNT)));
+        controlLed();
+        telemetry.addData("Light", ODS.getLightDetected() * 1024);
+        telemetry.update();
+        ballInHopper = (ODS.getLightDetected()*1024 < 22);
+//        if(gamepad1.right_trigger>0.1&&ODS.getLightDetected()*1024<20){
+//            ledDisplay.setPower(1.0);
+//        }else{
+//            ledDisplay.setPower(0.0);
+//        }
         try {
             constantMultChange(gamepad1);
         } catch (InterruptedException e) {
@@ -125,8 +137,8 @@ public class StealthTeleop extends OpMode {
 
         if (gamepad2.b) {
             int shareCache = sharedDistance.get();
-            telemetry.addData("Distance: ", shareCache);
-            telemetry.update();
+            //telemetry.addData("Distance: ", shareCache);
+            //telemetry.update();
 //            if(shareCache >= uFar) { // far
 //                shooterServo.setPosition(ShooterAim.FAR.get());
 //            } else if (shareCache < uFar && shareCache >= uMedium) { // medium
@@ -157,20 +169,10 @@ public class StealthTeleop extends OpMode {
         }
     }
 
-    void controlLed(Gamepad pad){
-        if(colorControler<10){
-            ledMotors.setPower(0);
-        }else if(colorControler<20){
-            ledMotors.setPower(1);
-        }else if(colorControler>20){
-            colorControler=1;
-        }
+    private static long shooterWaitTime = 1000;
 
-        if(pad.left_trigger>0.1){
-            colorControler++;
-        }else if(colorControler>0){
-            colorControler++;
-        }
+    void controlLed() {
+        ledMotors.setPower(1.0);
     }
 
     void controlLift(Gamepad pad){
@@ -226,7 +228,7 @@ public class StealthTeleop extends OpMode {
 
         if (side == 1) { // 1 indicates blue side
             // color sensor is at the top of the if statement because we want it to override joystick collection
-            telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
+            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
             if (rejector.red() > rejector.blue() + colorThreshold) { // if red is significantly larger than blue, spit out ball
                 collector.setPower(-1);
                 lastRejection = System.currentTimeMillis();
@@ -239,8 +241,13 @@ public class StealthTeleop extends OpMode {
             } else {
                 collector.setPower(0);
             }
+            if(rejector.blue() > rejector.red() + colorThreshold){
+                ledDisplay.setPower(1);
+            }else{
+                ledDisplay.setPower(0);
+            }
         } else { // 1 indicates blue side
-            telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
+            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
             if (rejector.blue() > rejector.red() + colorThreshold) { // if blue is significantly larger than red, spit out ball
                 collector.setPower(-1);
                 lastRejection = System.currentTimeMillis();
@@ -252,6 +259,11 @@ public class StealthTeleop extends OpMode {
                 collector.setPower(-1);
             }else{
                 collector.setPower(0);
+            }
+            if(rejector.red() > rejector.blue() + colorThreshold){
+                ledDisplay.setPower(1);
+            }else{
+                ledDisplay.setPower(0);
             }
         }
 
