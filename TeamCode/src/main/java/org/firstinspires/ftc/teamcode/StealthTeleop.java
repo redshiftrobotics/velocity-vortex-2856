@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
@@ -18,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -26,37 +23,44 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @TeleOp(name="2856 Stealth Teleop")
 public class StealthTeleop extends OpMode {
-    public static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
-    DcMotor motors[] = new DcMotor[2];
-    DcMotor shooter;
-    DcMotor collector;
-    DcMotor capballLift;
-    DcMotor ledMotors;
-    DcMotor ledDisplay;
-    Servo shooterServo;
-    Servo capServo;
-    ColorSensor rejector;
-    OpticalDistanceSensor ODS;
-    int rotations;
-    int directionModifier;
-    int side;
+    private static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
+    private DcMotor motors[] = new DcMotor[2]; //2 Drive train motors, left is 0 and right is 1
+    private DcMotor shooter; //Motor to control shooter
+    private DcMotor collector; //Motor to control collector
+    private DcMotor capballLift; //Capball motor
+    private DcMotor ledMotors; //This and ledDisplay are used to control leds on the chassis
+    private DcMotor ledDisplay;
+    private Servo shooterServo; //Used to angle the shooter
+    private Servo capServo; //Used to grab the capball
+    private ColorSensor rejector1; //This and rejector2 are used to reject balls of the wrong color from entering
+    private ColorSensor rejector2;
+    private OpticalDistanceSensor ODS; //Used to check if a ball in in the hopper
 
-    boolean ballInHopper = false;
+    private int directionModifier; //Changes direction of chassis movement
+    private int side; //Tells the robot which side we are on
 
-    public final float REJECT_LATENCY = 500;
+    private boolean ballInHopper = false; //Bool to control the lights when shooting
 
-    int constantMult = 1;
-    public long timeDiff;
-    public long lastRejection;
+    private static final float REJECT_LATENCY = 500; //How long to run the collector after seeing incorrect ball
 
-    public static int START_SHOOTER_POSITION = 300;
+    private int constantMult = 1; //Used to control the maximum movement speed when reversing
+    private long timeDiff; //Used to count how long the ball has been in the hopper
+    private long lastRejection; //Time in miliseconds when the last rejection happened used to calculate timeDiff
+    private static final float colorThreshold = 1f; // WAS 0f; WAS 4f tune this, if rejection is too aggressive or not aggressive enough
+
+    private static final int START_SHOOTER_POSITION = 300; //Encoder position where stop range ends
+
+    /** Shared variable for use with ConcurrentAimer class.
+     * @see ConcurrentAimer
+     */
 
     private final AtomicInteger sharedDistance = new AtomicInteger(0);
     private ConcurrentAimer aimer;
 
-    //Servo capArm;
-    //float capArmPos;
-
+    /** Variable to hold the movement speeds of the robot to be able to change the drive train easily
+     * @see DirectionObject
+     */
+    
     DirectionObject direction;
 
 
@@ -66,8 +70,6 @@ public class StealthTeleop extends OpMode {
         directionModifier = 1;
         motors[0] = hardwareMap.dcMotor.get("m0");
         motors[1] = hardwareMap.dcMotor.get("m1");
-        //motors[2] = hardwareMap.dcMotor.get("m2");
-        //motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooterServo = hardwareMap.servo.get("shooterServo");
 
@@ -85,25 +87,21 @@ public class StealthTeleop extends OpMode {
         Servo fa = hardwareMap.servo.get("falign");
         ba.setPosition(0.2);
         fa.setPosition(0.1);
-        rejector = hardwareMap.colorSensor.get("rejector");
-        rejector.setI2cAddress(new I2cAddr(0x11));
-        rejector.enableLed(true);
-//        motors[0].setDirection(DcMotor.Direction.REVERSE);
-//        motors[1].setDirection(DcMotor.Direction.REVERSE);
-//        motors[2].setDirection(DcMotor.Direction.REVERSE);
-//        motors[3].setDirection(DcMotor.Direction.REVERSE);
+        rejector1 = hardwareMap.colorSensor.get("rejector1");
+        rejector2 = hardwareMap.colorSensor.get("rejector2");
+        rejector1.setI2cAddress(new I2cAddr(0x11));
+        rejector1.enableLed(true);
+        rejector2.setI2cAddress(new I2cAddr(0x12));
+        rejector2.enableLed(true);
         collector.setDirection(DcMotorSimple.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0);
-        rotations = shooter.getCurrentPosition();
-        //capArm = hardwareMap.servo.get("capArm");
-        //capArm.setPosition(1.0);
-        //capArmPos = 1.0f;
         ledMotors = hardwareMap.dcMotor.get("leds");
         ledDisplay = hardwareMap.dcMotor.get("display");
         side = getSide();
         aimer = new ConcurrentAimer(distance, sharedDistance);
         aimer.start();
         ODS = hardwareMap.opticalDistanceSensor.get("hopper");
+        timeDiff = 0;
     }
 
     int uFar = 110;
@@ -115,20 +113,13 @@ public class StealthTeleop extends OpMode {
 
         Move(gamepad1);
         ControlCollector(gamepad1);
-        //SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
         ControlShooter(gamepad1, gamepad2);
-        //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
         controlLed();
         telemetry.addData("Light", ODS.getLightDetected() * 1024);
         telemetry.update();
         ballInHopper = (ODS.getLightDetected()*1024 < 22);
-//        if(gamepad1.right_trigger>0.1&&ODS.getLightDetected()*1024<20){
-//            ledDisplay.setPower(1.0);
-//        }else{
-//            ledDisplay.setPower(0.0);
-//        }
         try {
             constantMultChange(gamepad1);
         } catch (InterruptedException e) {
@@ -137,8 +128,6 @@ public class StealthTeleop extends OpMode {
 
         if (gamepad2.b) {
             int shareCache = sharedDistance.get();
-            //telemetry.addData("Distance: ", shareCache);
-            //telemetry.update();
 //            if(shareCache >= uFar) { // far
 //                shooterServo.setPosition(ShooterAim.FAR.get());
 //            } else if (shareCache < uFar && shareCache >= uMedium) { // medium
@@ -222,14 +211,13 @@ public class StealthTeleop extends OpMode {
         }
     }
 
-    public void ControlCollector(Gamepad pad) {
+    private void ControlCollector(Gamepad pad) {
         timeDiff = System.currentTimeMillis() - lastRejection;
-        Float colorThreshold = 0f; // WAS 4f tune this, if rejection is too aggressive or not aggressive enough
 
         if (side == 1) { // 1 indicates blue side
             // color sensor is at the top of the if statement because we want it to override joystick collection
-            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
-            if (rejector.red() > rejector.blue() + colorThreshold) { // if red is significantly larger than blue, spit out ball
+            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector1.red()) + " " + Integer.toString(rejector1.blue()));
+            if (rejector1.red() > rejector1.blue() + colorThreshold || rejector2.red() > rejector2.blue() + colorThreshold) { // if red is significantly larger than blue, spit out ball
                 collector.setPower(-1);
                 lastRejection = System.currentTimeMillis();
             } else if (timeDiff < REJECT_LATENCY) {
@@ -241,14 +229,14 @@ public class StealthTeleop extends OpMode {
             } else {
                 collector.setPower(0);
             }
-            if(rejector.blue() > rejector.red() + colorThreshold){
+            if(rejector1.blue() > rejector1.red() + colorThreshold || rejector2.blue() > rejector2.red() + colorThreshold){
                 ledDisplay.setPower(1);
             }else{
                 ledDisplay.setPower(0);
             }
         } else { // 1 indicates blue side
-            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector.red()) + " " + Integer.toString(rejector.blue()));
-            if (rejector.blue() > rejector.red() + colorThreshold) { // if blue is significantly larger than red, spit out ball
+            //telemetry.addData("collector sensor (red, blue)", Integer.toString(rejector1.red()) + " " + Integer.toString(rejector1.blue()));
+            if (rejector1.blue() > rejector1.red() + colorThreshold || rejector2.blue() > rejector2.red() + colorThreshold) { // if blue is significantly larger than red, spit out ball
                 collector.setPower(-1);
                 lastRejection = System.currentTimeMillis();
             } else if (timeDiff < REJECT_LATENCY) {
@@ -257,10 +245,11 @@ public class StealthTeleop extends OpMode {
                 collector.setPower(1);
             } else if (pad.left_bumper) {
                 collector.setPower(-1);
+
             }else{
                 collector.setPower(0);
             }
-            if(rejector.red() > rejector.blue() + colorThreshold){
+            if(rejector1.red() > rejector1.blue() + colorThreshold || rejector2.red() > rejector2.blue() + colorThreshold){
                 ledDisplay.setPower(1);
             }else{
                 ledDisplay.setPower(0);
@@ -269,7 +258,10 @@ public class StealthTeleop extends OpMode {
 
     }
 
-    public void ControlShooter(Gamepad pad, Gamepad pad2) {
+
+
+
+    private void ControlShooter(Gamepad pad, Gamepad pad2) {
         if(pad.right_trigger>0.1) {
             shooter.setPower(-1.0);
         } else if(pad.right_bumper) {
