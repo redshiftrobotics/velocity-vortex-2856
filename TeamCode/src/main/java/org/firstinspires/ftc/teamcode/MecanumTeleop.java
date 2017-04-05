@@ -17,6 +17,7 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="Mechanum")
 public class MecanumTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[4];
+    private float[] driveSpeeds = new float[4];
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
@@ -46,7 +47,7 @@ public class MecanumTeleop extends OpMode {
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
-        direction = new DirectionObject(0, 0, 0);
+        direction = new DirectionObject(0, 0, 0, DirectionObject.DriveTrain.Mecanum);
         rotations = shooter.getCurrentPosition();
         leftPush.setPosition(1.0);
         rightPush.setPosition(1.0);
@@ -93,12 +94,12 @@ public class MecanumTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x);
+        driveSpeeds = direction.drive(pad.right_stick_x * directionModifier, -pad.right_stick_y * directionModifier, pad.left_stick_x);
 
-        motors[0].setPower(direction.frontLeftSpeed());
-        motors[1].setPower(direction.frontRightSpeed());
-        motors[2].setPower(direction.backRightSpeed());
-        motors[3].setPower(direction.backLeftSpeed());
+        motors[0].setPower(driveSpeeds[0]);
+        motors[1].setPower(driveSpeeds[1]);
+        motors[2].setPower(driveSpeeds[2]);
+        motors[3].setPower(driveSpeeds[3]);
     }
 
 

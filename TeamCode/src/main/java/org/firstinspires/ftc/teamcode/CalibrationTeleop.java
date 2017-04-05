@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class CalibrationTeleop extends OpMode {
     public static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
     DcMotor motors[] = new DcMotor[2];
+    private float[] driveSpeeds = new float[2];
     DcMotor shooter;
     DcMotor collector;
     DcMotor capballLift;
@@ -91,7 +92,7 @@ public class CalibrationTeleop extends OpMode {
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
         collector.setDirection(DcMotorSimple.Direction.REVERSE);
-        direction = new DirectionObject(0, 0, 0);
+        direction = new DirectionObject(0, 0, 0, DirectionObject.DriveTrain.AllWheelDrive);
         rotations = shooter.getCurrentPosition();
         //capArm = hardwareMap.servo.get("capArm");
         //capArm.setPosition(1.0);
@@ -195,12 +196,10 @@ public class CalibrationTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(/*pad.right_stick_x * directionModifier*/ 0, -(pad.right_stick_y) * directionModifier, -(pad.left_stick_x * pad.left_stick_x * pad.left_stick_x));
+        driveSpeeds = direction.drive(pad.right_stick_x * directionModifier, pad.right_stick_y * directionModifier, pad.left_stick_x * pad.left_stick_x * pad.left_stick_x);
 
-        motors[0].setPower(direction.frontLeftSpeed()/constantMult);
-        motors[1].setPower(direction.frontRightSpeed()/constantMult);
-        //motors[2].setPower(direction.backRightSpeed()/constantMult);
-        //motors[3].setPower(direction.backLeftSpeed()/constantMult);
+        motors[0].setPower(driveSpeeds[0]/constantMult);
+        motors[1].setPower(driveSpeeds[1]/constantMult);
     }
 
 

@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StealthTeleop extends OpMode {
     private static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
     private DcMotor motors[] = new DcMotor[2]; //2 Drive train motors, left is 0 and right is 1
+    private float[] driveSpeeds = new float[2];
     private DcMotor shooter; //Motor to control shooter
     private DcMotor collector; //Motor to control collector
     private DcMotor capballLift; //Capball motor
@@ -60,7 +61,7 @@ public class StealthTeleop extends OpMode {
     /** Variable to hold the movement speeds of the robot to be able to change the drive train easily
      * @see DirectionObject
      */
-    
+
     DirectionObject direction;
 
 
@@ -94,7 +95,7 @@ public class StealthTeleop extends OpMode {
         rejector2.setI2cAddress(new I2cAddr(0x12));
         rejector2.enableLed(true);
         collector.setDirection(DcMotorSimple.Direction.REVERSE);
-        direction = new DirectionObject(0, 0, 0);
+        direction = new DirectionObject(0, 0, 0, DirectionObject.DriveTrain.AllWheelDrive);
         ledMotors = hardwareMap.dcMotor.get("leds");
         ledDisplay = hardwareMap.dcMotor.get("display");
         side = getSide();
@@ -175,12 +176,10 @@ public class StealthTeleop extends OpMode {
     }
 
     void Move(Gamepad pad){
-        direction.setValues(/*pad.right_stick_x * directionModifier*/ 0, -(pad.right_stick_y) * directionModifier, -(pad.left_stick_x * pad.left_stick_x * pad.left_stick_x));
+        driveSpeeds = direction.drive(pad.right_stick_x * directionModifier, pad.right_stick_y * directionModifier, pad.left_stick_x * pad.left_stick_x * pad.left_stick_x);
 
-        motors[0].setPower(direction.frontLeftSpeed()/constantMult);
-        motors[1].setPower(direction.frontRightSpeed()/constantMult);
-        //motors[2].setPower(direction.backRightSpeed()/constantMult);
-        //motors[3].setPower(direction.backLeftSpeed()/constantMult);
+        motors[0].setPower(driveSpeeds[0]/constantMult);
+        motors[1].setPower(driveSpeeds[1]/constantMult);
     }
 
 
