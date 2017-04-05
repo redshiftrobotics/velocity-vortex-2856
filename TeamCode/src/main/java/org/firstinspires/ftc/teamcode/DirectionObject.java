@@ -40,7 +40,7 @@ class DirectionObject {
     }
 
     float[]drive(float x, float y, float z){
-        setValues(x, y, x);
+        setValues(x, y, z);
         return getValues();
     }
 
@@ -68,7 +68,7 @@ class DirectionObject {
         }
         return returnSpeed;
     }
-
+    
     private float frontLeftMecanum(){ return Range.clip(zRotation-xSpeed+ySpeed,min,max); }
     private float frontRightMecanum(){ return Range.clip(zRotation-xSpeed-ySpeed,min,max); }
     private float backRightMecanum(){ return Range.clip(zRotation+xSpeed-ySpeed,min,max); }
