@@ -47,7 +47,7 @@ public class ultrasonictest extends OpMode {
             int reading = sensor.getNextReading();
             telemetry.addData("US value", Integer.toString(reading));
            // telemetry.addData("Average value", Integer.toString(sensor.getNextReading()));
-            telemetry.addData("Unsanitized", Integer.toString(sensor.getUnsanitizedReading(telemetry)));
+            telemetry.addData("Unsanitized", Integer.toString(sensor.getUnsanitizedReading()));
 
             if (gamepad1.a) {
                 telemetry.addData("Status", "recording");

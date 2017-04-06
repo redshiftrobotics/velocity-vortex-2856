@@ -74,7 +74,7 @@ public class StealthTeleop extends OpMode {
         shooterServo.setPosition(0.5);
 
         collector = hardwareMap.dcMotor.get("collector");
-        capballLift = hardwareMap.dcMotor.get("capballLift");
+        //capballLift = hardwareMap.dcMotor.get("capballLift");
         capServo = hardwareMap.servo.get("cap");
         distance = hardwareMap.i2cDevice.get("distance");
         capServo.setPosition(0.3);

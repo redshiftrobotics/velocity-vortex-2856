@@ -98,13 +98,13 @@ public class DistanceSensor {
         }
 
         int distance = (readings[0] << 8) | readings[1];
-        lastReading = distance;
+        //lastReading = distance;
 
-        previousReadings.add(distance);
+        //previousReadings.add(distance);
 
-       sanitizeData();
+       //sanitizeData();
 
-        return currentAverage;
+        return sanitizeDataNoAverage(distance);
     }
 
 
@@ -117,17 +117,47 @@ public class DistanceSensor {
         return this.lastReading;
     }
 
-    public int getUnsanitizedReading(Telemetry t) {
+    public int getUnsanitizedReading() {
         if (timer.end() != 0 && timer.end() < WAIT_TIME) {
             return this.lastReading;
         }
 
-        t.addData("End: ", timer.end());
-        t.update();
         sensor.setReadWindow(readWindow);
         byte[] readings = sensor.read(SENSOR_REGISTER, DATA_LENGTH);
         int distance = (readings[0] << 8) | readings[1];
+
+
+        int max = previousReadings.get(0);
+        int min = previousReadings.get(0);
+        boolean ignore70 = false;
+
+        for (int reading : previousReadings) {
+            if (reading > max) {
+                max = reading;
+            } else if (reading < min) {
+                min = reading;
+            }
+        }
+
+        if (previousReadings.size() > MAX_DATA_SIZE) {
+            previousReadings.remove(0);
+        }
+
+        if (max >= 84 || min <= 69) {
+            ignore70 = true;
+        }
+
+        previousReadings.add(distance);
+
+        if (ignore70 && distance > 69 && distance < 84) {
+            return lastReading;
+        } else {
+            lastReading = distance;
+        }
+
+
         lastReading = distance;
+
 
         timer.start();
 
@@ -169,5 +199,41 @@ public class DistanceSensor {
         }
 
         currentAverage = adjusted;
+    }
+
+    public int sanitizeDataNoAverage(int reading) {
+        int max = computeMax();
+        int min = computeMin();
+
+        previousReadings.add(reading);
+
+        boolean filter70 = (max >= 84 || min <= 69);
+
+        if (filter70 && reading >= 69 && reading <= 84) {
+            return lastReading;
+        }
+
+        lastReading = reading;
+        return reading;
+    }
+
+    private int computeMax() {
+        int currentMax = previousReadings.get(0);
+        for (int data : previousReadings) {
+            if (data > currentMax) {
+                currentMax = data;
+            }
+        }
+        return currentMax;
+    }
+
+    private int computeMin() {
+        int currentMin = previousReadings.get(0);
+        for (int data : previousReadings) {
+            if (data < currentMin) {
+                currentMin = data;
+            }
+        }
+        return currentMin;
     }
 }

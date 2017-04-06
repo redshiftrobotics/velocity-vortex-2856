@@ -17,9 +17,8 @@ public class ConcurrentAimer {
         public void run() {
             for (;;) {
                 sensor.startReading();
-                int distance = sensor.getNextReading();
+                int distance = sensor.getUnsanitizedReading();
                 sharedDistance.set(distance);
-
             }
         }
     };
