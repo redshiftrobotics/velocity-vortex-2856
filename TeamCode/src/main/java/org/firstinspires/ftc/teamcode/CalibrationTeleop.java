@@ -58,6 +58,9 @@ public class CalibrationTeleop extends OpMode {
     public boolean bButtonPressed = false;
     public boolean aButtonPressed = false;
 
+    private DcMotor capLift1;
+    private DcMotor capLift2;
+
 
     @Override
     public void init() {
@@ -74,6 +77,9 @@ public class CalibrationTeleop extends OpMode {
 
         collector = hardwareMap.dcMotor.get("collector");
         capballLift = hardwareMap.dcMotor.get("capballLift");
+
+        capLift1 = hardwareMap.dcMotor.get("caplift1");
+        capLift2 = hardwareMap.dcMotor.get("caplift2");
         capServo = hardwareMap.servo.get("cap");
         distance = hardwareMap.i2cDevice.get("distance");
         capServo.setPosition(0.3);
@@ -149,6 +155,13 @@ public class CalibrationTeleop extends OpMode {
             aButtonPressed = false;
         }
 
+
+        capLift1.setPower(scaleJoystickForCap(gamepad2.left_stick_y));
+        capLift2.setPower(scaleJoystickForCap(gamepad2.right_stick_y));
+    }
+
+    public float scaleJoystickForCap(float joystickValue) {
+        return Range.clip(joystickValue * Math.abs(joystickValue), 1, -1 );
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {

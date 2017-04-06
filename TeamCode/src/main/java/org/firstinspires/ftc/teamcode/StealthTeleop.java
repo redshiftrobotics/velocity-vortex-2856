@@ -23,16 +23,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @TeleOp(name="2856 Stealth Teleop")
 public class StealthTeleop extends OpMode {
-    private static int MAX_ENCODER_COUNT = 1680 * 16 / 9;
+    private static final int MAX_ENCODER_COUNT = 1680 * 16 / 9;
     private DcMotor motors[] = new DcMotor[2]; //2 Drive train motors, left is 0 and right is 1
     private float[] driveSpeeds = new float[2];
     private DcMotor shooter; //Motor to control shooter
     private DcMotor collector; //Motor to control collector
-    private DcMotor capballLift; //Capball motor
+   // private DcMotor capballLift; //Capball motor
+
+
+    //capball motors
+    private DcMotor capLift1;
+    private DcMotor capLift2;
+
     private DcMotor ledMotors; //This and ledDisplay are used to control leds on the chassis
     private DcMotor ledDisplay;
     private Servo shooterServo; //Used to angle the shooter
     private Servo capServo; //Used to grab the capball
+
+    private Servo capServo1;
+    private Servo capServo2;
+
     private ColorSensor rejector1; //This and rejector2 are used to reject balls of the wrong color from entering
     private ColorSensor rejector2;
     private OpticalDistanceSensor ODS; //Used to check if a ball in in the hopper
@@ -65,6 +75,7 @@ public class StealthTeleop extends OpMode {
     DirectionObject direction;
 
 
+
     @Override
     public void init() {
         I2cDevice distance;
@@ -77,10 +88,20 @@ public class StealthTeleop extends OpMode {
         shooterServo.setPosition(0.5);
 
         collector = hardwareMap.dcMotor.get("collector");
-        capballLift = hardwareMap.dcMotor.get("capballLift");
-        capServo = hardwareMap.servo.get("cap");
+
+
+        //UNCOMMENT WHEN CAPBALL MOTOR CONTROLLER IS ADDED!!!!
+
+       /* capLift1 = hardwareMap.dcMotor.get("caplift1");
+        capLift2 = hardwareMap.dcMotor.get("caplift2");
+
+        capServo1 = hardwareMap.servo.get("cap_servo_1");
+        capServo2 = hardwareMap.servo.get("cap_servo_2");
+        */
+
         distance = hardwareMap.i2cDevice.get("distance");
-        capServo.setPosition(0.3);
+        //capServo1.setPosition(0.3);
+        //capServo2.setPosition(0.3);
         Servo actuator = hardwareMap.servo.get("ra");
         actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
@@ -89,11 +110,11 @@ public class StealthTeleop extends OpMode {
         ba.setPosition(0.2);
         fa.setPosition(0.1);
         rejector1 = hardwareMap.colorSensor.get("rejector1");
-        rejector2 = hardwareMap.colorSensor.get("rejector2");
+        //rejector2 = hardwareMap.colorSensor.get("rejector2");
         rejector1.setI2cAddress(new I2cAddr(0x11));
         rejector1.enableLed(true);
-        rejector2.setI2cAddress(new I2cAddr(0x12));
-        rejector2.enableLed(true);
+        //rejector2.setI2cAddress(new I2cAddr(0x12));
+        //rejector2.enableLed(true);
         collector.setDirection(DcMotorSimple.Direction.REVERSE);
         direction = new DirectionObject(0, 0, 0, DirectionObject.DriveTrain.AllWheelDrive);
         ledMotors = hardwareMap.dcMotor.get("leds");
@@ -166,16 +187,33 @@ public class StealthTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        //capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
-        if(pad.y) {
+        /*if(pad.y) {
             capServo.setPosition(1);
         } else if (pad.x) {
             capServo.setPosition(0.6);
+        }*/
+
+        float power = Range.clip(pad.left_stick_y * Math.abs(pad.left_stick_y), -1f, 1f );
+
+        //capLift1.setPower(power);
+        //capLift2.setPower(power);
+
+
+        //TODO: add separate controls for the other servo
+
+        if (pad.y) {
+          //  capServo1.setPosition(1);
+           // capServo2.setPosition(1);
+        } else if(pad.x) {
+           // capServo1.setPosition(0.6);
+           // capServo2.setPosition(0.6);
         }
+
     }
 
-    void Move(Gamepad pad){
+    void Move(Gamepad pad) {
         driveSpeeds = direction.drive(pad.right_stick_x * directionModifier, pad.right_stick_y * directionModifier, pad.left_stick_x * pad.left_stick_x * pad.left_stick_x);
 
         motors[0].setPower(driveSpeeds[0]/constantMult);
@@ -274,6 +312,7 @@ public class StealthTeleop extends OpMode {
         }
     }
 
+
     private int getSide() {
         int s;
         // Retrieve file.
@@ -308,16 +347,17 @@ public class StealthTeleop extends OpMode {
             e.printStackTrace();
         }
 
-
-
         // Provide in a more user friendly form.
-        String sideText = text.toString();
-        if(sideText.equals("red")) {
-            s = -1;
-        } else if (sideText.equals("blue")) {
-            s = 1;
-        } else { //this should never happen
-            s = 1;
+        switch (text.toString()) {
+            case "red":
+                s = -1;
+                break;
+            case "blue":
+                s = 1;
+                break;
+            default:
+                s = 1;
+                break;
         }
         return s;
     }

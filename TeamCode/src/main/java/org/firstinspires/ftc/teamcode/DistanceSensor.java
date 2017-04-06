@@ -143,19 +143,17 @@ public class DistanceSensor {
         int distance = (readings[0] << 8) | readings[1];
 
         //set lastReading accordingly
-        lastReading = distance;
+        //lastReading = distance;
 
         //add to our arraylist in order to compute a  moving average.
 
-        previousReadings.add(distance);
-
         //sanitize readings and compute an average.
-        sanitizeData();
+        //sanitizeData();
 
 
         //return our currentAverage
 
-        return currentAverage;
+        return sanitizeDataNoAverage(distance);
     }
 
 
@@ -230,5 +228,41 @@ public class DistanceSensor {
         }
 
         currentAverage = adjusted; //set currentAverage to adjusted.
+    }
+
+    public int sanitizeDataNoAverage(int reading) {
+        int max = computeMax();
+        int min = computeMin();
+
+        previousReadings.add(reading);
+
+        boolean filter70 = (max >= 84 || min <= 69);
+
+       if (filter70 && reading >= 69 && reading <= 84) {
+           return lastReading;
+       }
+
+        lastReading = reading;
+        return reading;
+    }
+
+    private int computeMax() {
+        int currentMax = previousReadings.get(0);
+        for (int data : previousReadings) {
+            if (data > currentMax) {
+                currentMax = data;
+            }
+        }
+        return currentMax;
+    }
+
+    private int computeMin() {
+        int currentMin = previousReadings.get(0);
+        for (int data : previousReadings) {
+            if (data < currentMin) {
+                currentMin = data;
+            }
+        }
+        return currentMin;
     }
 }
