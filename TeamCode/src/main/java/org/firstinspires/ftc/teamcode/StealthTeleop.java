@@ -71,7 +71,7 @@ public class StealthTeleop extends OpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         shooterServo = hardwareMap.servo.get("shooterServo");
 
-        shooterServo.setPosition(0.5);
+        shooterServo.setPosition(ShooterAim.NEAR.get());
 
         collector = hardwareMap.dcMotor.get("collector");
         //capballLift = hardwareMap.dcMotor.get("capballLift");
@@ -88,7 +88,7 @@ public class StealthTeleop extends OpMode {
         rejector = hardwareMap.colorSensor.get("rejector");
         rejector.setI2cAddress(new I2cAddr(0x11));
         rejector.enableLed(true);
-//        motors[0].setDirection(DcMotor.Direction.REVERSE);
+ //       motors[0].setDirection(DcMotor.Direction.REVERSE);
 //        motors[1].setDirection(DcMotor.Direction.REVERSE);
 //        motors[2].setDirection(DcMotor.Direction.REVERSE);
 //        motors[3].setDirection(DcMotor.Direction.REVERSE);
@@ -270,6 +270,17 @@ public class StealthTeleop extends OpMode {
     }
 
     public void ControlShooter(Gamepad pad, Gamepad pad2) {
+
+        if (gamepad1.dpad_up) {
+            shooterServo.setPosition(ShooterAim.NEAR.get());
+        } else if (gamepad1.dpad_right) {
+            shooterServo.setPosition(ShooterAim.MEDIUM.get());
+        } else if (gamepad1.dpad_down) {
+            shooterServo.setPosition(ShooterAim.FAR.get());
+        } else if (gamepad1.dpad_left) {
+            shooterServo.setPosition(ShooterAim.LOB.get());
+        }
+
         if(pad.right_trigger>0.1) {
             shooter.setPower(-1.0);
         } else if(pad.right_bumper) {
@@ -281,6 +292,8 @@ public class StealthTeleop extends OpMode {
         } else {
             shooter.setPower(0.0);
         }
+
+
     }
 
     private int getSide() {
