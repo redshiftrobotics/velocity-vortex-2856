@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import static com.qualcomm.robotcore.hardware.I2cDeviceSynch.ReadMode.ONLY_ONCE;
 
@@ -153,6 +154,7 @@ public class DistanceSensor {
 
         //return our currentAverage
 
+        timer.start();
         return sanitizeDataNoAverage(distance);
     }
 
@@ -265,4 +267,6 @@ public class DistanceSensor {
         }
         return currentMin;
     }
+
+
 }
