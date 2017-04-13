@@ -176,7 +176,7 @@ public class StealthTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        //capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
         if(pad.y) {
             capServo.setPosition(1);
