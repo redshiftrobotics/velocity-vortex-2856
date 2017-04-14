@@ -81,7 +81,6 @@ public class Robot {
         Data.Drive.m2 = m2;
         Data.Drive.m3 = m3;
         Data.Drive.m0.setDirection(DcMotorSimple.Direction.REVERSE);
-        Data.Drive.m3.setDirection(DcMotorSimple.Direction.REVERSE);
         Data.Drive.EncoderCount = 1400;
 
         //Tracking.Setup(Tracking.ImageType.Wheels, VuforiaLocalizer.CameraDirection.FRONT);
@@ -153,14 +152,10 @@ public class Robot {
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
                 Data.Drive.m0.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) + Direction) * (35f/45f));
                 Data.Drive.m1.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) - Direction) * (35f/45f));
-                Data.Drive.m2.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) - Direction) * (35f/45f));
-                Data.Drive.m3.setPower(((movement[0] * Drive.STRAIGHT_POWER_CONSTANT) + Direction) * (35f/45f));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
-        Data.Drive.m2.setPower(0);
-        Data.Drive.m3.setPower(0);
     }
 
     // for gettin just the raw distance
@@ -226,15 +221,11 @@ public class Robot {
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
             Data.Drive.m0.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
             Data.Drive.m1.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
-            Data.Drive.m2.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
-            Data.Drive.m3.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
             rangeCache = RANGE_Reader.read(RANGE_REG_START, RANGE_READ_LENGTH);
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
-        Data.Drive.m2.setPower(0);
-        Data.Drive.m3.setPower(0);
     }
 
 
@@ -300,14 +291,10 @@ public class Robot {
             float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
             Data.Drive.m0.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
             Data.Drive.m1.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
-            Data.Drive.m2.setPower(((movement[0] * 0.25) + Direction) * (35f/45f));
-            Data.Drive.m3.setPower(((movement[0] * 0.25) - Direction) * (35f/45f));
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
-        Data.Drive.m2.setPower(0);
-        Data.Drive.m3.setPower(0);
     }
 
     private double filterUS(){
@@ -362,14 +349,10 @@ public class Robot {
 
             Data.Drive.m0.setPower((movement[0] * speed) + Direction);
             Data.Drive.m1.setPower((movement[0] * speed) - Direction);
-            Data.Drive.m2.setPower((movement[0] * speed) - Direction);
-            Data.Drive.m3.setPower((movement[0] * speed) + Direction);
         }
         // Our drive loop has completed! Stop the motors.
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
-        Data.Drive.m2.setPower(0);
-        Data.Drive.m3.setPower(0);
     }
 
     public void UpdateTarget(float angle) {
@@ -449,8 +432,6 @@ public class Robot {
 
             Data.Drive.m0.setPower(((Direction*0.1/Math.abs(Direction)) + Direction) * (35f/45f));
             Data.Drive.m1.setPower((-(Direction*0.1/Math.abs(Direction)) - Direction) * (35f/45f));
-            Data.Drive.m2.setPower((-(Direction*0.1/Math.abs(Direction)) - Direction) * (35f/45f));
-            Data.Drive.m3.setPower(((Direction*0.1/Math.abs(Direction)) + Direction) * (35f/45f));
 //            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
 //            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
@@ -463,8 +444,6 @@ public class Robot {
         Data.PID.D = 0;
         Data.Drive.m0.setPower(0);
         Data.Drive.m1.setPower(0);
-        Data.Drive.m2.setPower(0);
-        Data.Drive.m3.setPower(0);
     }
 
     // Private Methods

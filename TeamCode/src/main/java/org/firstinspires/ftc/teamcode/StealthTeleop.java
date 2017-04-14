@@ -74,7 +74,7 @@ public class StealthTeleop extends OpMode {
         shooterServo.setPosition(0.5);
 
         collector = hardwareMap.dcMotor.get("collector");
-        //capballLift = hardwareMap.dcMotor.get("capballLift");
+        capballLift = hardwareMap.dcMotor.get("capballLift");
         capServo = hardwareMap.servo.get("cap");
         distance = hardwareMap.i2cDevice.get("distance");
         capServo.setPosition(0.3);
@@ -176,7 +176,7 @@ public class StealthTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        //capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
         if(pad.y) {
             capServo.setPosition(1);
