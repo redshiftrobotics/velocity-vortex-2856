@@ -271,14 +271,15 @@ public class StealthTeleop extends OpMode {
 
     public void ControlShooter(Gamepad pad, Gamepad pad2) {
 
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             shooterServo.setPosition(ShooterAim.NEAR.get());
-        } else if (gamepad1.dpad_right) {
+        } else if (gamepad2.dpad_right) {
             shooterServo.setPosition(ShooterAim.MEDIUM.get());
-        } else if (gamepad1.dpad_down) {
+        } else if (gamepad2.dpad_down) {
             shooterServo.setPosition(ShooterAim.FAR.get());
-        } else if (gamepad1.dpad_left) {
-            shooterServo.setPosition(ShooterAim.LOB.get());
+        } else if (gamepad2.dpad_left) {
+            //shooterServo.setPosition(ShooterAim.LOB.get());
+            shooterServo.setPosition(ShooterAim.MEDIUM.get());
         }
 
         if(pad.right_trigger>0.1) {
