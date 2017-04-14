@@ -36,12 +36,9 @@ public class StealthTeleop extends OpMode {
     Servo shooterServo;
     Servo capServo;
     ColorSensor rejector;
-    OpticalDistanceSensor ODS;
     int rotations;
     int directionModifier;
     int side;
-
-    boolean ballInHopper = false;
 
     public final float REJECT_LATENCY = 500;
 
@@ -66,8 +63,6 @@ public class StealthTeleop extends OpMode {
         directionModifier = 1;
         motors[0] = hardwareMap.dcMotor.get("m0");
         motors[1] = hardwareMap.dcMotor.get("m1");
-        //motors[2] = hardwareMap.dcMotor.get("m2");
-        //motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooterServo = hardwareMap.servo.get("shooterServo");
 
@@ -103,32 +98,17 @@ public class StealthTeleop extends OpMode {
         side = getSide();
         aimer = new ConcurrentAimer(distance, sharedDistance);
         aimer.start();
-        ODS = hardwareMap.opticalDistanceSensor.get("hopper");
     }
-
-    int uFar = 110;
-    int uMedium = 60;
-    int uNear = 50;
 
     @Override
     public void loop() {
 
         Move(gamepad1);
         ControlCollector(gamepad1);
-        //SpinMotor(Leftpower(gamepad1), Leftpower(gamepad2), collector);
         ControlShooter(gamepad1, gamepad2);
-        //SpinMotor(Rightpower(gamepad1), Rightpower(gamepad2), shooter);
         controlLift(gamepad2);
         switchDirection(gamepad1);
         controlLed();
-        telemetry.addData("Light", ODS.getLightDetected() * 1024);
-        telemetry.update();
-        ballInHopper = (ODS.getLightDetected()*1024 < 22);
-//        if(gamepad1.right_trigger>0.1&&ODS.getLightDetected()*1024<20){
-//            ledDisplay.setPower(1.0);
-//        }else{
-//            ledDisplay.setPower(0.0);
-//        }
         try {
             constantMultChange(gamepad1);
         } catch (InterruptedException e) {
@@ -136,7 +116,10 @@ public class StealthTeleop extends OpMode {
         }
 
         if (gamepad2.b) {
-            int shareCache = sharedDistance.get();
+
+            //the current distance read from our
+            //ultrasonic sensor via an atomic shared variable
+            int currentUSDistance = sharedDistance.get();
             //telemetry.addData("Distance: ", shareCache);
             //telemetry.update();
 //            if(shareCache >= uFar) { // far
@@ -146,9 +129,29 @@ public class StealthTeleop extends OpMode {
 //            } else if (shareCache < uMedium && shareCache >= uNear) { // near
 //                shooterServo.setPosition(ShooterAim.NEAR.get());
 //            }
-            shooterServo.setPosition(2.5049/shareCache + 0.49513);
+            //shooterServo.setPosition(2.5049/shareCache + 0.49513);
+
+            //interpolate the shooter servo angle from the current
+            //distance read from the ultrasonic sensor.
+            telemetry.addData("Distance: ", Integer.toString(currentUSDistance));
+            telemetry.update();
+            shooterServo.setPosition(interpolateShooterPosition(currentUSDistance));
         }
 
+    }
+
+    /** Interpolates shooter servo angle from an ultrasonic
+     * distance measurement. Uses a linear function for
+     * the transformation
+     *
+     * @param distance the distance returned by the ultrasonic sensor
+     * @return the interpolated shooter angle
+     */
+
+    private double interpolateShooterPosition(int distance) {
+        //linear function to interpolate shooter angle from distance.
+        //f(x) = -0.0010861x + 0.64079
+        return  Range.clip(-0.0010861 * (double) distance + 0.64079,0.51, 0.60);
     }
 
     void constantMultChange(Gamepad pad) throws InterruptedException {
@@ -192,34 +195,6 @@ public class StealthTeleop extends OpMode {
         motors[1].setPower(direction.frontRightSpeed()/constantMult);
         //motors[2].setPower(direction.backRightSpeed()/constantMult);
         //motors[3].setPower(direction.backLeftSpeed()/constantMult);
-    }
-
-
-    int Leftpower(Gamepad pad){
-        if(pad.left_trigger>0.1){
-            return -1;
-        }else if(pad.left_bumper) {
-            return 1;
-        }
-        return 0;
-    }
-    int Rightpower(Gamepad pad){
-        if(pad.right_trigger>0.1){
-            return -1;
-        }else if(pad.right_bumper) {
-            return 1;
-        }
-        return 0;
-    }
-
-    void SpinMotor(int power, int power2, DcMotor motor){
-        if(power==1||power==-1){
-            motor.setPower(power);
-        }else if(power2==1) {
-            motor.setPower(power2);
-        } else {
-            motor.setPower(0);
-        }
     }
 
     public void ControlCollector(Gamepad pad) {
