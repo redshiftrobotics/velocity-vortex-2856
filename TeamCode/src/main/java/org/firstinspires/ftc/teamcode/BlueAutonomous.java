@@ -197,7 +197,7 @@ public class BlueAutonomous extends LinearOpMode {
         rrs = hardwareMap.i2cDevice.get("rrs");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
     }
 
     private void turnConst() {

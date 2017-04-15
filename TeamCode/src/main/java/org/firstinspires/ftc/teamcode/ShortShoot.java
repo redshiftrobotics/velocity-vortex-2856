@@ -114,7 +114,7 @@ public class ShortShoot extends LinearOpMode{
         Servo capServo = hardwareMap.servo.get("cap");
         capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 

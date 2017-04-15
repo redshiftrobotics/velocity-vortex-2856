@@ -29,8 +29,6 @@ public class NewShootVortex extends LinearOpMode{
     ColorSensor cs;
     ColorSensor cs1;
     ColorSensor csFront;
-    I2cDevice lrs;
-    I2cDevice rrs;
     UltrasonicSensor us;
 
     DcMotor shooter;
@@ -97,25 +95,26 @@ public class NewShootVortex extends LinearOpMode{
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        lrs = hardwareMap.i2cDevice.get("rrs");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setPower(0);
         shooter.setDirection(DcMotor.Direction.REVERSE);
         Servo capServo1 = hardwareMap.servo.get("cap1");
-        capServo1.setPosition(0.3);
         Servo capServo2 = hardwareMap.servo.get("cap2");
-        capServo2.setPosition(0.7);
+        Servo capHold = hardwareMap.servo.get("hold");
+        capServo1.setPosition(1);
+        capServo2.setPosition(0.2);
+        capHold.setPosition(0.15);
         Servo bAlign = hardwareMap.servo.get("balign");
         Servo fAlign = hardwareMap.servo.get("falign");
         Servo actuator = hardwareMap.servo.get("ra");
         Servo aim = hardwareMap.servo.get("shooterServo");
         aim.setPosition(0.54);
-        actuator.setDirection(Servo.Direction.REVERSE);
+        //actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
         bAlign.setPosition(0.2);
         fAlign.setPosition(0.1);
         //hopper = hardwareMap.servo.get("hopper");
-        robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 

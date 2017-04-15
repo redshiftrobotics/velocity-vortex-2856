@@ -22,7 +22,6 @@ import java.io.IOException;
 @Autonomous(name = "New 2856 Autonomous")
 public class NeoAuto extends LinearOpMode {
     I2cDeviceSynch imu;
-    I2cDevice rs;
     DcMotor m0;
     DcMotor m1;
     DcMotor m2;
@@ -156,7 +155,7 @@ public class NeoAuto extends LinearOpMode {
         Servo aim = hardwareMap.servo.get("shooterServo");
         aim.setPosition(0.54);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
-        robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
+        robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
         telemetry.addData("Color Sensor: ", bs.red());
 
@@ -166,15 +165,16 @@ public class NeoAuto extends LinearOpMode {
         fAlign.setPosition(0.1);
 
         Servo capServo1 = hardwareMap.servo.get("cap1");
-        capServo1.setPosition(0.3);
         Servo capServo2 = hardwareMap.servo.get("cap2");
-        capServo2.setPosition(0.7);
+        Servo capHold = hardwareMap.servo.get("hold");
+        capServo1.setPosition(1);
+        capServo2.setPosition(0.2);
+        capHold.setPosition(0.15);
 
 
         bs = hardwareMap.colorSensor.get("rbs");
         actuator = hardwareMap.servo.get("ra");
-        rs = hardwareMap.i2cDevice.get("rrs");
-        actuator.setDirection(Servo.Direction.REVERSE);
+        //actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
     }
 

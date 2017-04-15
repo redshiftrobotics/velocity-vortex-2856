@@ -54,7 +54,7 @@ public class Robot {
     LinearOpMode opMode;
 
     //changed from I2cDevice
-    public Robot(LinearOpMode op, I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, I2cDevice rs, Telemetry tm) {
+    public Robot(LinearOpMode op, I2cDeviceSynch imu, DcMotor m0, DcMotor m1, DcMotor m2, DcMotor m3, Telemetry tm) {
 
 
         opMode = op;
@@ -89,8 +89,8 @@ public class Robot {
 
 
         // range sensor setup
-        RANGE_Reader = new I2cDeviceSynchImpl(rs, RANGEADDRESS, false);
-        RANGE_Reader.engage();
+        //RANGE_Reader = new I2cDeviceSynchImpl(rs, RANGEADDRESS, false);
+        //RANGE_Reader.engage();
     }
     // Public Interface Methods:
 
