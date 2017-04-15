@@ -446,6 +446,92 @@ public class Robot {
         Data.Drive.m1.setPower(0);
     }
 
+    public void AngleTurnSingleSided(float angle, int Timeout, int side, Telemetry tm){
+        Data.Time = new RobotTime();
+        tm.addData("Started", "TURNING");
+        tm.update();
+
+        // We need two points of data from the IMU to do our calculation. So lets take the first one
+        // and put it into our "current" headings slot.
+        updateHeadings();
+
+        // Get the current program time and starting encoder position before we start our drive loop
+        float StartTime = Data.Time.CurrentTime();
+        float StartPosition = Data.Drive.m0.getCurrentPosition();
+
+        // Reset our Integral and Derivative data.
+        Data.PID.IntegralData.clear();
+        Data.PID.DerivativeData.clear();
+
+
+        //Calculate PIDS again because Isaac Zinda only knows
+
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
+
+        Data.PID.Headings[0] = Data.PID.Headings[1];
+        // Then, we assign the new angle heading.
+        Data.PID.Headings[1] = ((Data.imu.getAngularOrientation().firstAngle*-1) + 180 - Data.PID.TARGET_MODIFIER) % 360;
+
+        float LoopTime = Data.Time.CurrentTime();
+        CalculatePID(LoopTime, tm);
+
+
+        // Manually calculate our first target
+        Data.PID.Target += angle - Data.PID.TARGET_MODIFIER;
+        // We need to keep track of how much time passes between a loop.
+
+        // This is the main loop of our straight drive.
+        // We use encoders to form a loop that corrects rotation until we reach our target.
+        while(StartTime + Timeout > Data.Time.CurrentTime() && opMode.opModeIsActive()){
+
+            // Record the time since the previous loop.
+            LoopTime = Data.Time.TimeFrom(LoopTime);
+            // Calculate our angles. This method may modify the input Rotations.
+            //IMURotations =
+            updateHeadings();
+            // Calculate our PID
+            CalculatePID(LoopTime, tm);
+
+            // Calculate the Direction to travel to correct any rotational errors
+            float Direction = ((Data.PID.I * Data.PID.ITuning) / 2000) + ((Data.PID.P * Data.PID.PTuning) / 2000) + ((Data.PID.D * Data.PID.DTuning) / 2000);
+            // Constrain our direction from being too intense.
+
+            //if(Direction > 50){ Direction = 50; }
+            //if(Direction < -50){ Direction = -50; }
+
+            // Define our motor power multiplier
+
+            //tm.addData("Direction ", Direction);
+            //tm.update();
+
+            if (Math.abs(Data.PID.P) <= Data.PID.turnPrecision) {
+                tm.addData("Finished", Math.abs(Data.PID.P) + " <= " + Data.PID.turnPrecision);
+                tm.update();
+                break;
+            }
+
+            if(side == 0) { // left
+                Data.Drive.m0.setPower(((Direction*0.1/Math.abs(Direction)) + Direction) * (35f/45f));
+            } else { // right
+                Data.Drive.m1.setPower((-(Direction * 0.1 / Math.abs(Direction)) - Direction) * (35f / 45f));
+            }
+//            Data.Drive.m0.setPower(-.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m1.setPower(.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m2.setPower(.5 * (Direction/Math.abs(Direction)));
+//            Data.Drive.m3.setPower(-.5 * (Direction/Math.abs(Direction)));
+        }
+
+        // Our drive loop has completed! Stop the motors.
+        Data.PID.P = 0;
+        Data.PID.I = 0;
+        Data.PID.D = 0;
+        Data.Drive.m0.setPower(0);
+        Data.Drive.m1.setPower(0);
+    }
+
     // Private Methods
     private void updateHeadings() {
         Data.PID.Headings[0] = Data.PID.Headings[1];

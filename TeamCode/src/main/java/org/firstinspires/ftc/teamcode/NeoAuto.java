@@ -44,21 +44,6 @@ public class NeoAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         side = getSide();
-
-        bAlign = hardwareMap.servo.get("balign");
-        fAlign = hardwareMap.servo.get("falign");
-        bAlign.setPosition(0.2);
-        fAlign.setPosition(0.1);
-
-        Servo capServo = hardwareMap.servo.get("cap");
-        capServo.setPosition(0.3);
-
-        bs = hardwareMap.colorSensor.get("rbs");
-        actuator = hardwareMap.servo.get("ra");
-        rs = hardwareMap.i2cDevice.get("rrs");
-        actuator.setDirection(Servo.Direction.REVERSE);
-        actuator.setPosition(0);
-
         initDevices();
 
         waitForStart();
@@ -69,54 +54,12 @@ public class NeoAuto extends LinearOpMode {
         fAlign.setPosition(1);
 
         straightConst();
-        robot.Straight(1.2f * (35f/45f), forward, 10, telemetry); //1.4
-        turnConst();
-        if(side == -1) {
-            //turn a little to the right
-            robot.Data.PID.turnPrecision = 1f;
-            robot.AngleTurn(-30*side, 10, telemetry); //-25 SEE BELOW UPDATE
-            shooter.setPower(1);
-            Thread.sleep(1000);
-            shooter.setPower(0);
-
-
-
-            //robot.Straight(.2f * (35f/45f), forward, 10, telemetry);
-
-
-            turnConst();
-            robot.Data.PID.turnPrecision = 5f;
-            robot.AngleTurn((180)*side, 10, telemetry);
-            robot.Data.PID.turnPrecision = 1f;
-            robot.AngleTurn((75+30)*side, 10, telemetry); //UPDATE THIS ASWELL
-            robot.AngleTurn(0, 10, telemetry);
-            forward = new Float[]{-1f,0f};
-            backward = new Float[]{1f,0f};
-        } else {
-            robot.Data.PID.turnPrecision = 1f;
-            robot.AngleTurn(20*side, 10, telemetry);
-            //robot.AngleTurn(0, 10, telemetry); // reset
-            shooter.setPower(1);
-            Thread.sleep(1000);
-            shooter.setPower(0);
-
-
-            robot.Straight(.2f * (35f/45f), forward, 10, telemetry);
-
-
-            turnConst();
-            robot.Data.PID.turnPrecision = 1f;
-            robot.AngleTurn((75-20)*side, 10, telemetry);
-            robot.AngleTurn(0, 10, telemetry);
-        }
-
-        straightConst();
 //        robot.Straight(0.2f, forward, 4, telemetry);
 //        lineConst();
 //        robot.MoveToLine(forward, csf, .2f, 10, telemetry);
 
         //begin alignment
-        robot.Straight(2.17f * (35f/45f), forward, 2, telemetry); // 2.45 to 2.37
+        robot.Straight(2f * (35f/45f), forward, 10, telemetry); // 2.45 to 2.37
 
 
 
@@ -125,10 +68,10 @@ public class NeoAuto extends LinearOpMode {
         //robot.AngleTurn(-60*side, 10, telemetry);
 
 
-        /////////////////////////////////////////////////
-        // IF IT IS 60, UNCOMMENT THE UPDATE TARGET -5 //
-        /////////////////////////////////////////////////
-        robot.AngleTurn(-65*side, 10, telemetry); //-65 for 10 degrees towards wall, but -60 for 15 degrees
+        /////////////////////////////////////////////////////////
+        // IF IT IS -35, TRY UNCOMMENTING THE UPDATE TARGET -5 //
+        /////////////////////////////////////////////////////////
+        robot.AngleTurn(-35*side, 10, telemetry); //-35 for 10 degrees towards wall, but -30 for 15 degrees
         robot.AngleTurn(0, 4, telemetry);
 
 
@@ -139,8 +82,6 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.7f;
 
         //robot.UpdateTarget(-5*side); //less steep
-
-        //Thread.sleep(1000);
 
         lineConst();
         robot.Data.PID.ITuning = 0;
@@ -170,16 +111,20 @@ public class NeoAuto extends LinearOpMode {
         bAlign.setPosition(0);
         fAlign.setPosition(0);
 
+        //turn and shoot... this is ONLY A SINGLE BALL under the assumption our alliance partner will take the other two
+        robot.AngleTurnSingleSided(90f*side, 10, 1, telemetry); // 1 indicates to move m1, 0 would indicate m0
+        shooter.setPower(1);
+        Thread.sleep(300);
+        shooter.setPower(0);
 
-        robot.UpdateTarget(30*side);
-        robot.Data.PID.PTuning = 20f;
-        //robot.AngleTurn(45*side, 10, telemetry);
 
+        // CAP BALLIN'
+        robot.Straight(2f, forward, 10, telemetry);
 
-        // ONLY ON BLUE, FIX THIS
-        if(side != -1) {
-            robot.Straight(2f, backward, 3, telemetry);
-        }
+        //CORNER VORTEX
+        /*robot.Straight(0.5f, forward, 10, telemetry);
+        robot.AngleTurn(70f*side, 4, telemetry);
+        robot.Straight(3f, forward, 10, telemetry);*/
 
     }
 
@@ -206,14 +151,28 @@ public class NeoAuto extends LinearOpMode {
         imu = hardwareMap.i2cDeviceSynch.get("imu");
         m0 = hardwareMap.dcMotor.get("m0");
         m1 = hardwareMap.dcMotor.get("m1");
-        m2 = hardwareMap.dcMotor.get("m2");
-        m3 = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
+        Servo aim = hardwareMap.servo.get("shooterServo");
+        aim.setPosition(0.54);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
         robot = new Robot(this, imu, m0, m1, m2, m3, rs, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
         telemetry.addData("Color Sensor: ", bs.red());
+
+        bAlign = hardwareMap.servo.get("balign");
+        fAlign = hardwareMap.servo.get("falign");
+        bAlign.setPosition(0.2);
+        fAlign.setPosition(0.1);
+
+        Servo capServo = hardwareMap.servo.get("cap");
+        capServo.setPosition(0.3);
+
+        bs = hardwareMap.colorSensor.get("rbs");
+        actuator = hardwareMap.servo.get("ra");
+        rs = hardwareMap.i2cDevice.get("rrs");
+        actuator.setDirection(Servo.Direction.REVERSE);
+        actuator.setPosition(0);
     }
 
     public void push(int degrees) {
