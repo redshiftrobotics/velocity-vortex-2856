@@ -83,7 +83,7 @@ public class CalibrationTeleop extends OpMode {
         Servo fa = hardwareMap.servo.get("falign");
         ba.setPosition(0.2);
         fa.setPosition(0.1);
-        rejector = hardwareMap.colorSensor.get("rejector");
+        rejector = hardwareMap.colorSensor.get("rejector1");
         rejector.setI2cAddress(new I2cAddr(0x11));
         rejector.enableLed(true);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);
