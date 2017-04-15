@@ -26,10 +26,13 @@ public class CalibrationTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[2];
     DcMotor shooter;
     DcMotor collector;
-    DcMotor capballLift;
+    DcMotor capballLift1;
+    DcMotor capballLift2;
     DcMotor ledMotors;
     Servo shooterServo;
-    Servo capServo;
+    Servo capServo1;
+    Servo capServo2;
+    Servo capHold;
     ColorSensor rejector;
     int rotations;
     int directionModifier;
@@ -72,10 +75,15 @@ public class CalibrationTeleop extends OpMode {
         shooterServo.setPosition(ShooterPos);
 
         collector = hardwareMap.dcMotor.get("collector");
-        capballLift = hardwareMap.dcMotor.get("capballLift");
-        capServo = hardwareMap.servo.get("cap");
+        capballLift1 = hardwareMap.dcMotor.get("capballLift1");
+        capballLift2 = hardwareMap.dcMotor.get("capballLift2");
         distance = hardwareMap.i2cDevice.get("distance");
-        capServo.setPosition(0.3);
+        capServo1 = hardwareMap.servo.get("cap1");
+        capServo2 = hardwareMap.servo.get("cap2");
+        capHold = hardwareMap.servo.get("hold");
+        capServo1.setPosition(1);
+        capServo2.setPosition(0.2);
+        capHold.setPosition(0.15);
         Servo actuator = hardwareMap.servo.get("ra");
         actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
@@ -185,13 +193,36 @@ public class CalibrationTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        //capballLift1.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+
+        if(gamepad2.left_trigger>0.3){
+            capballLift1.setPower(1);
+        }else if(gamepad2.left_bumper){
+            capballLift1.setPower(-1);
+        }else{
+            capballLift1.setPower(0);
+        }
+        if(gamepad2.right_trigger>0.3){
+            capballLift2.setPower(1);
+        }else if(gamepad2.right_bumper){
+            capballLift2.setPower(-1);
+        }else{
+            capballLift2.setPower(0);
+        }
 
         if(pad.y) {
-            capServo.setPosition(1);
+            capServo1.setPosition(0);
+            capServo2.setPosition(1);
+            capHold.setPosition(1);
         } else if (pad.x) {
-            capServo.setPosition(0.6);
+            capServo1.setPosition(0.3);
+            capServo2.setPosition(0.7);
         }
+        /*if(pad.left_trigger>0.1&&pad.left_bumper){
+            capHold.setPosition(0.15);
+        }else if(pad.right_trigger>0.1&&pad.right_bumper){
+            capHold.setPosition(0.5);
+        }*/
     }
 
     void Move(Gamepad pad){

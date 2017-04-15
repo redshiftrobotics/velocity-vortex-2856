@@ -39,7 +39,7 @@ public class MecanumTeleop extends OpMode {
         motors[3] = hardwareMap.dcMotor.get("m3");
         shooter = hardwareMap.dcMotor.get("shooter");
         collector = hardwareMap.dcMotor.get("collector");
-        capballLift = hardwareMap.dcMotor.get("capballLift");
+        capballLift = hardwareMap.dcMotor.get("capballLift1");
         leftPush = hardwareMap.servo.get("leftPush");
         rightPush = hardwareMap.servo.get("rightPush");
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);

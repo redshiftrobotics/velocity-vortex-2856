@@ -26,7 +26,8 @@ public class StealthTeleop extends OpMode {
     DcMotor motors[] = new DcMotor[2];
     DcMotor shooter;
     DcMotor collector;
-    DcMotor capballLift;
+    DcMotor capballLift1;
+    DcMotor capballLift2;
 
     DcMotor ledMotors;
     DcMotor ledDisplay;
@@ -34,6 +35,7 @@ public class StealthTeleop extends OpMode {
     Servo shooterServo;
     Servo capServo1;
     Servo capServo2;
+    Servo capHold;
 
     ColorSensor rejector1;
     ColorSensor rejector2;
@@ -71,12 +73,15 @@ public class StealthTeleop extends OpMode {
         shooterServo.setPosition(ShooterAim.NEAR.get());
 
         collector = hardwareMap.dcMotor.get("collector");
-        capballLift = hardwareMap.dcMotor.get("capballLift");
+        capballLift1 = hardwareMap.dcMotor.get("capballLift1");
+        capballLift2 = hardwareMap.dcMotor.get("capballLift2");
         capServo1 = hardwareMap.servo.get("cap1");
         capServo2 = hardwareMap.servo.get("cap2");
+        capHold = hardwareMap.servo.get("hold");
+        capServo1.setPosition(1);
+        capServo2.setPosition(0.2);
+        capHold.setPosition(0.15);
         distance = hardwareMap.i2cDevice.get("distance");
-        capServo1.setPosition(0.3);
-        capServo2.setPosition(0.7);
         Servo actuator = hardwareMap.servo.get("ra");
         actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);
@@ -186,14 +191,26 @@ public class StealthTeleop extends OpMode {
     }
 
     void controlLift(Gamepad pad){
-        capballLift.setPower(Range.clip((pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        capballLift1.setPower(Range.clip(-(pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
+        capballLift2.setPower(Range.clip(-(pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
         if(pad.y) {
-            capServo1.setPosition(1);
-            capServo2.setPosition(0);
+            capServo1.setPosition(0);
+            capServo2.setPosition(1);
+            capHold.setPosition(1);
         } else if (pad.x) {
-            capServo1.setPosition(0.6);
-            capServo2.setPosition(0.4);
+            capServo1.setPosition(0.5);
+            capServo2.setPosition(0.5);
+        }else if(pad.right_bumper&&pad.back){
+            capServo1.setPosition(1);
+            capServo2.setPosition(0.2);
+        }
+        if(pad.left_trigger>0.1){
+            capHold.setPosition(0.15);
+        }else if(pad.right_trigger>0.1){
+            capHold.setPosition(0.5);
+        }else if(pad.left_bumper){
+            capHold.setPosition(1);
         }
     }
 
