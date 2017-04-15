@@ -165,8 +165,11 @@ public class NeoAuto extends LinearOpMode {
         bAlign.setPosition(0.2);
         fAlign.setPosition(0.1);
 
-        Servo capServo = hardwareMap.servo.get("cap");
-        capServo.setPosition(0.3);
+        Servo capServo1 = hardwareMap.servo.get("cap1");
+        capServo1.setPosition(0.3);
+        Servo capServo2 = hardwareMap.servo.get("cap2");
+        capServo2.setPosition(0.7);
+
 
         bs = hardwareMap.colorSensor.get("rbs");
         actuator = hardwareMap.servo.get("ra");

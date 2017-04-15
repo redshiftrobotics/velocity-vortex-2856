@@ -62,7 +62,10 @@ public class NewShoot extends LinearOpMode{
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setPower(0);
         shooter.setDirection(DcMotor.Direction.REVERSE);
-        Servo capServo = hardwareMap.servo.get("cap");
+        Servo capServo1 = hardwareMap.servo.get("cap1");
+        capServo1.setPosition(0.3);
+        Servo capServo2 = hardwareMap.servo.get("cap2");
+        capServo2.setPosition(0.7);
         Servo bAlign = hardwareMap.servo.get("balign");
         Servo fAlign = hardwareMap.servo.get("falign");
         Servo actuator = hardwareMap.servo.get("ra");
@@ -72,7 +75,6 @@ public class NewShoot extends LinearOpMode{
         actuator.setPosition(0);
         bAlign.setPosition(0.2);
         fAlign.setPosition(0.1);
-        capServo.setPosition(0.3);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, lrs, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
