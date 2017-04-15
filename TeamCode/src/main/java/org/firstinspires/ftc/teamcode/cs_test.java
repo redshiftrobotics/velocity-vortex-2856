@@ -32,10 +32,10 @@ public class cs_test extends OpMode {
 
     @Override
     public void init() {
-       /* colorSensor = hardwareMap.i2cDevice.get("rejector");
+       /* colorSensor = hardwareMap.i2cDevice.get("rejector1");
         cs = new I2cDeviceSynchImpl(colorSensor, new I2cAddr(0x11), false);
         cs.engage();*/
-        csensor = hardwareMap.colorSensor.get("rejector");
+        csensor = hardwareMap.colorSensor.get("rejector1");
         csensor.setI2cAddress(new I2cAddr(0x11));
         csensor.enableLed(true);
     }

@@ -70,7 +70,7 @@ public class TeleopDebug extends OpMode {
         shooterServo.setPosition(0.5);
 
         collector = hardwareMap.dcMotor.get("collector");
-        //capballLift = hardwareMap.dcMotor.get("capballLift");
+        //capballLift1 = hardwareMap.dcMotor.get("capballLift1");
         capServo = hardwareMap.servo.get("cap");
         distance = hardwareMap.i2cDevice.get("distance");
         capServo.setPosition(0.3);
@@ -83,7 +83,7 @@ public class TeleopDebug extends OpMode {
         Servo fa = hardwareMap.servo.get("falign");
         ba.setPosition(0.2);
         fa.setPosition(0.1);
-        rejector = hardwareMap.colorSensor.get("rejector");
+        rejector = hardwareMap.colorSensor.get("rejector1");
         rejector.setI2cAddress(new I2cAddr(0x11));
         rejector.enableLed(true);
 //        motors[0].setDirection(DcMotor.Direction.REVERSE);

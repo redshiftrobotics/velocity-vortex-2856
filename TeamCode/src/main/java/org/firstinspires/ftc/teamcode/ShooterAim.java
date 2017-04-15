@@ -11,10 +11,10 @@ import java.util.HashMap;
 public enum ShooterAim {
 
     // our actual fields. Change accordingly.
-    LOB (0.2f),
-    FAR (0.52f),
-    MEDIUM (0.53f),
-    NEAR (0.55f);
+    LOB (0.2f), //haven't tested lob yet...
+    FAR (0.51f),
+    MEDIUM (0.54f),
+    NEAR (0.59f);
 
     //represents internal enum state, i.e. LOB | FAR | MEDIUM | NEAR
     private float dist;
