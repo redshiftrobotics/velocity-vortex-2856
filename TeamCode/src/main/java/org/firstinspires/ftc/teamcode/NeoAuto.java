@@ -49,16 +49,13 @@ public class NeoAuto extends LinearOpMode {
 
         robot.Data.PID.I = 0;
 
-        bAlign.setPosition(1);
-        fAlign.setPosition(1);
-
         straightConst();
 //        robot.Straight(0.2f, forward, 4, telemetry);
 //        lineConst();
 //        robot.MoveToLine(forward, csf, .2f, 10, telemetry);
 
         //begin alignment
-        robot.Straight(2f * (35f/45f), forward, 10, telemetry); // 2.45 to 2.37
+        robot.Straight(1.75f, forward, 10, telemetry); // 2.45 to 2.37
 
 
 
@@ -79,6 +76,10 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.PID.ITuning = 0;
         robot.Straight(1.1f, forward, 3, telemetry);
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.7f;
+
+
+        bAlign.setPosition(1);
+        fAlign.setPosition(1);
 
         //robot.UpdateTarget(-5*side); //less steep
 
@@ -157,11 +158,13 @@ public class NeoAuto extends LinearOpMode {
         csb = hardwareMap.opticalDistanceSensor.get("csb");
         robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
+
+        bs = hardwareMap.colorSensor.get("rbs");
         telemetry.addData("Color Sensor: ", bs.red());
 
         bAlign = hardwareMap.servo.get("balign");
         fAlign = hardwareMap.servo.get("falign");
-        bAlign.setPosition(0.2);
+        bAlign.setPosition(0);
         fAlign.setPosition(0.1);
 
         Servo capServo1 = hardwareMap.servo.get("cap1");
@@ -172,7 +175,6 @@ public class NeoAuto extends LinearOpMode {
         capHold.setPosition(0.15);
 
 
-        bs = hardwareMap.colorSensor.get("rbs");
         actuator = hardwareMap.servo.get("ra");
         //actuator.setDirection(Servo.Direction.REVERSE);
         actuator.setPosition(0);

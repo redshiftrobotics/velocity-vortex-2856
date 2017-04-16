@@ -329,7 +329,9 @@ public class Robot {
 
         // This is the main loop of our straight drive.
         // We use encoders to form a loop that corrects rotation until we reach our target.
-        while(cs.getLightDetected() * 1024 < 500 && opMode.opModeIsActive()){ // 40 working
+        while(cs.getLightDetected() * 1024 < 300 && opMode.opModeIsActive()){ // 40 working
+            tm.addData("Line Sensor:", cs.getLightDetected()*1024);
+            tm.update();
             // First we check if we have exceeded our timeout and...
             if(StartTime + Timeout < Data.Time.CurrentTime()){
                 // ... stop our loop if we have.
