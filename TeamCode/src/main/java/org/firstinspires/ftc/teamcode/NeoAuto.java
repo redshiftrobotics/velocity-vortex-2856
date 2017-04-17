@@ -49,13 +49,15 @@ public class NeoAuto extends LinearOpMode {
 
         robot.Data.PID.I = 0;
 
+
+        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 1f;
         straightConst();
 //        robot.Straight(0.2f, forward, 4, telemetry);
 //        lineConst();
 //        robot.MoveToLine(forward, csf, .2f, 10, telemetry);
 
         //begin alignment
-        robot.Straight(1.75f, forward, 10, telemetry); // 2.45 to 2.37
+        robot.Straight(2f, forward, 10, telemetry); // 2.45 to 2.37
 
 
 
@@ -67,44 +69,45 @@ public class NeoAuto extends LinearOpMode {
         /////////////////////////////////////////////////////////
         // IF IT IS -35, TRY UNCOMMENTING THE UPDATE TARGET -5 //
         /////////////////////////////////////////////////////////
-        robot.AngleTurn(-35*side, 10, telemetry); //-35 for 10 degrees towards wall, but -30 for 15 degrees
+        robot.AngleTurn(-25*side, 10, telemetry); //-35 for 10 degrees towards wall, but -30 for 15 degrees
         robot.AngleTurn(0, 4, telemetry);
-
-
-        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
-        robot.Data.PID.PTuning = 16;
-        robot.Data.PID.ITuning = 0;
-        robot.Straight(1.1f, forward, 3, telemetry);
-        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.7f;
 
 
         bAlign.setPosition(1);
         fAlign.setPosition(1);
 
-        //robot.UpdateTarget(-5*side); //less steep
 
-        lineConst();
+        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
+        robot.Data.PID.PTuning = 16;
+        robot.Data.PID.ITuning = 0;
+        robot.Straight(1.3f, forward, 3, telemetry);
+
+        robot.UpdateTarget(-5*side); //less steep
+
+        robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
+
+        //lineConst();
         robot.Data.PID.ITuning = 0;
 
-        robot.MoveToLine(forward, csb, 0.35f * (35f/45f), 10, telemetry);
+        robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 10, telemetry); //o.35
         Thread.sleep(100);
         robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 3, telemetry);
+        robot.Straight(0.01f, backward, 10, telemetry);
+
         push(0);
-
-
 
         turnConst();
         //robot.AngleTurn(-20*side, 3, telemetry);
-        robot.UpdateTarget(-20*side);
+        robot.UpdateTarget(-30*side);
 
 
-        lineConst();
+        //lineConst();
         robot.Data.PID.ITuning = 0;
 
         robot.Straight(0.4f, backward, 10, telemetry);
-        robot.MoveToLine(backward, csb, 0.35f * (35f/45f), 15, telemetry);
+        robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 15, telemetry); //o.35
         Thread.sleep(100);
-        robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 3, telemetry);
+        //robot.MoveToLine(forward, csb, 0.15 * (35f/45f), 3, telemetry);
 
         push(0);
 
@@ -112,10 +115,17 @@ public class NeoAuto extends LinearOpMode {
         fAlign.setPosition(0);
 
         //turn and shoot... this is ONLY A SINGLE BALL under the assumption our alliance partner will take the other two
-        robot.AngleTurnSingleSided(90f*side, 10, 1, telemetry); // 1 indicates to move m1, 0 would indicate m0
+        robot.Data.PID.P = 20f;
+
+        if(side == 1) {
+            robot.AngleTurnSingleSided(-70f * side, 3, 0, telemetry); // 0 indicates to move m1, 0 would indicate m0
+        } else {
+            robot.AngleTurnSingleSided(-70f * side, 3, 1, telemetry); // 1 indicates to move m1, 0 would indicate m0
+        }
         shooter.setPower(1);
         Thread.sleep(300);
         shooter.setPower(0);
+        robot.Data.PID.P = 10f;
 
 
         // CAP BALLIN'
@@ -154,7 +164,7 @@ public class NeoAuto extends LinearOpMode {
         shooter = hardwareMap.dcMotor.get("shooter");
         shooter.setDirection(DcMotor.Direction.REVERSE);
         Servo aim = hardwareMap.servo.get("shooterServo");
-        aim.setPosition(0.54);
+        aim.setPosition(0.51);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
         robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
@@ -182,10 +192,10 @@ public class NeoAuto extends LinearOpMode {
 
     public void push(int degrees) {
 
-        float pushShift = -.03f;
+        float pushShift = -.2f;
 
         if(hasPressed) {
-            pushShift = .05f;
+            pushShift += .05f;
         }
 
         if(side == -1) {
@@ -195,6 +205,9 @@ public class NeoAuto extends LinearOpMode {
 
 
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.2f;
+
+        int blue = bs.blue();
+        int red = bs.red();
 
         if (bs.blue() != bs.red()) {
             if (side == -1) { // on red side
@@ -235,6 +248,11 @@ public class NeoAuto extends LinearOpMode {
                 }
             }
         }
+
+        telemetry.clear();
+        telemetry.update();
+
+        telemetry.addData("red|blue ", red + "|" + blue);
         telemetry.update();
 
         hasPressed = true;
