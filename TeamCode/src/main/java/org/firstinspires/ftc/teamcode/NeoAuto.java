@@ -87,7 +87,7 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.Drive.STRAIGHT_POWER_CONSTANT = 0.4f;
         robot.Data.PID.PTuning = 16;
         robot.Data.PID.ITuning = 0;
-        robot.Straight(1.3f, forward, 3, telemetry);
+        robot.Straight(1.2f, forward, 3, telemetry);
 
         robot.UpdateTarget(-5*side); //less steep
 
@@ -97,28 +97,57 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.PID.ITuning = 0;
 
         robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 10, telemetry); //o.35
-        robot.Straight(0.4f, forward, 10, telemetry); // shift forward so that when we do the backwards line detect we reach acceleration, thus overshooting in a planned way
+
+        if (side == -1) {
+            forward = new Float[]{1f,0f};
+            backward = new Float[]{-1f,0f};
+        }
+
+        robot.Straight(0.4f, backward, 6, telemetry);
+
         robot.UpdateTarget(-30*side);
         Thread.sleep(100);
-        robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 3, telemetry);
+        robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 3, telemetry);
 
         push(0);
-        robot.Straight(0.15f, backward, 10, telemetry);
-
         //turnConst();
         //robot.AngleTurn(-20*side, 3, telemetry);
 
+
+        if (side == -1) {
+            forward = new Float[]{-1f,0f};
+            backward = new Float[]{1f,0f};
+        }
 
         //lineConst();
         robot.Data.PID.ITuning = 0;
 
         robot.Straight(0.4f, backward, 10, telemetry);
+//
+//        if (side == -1) {
+//            forward = new Float[]{-1f,0f};
+//            backward = new Float[]{1f,0f};
+//        }
+//
         robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 15, telemetry); //o.35
         Thread.sleep(100);
+
+        if (side == -1) {
+            forward = new Float[]{1f,0f};
+            backward = new Float[]{-1f,0f};
+        }
+
+        robot.Straight(0.4f, backward, 10, telemetry);
+        robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 3, telemetry);
+
         //robot.MoveToLine(forward, csb, 0.15 * (35f/45f), 3, telemetry);
 
         push(0);
-        robot.Straight(0.15f, backward, 10, telemetry);
+
+        if (side == -1) {
+            forward = new Float[]{-1f,0f};
+            backward = new Float[]{1f,0f};
+        }
 
         bAlign.setPosition(0);
         fAlign.setPosition(0);
