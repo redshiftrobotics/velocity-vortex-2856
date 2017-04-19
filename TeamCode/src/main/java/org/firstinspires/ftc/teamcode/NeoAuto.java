@@ -90,16 +90,15 @@ public class NeoAuto extends LinearOpMode {
         robot.Data.PID.ITuning = 0;
 
         robot.MoveToLine(forward, csb, 0.25f * (35f/45f), 10, telemetry); //o.35
-        robot.Straight(0.3f, forward, 10, telemetry); // shift forward so that when we do the backwards line detect we reach acceleration, thus overshooting in a planned way
+        robot.Straight(0.4f, forward, 10, telemetry); // shift forward so that when we do the backwards line detect we reach acceleration, thus overshooting in a planned way
+        robot.UpdateTarget(-30*side);
         Thread.sleep(100);
         robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 3, telemetry);
-        robot.Straight(0.01f, backward, 10, telemetry);
 
         push(0);
 
-        turnConst();
+        //turnConst();
         //robot.AngleTurn(-20*side, 3, telemetry);
-        robot.UpdateTarget(-30*side);
 
 
         //lineConst();
