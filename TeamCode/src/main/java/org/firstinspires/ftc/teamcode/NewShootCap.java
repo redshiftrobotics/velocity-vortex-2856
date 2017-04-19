@@ -104,9 +104,8 @@ public class NewShootCap extends LinearOpMode{
         Servo capServo1 = hardwareMap.servo.get("cap1");
         Servo capServo2 = hardwareMap.servo.get("cap2");
         Servo capHold = hardwareMap.servo.get("hold");
-        capServo1.setPosition(1);
-        capServo2.setPosition(0.2);
-        capHold.setPosition(0.15);
+        capServo1.setPosition(0.95);
+        capServo2.setPosition(0.25);
         Servo bAlign = hardwareMap.servo.get("balign");
         Servo fAlign = hardwareMap.servo.get("falign");
         Servo actuator = hardwareMap.servo.get("ra");
@@ -118,6 +117,7 @@ public class NewShootCap extends LinearOpMode{
         fAlign.setPosition(0.1);
         //hopper = hardwareMap.servo.get("hopper");
         robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
+        capHold.setPosition(0.15);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
     }
 

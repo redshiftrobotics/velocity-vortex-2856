@@ -167,6 +167,14 @@ public class NeoAuto extends LinearOpMode {
         Servo aim = hardwareMap.servo.get("shooterServo");
         aim.setPosition(0.51);
         csb = hardwareMap.opticalDistanceSensor.get("csb");
+
+
+        Servo capServo1 = hardwareMap.servo.get("cap1");
+        Servo capServo2 = hardwareMap.servo.get("cap2");
+        Servo capHold = hardwareMap.servo.get("hold");
+        capServo1.setPosition(0.95);
+        capServo2.setPosition(0.25);
+
         robot = new Robot(this, imu, m0, m1, m2, m3, telemetry);
         telemetry.addData("IMU:", robot.Data.imu.getAngularOrientation());
 
@@ -178,11 +186,6 @@ public class NeoAuto extends LinearOpMode {
         bAlign.setPosition(0);
         fAlign.setPosition(0.1);
 
-        Servo capServo1 = hardwareMap.servo.get("cap1");
-        Servo capServo2 = hardwareMap.servo.get("cap2");
-        Servo capHold = hardwareMap.servo.get("hold");
-        capServo1.setPosition(1);
-        capServo2.setPosition(0.2);
         capHold.setPosition(0.15);
 
 

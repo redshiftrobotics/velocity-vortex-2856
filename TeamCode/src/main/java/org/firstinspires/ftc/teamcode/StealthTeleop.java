@@ -78,8 +78,8 @@ public class StealthTeleop extends OpMode {
         capServo1 = hardwareMap.servo.get("cap1");
         capServo2 = hardwareMap.servo.get("cap2");
         capHold = hardwareMap.servo.get("hold");
-        capServo1.setPosition(1);
-        capServo2.setPosition(0.2);
+        capServo1.setPosition(0.95);
+        capServo2.setPosition(0.25);
         capHold.setPosition(0.15);
         distance = hardwareMap.i2cDevice.get("distance");
         Servo actuator = hardwareMap.servo.get("ra");
@@ -195,12 +195,12 @@ public class StealthTeleop extends OpMode {
         capballLift2.setPower(Range.clip(-(pad.left_stick_y * Math.abs(pad.left_stick_y)),-1,1));
 
         if(pad.y) {
-            capServo1.setPosition(0);
-            capServo2.setPosition(1);
+            capServo1.setPosition(0.2);
+            capServo2.setPosition(.65);
             capHold.setPosition(1);
         } else if (pad.x) {
-            capServo1.setPosition(0.5);
-            capServo2.setPosition(0.5);
+            capServo1.setPosition(0.45);
+            capServo2.setPosition(0.4);
         }else if(pad.right_bumper&&pad.back){
             capServo1.setPosition(1);
             capServo2.setPosition(0.2);
