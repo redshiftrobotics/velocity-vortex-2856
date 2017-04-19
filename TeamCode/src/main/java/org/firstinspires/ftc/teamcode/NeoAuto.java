@@ -43,6 +43,13 @@ public class NeoAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         side = getSide();
+
+        if(side == -1) {
+            forward = new Float[]{-1f,0f};
+            backward = new Float[]{1f,0f};
+        }
+
+
         initDevices();
 
         waitForStart();
@@ -96,6 +103,7 @@ public class NeoAuto extends LinearOpMode {
         robot.MoveToLine(backward, csb, 0.25f * (35f/45f), 3, telemetry);
 
         push(0);
+        robot.Straight(0.15f, backward, 10, telemetry);
 
         //turnConst();
         //robot.AngleTurn(-20*side, 3, telemetry);
@@ -110,6 +118,7 @@ public class NeoAuto extends LinearOpMode {
         //robot.MoveToLine(forward, csb, 0.15 * (35f/45f), 3, telemetry);
 
         push(0);
+        robot.Straight(0.15f, backward, 10, telemetry);
 
         bAlign.setPosition(0);
         fAlign.setPosition(0);
