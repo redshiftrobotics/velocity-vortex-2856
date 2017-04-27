@@ -1,47 +1,56 @@
 package org.firstinspires.ftc.teamcode;
 
-/**
- * Created by Duncan on 4/25/2017.
- */
 
+/**
+ * Class to hold and calculate all data related to moving the chassis.
+ * This class can function with multiple drive trains.
+ * The Y axis is forward and back, the X axis is left and right,
+ * and the Z rotation is rotation around the center of the chassis.
+ * @author Duncan McKee
+ * @version 2.0
+ */
 public class DriveController {
     public enum DriveType {Tank, Holonomic, Swerve, Slide} //These are all the types of drive trains that this drive train controller can handle
     public DriveType dT; //The type of drive train that this drive controller is set to
-    public Boolean global = false; //Bool to determine if the movement direction should be in terms of the robot or the field
 
     private double xSpeed, ySpeed, zRotation; //The x (side to side) and y (forward to back) speeds and the rotation around the center of the robot turning clockwise
     private double rotationAngle = 0; //The angle at which the robot has rotated from
     private double max;
 
-    public DriveController(DriveType driveType, boolean globalSystem){
+    /**
+     * Constructor for the DriveController,
+     * has two parameters to control the type of movement.
+     * @param driveType The type of drive train in use, uses the DriveType enum.
+     */
+    public DriveController(DriveType driveType){
         dT = driveType;
-        if(dT!=DriveType.Tank) {
-            global = globalSystem;
-        }
     }
 
-    public double[] Drive(float x, float y, float z){
-        SetMovements(x, y, z);
-        return GetValues();
-    }
-
+    /**
+     *
+     * @param x The speed on the X axis of the robot.
+     * @param y The speed on the Y axis of the robot.
+     * @param z The rotation around the Z axis of the robot.
+     * @param angle The angle to orient the robot around.
+     * @return The array of movement speeds for each motor following: {FL, BL, FR, BR}.
+     */
     public double[] Drive(float x, float y, float z, float angle){
         SetMovements(x, y, z);
         SetRotation(angle);
         return GetValues();
     }
 
-    public void SetRotation(float angle){
+    private void SetRotation(float angle){
         rotationAngle = angle;
     }
 
-    public void SetMovements(float x, float y, float z){
+    private void SetMovements(float x, float y, float z){
         xSpeed = x;
         ySpeed = y;
         zRotation = z;
     }
 
-    public double[] GetValues(){
+    private double[] GetValues(){
         max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
               Math.abs(ySpeed*Math.sin(rotationAngle)) +
               Math.abs(xSpeed*Math.cos(rotationAngle)) +

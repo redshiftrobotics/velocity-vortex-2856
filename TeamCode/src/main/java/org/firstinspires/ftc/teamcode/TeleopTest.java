@@ -9,7 +9,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 /**
- * Created by Duncan on 4/26/2017.
+ * A test teleop program to control the robot with the DriveController.
+ * @author Duncan McKee
  */
 
 @TeleOp(name="Teleop Test")
@@ -17,7 +18,7 @@ public class TeleopTest extends OpMode {
 
     DcMotor motors[] = new DcMotor[4];
     double[] drivePower;
-    DriveController driveController = new DriveController(DriveController.DriveType.Holonomic, true);
+    DriveController driveController = new DriveController(DriveController.DriveType.Holonomic);
     I2cDeviceSynch imuInit;
     BNO055IMU imu;
     BNO055IMU.Parameters imuParameters;
