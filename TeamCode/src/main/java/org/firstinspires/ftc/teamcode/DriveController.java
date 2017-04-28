@@ -27,7 +27,7 @@ public class DriveController {
     }
 
     /**
-     *
+     * Sets the power of the robot and calculates the array to control the robot with.
      * @param x The speed on the X axis of the robot.
      * @param y The speed on the Y axis of the robot.
      * @param z The rotation around the Z axis of the robot.
@@ -51,20 +51,24 @@ public class DriveController {
     }
 
     private double[] GetValues(){
-        max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
-              Math.abs(ySpeed*Math.sin(rotationAngle)) +
-              Math.abs(xSpeed*Math.cos(rotationAngle)) +
-              Math.abs(xSpeed*Math.sin(rotationAngle)) +
-              Math.abs(zRotation);
-        if(max < 1){
-            max = 1;
-        }
         switch (dT) {
-            case Tank: //For tank drive the array is set up as {Left power, Right power}
+            case Tank: //For Tank Drive the array is set up as {Left Power, Right Power}
+                max = Math.abs(ySpeed)+Math.abs(zRotation);
+                if(max < 1){
+                    max = 1;
+                }
                 return new double[]
-                        {GetPercentage(ySpeed+zRotation,Math.abs(ySpeed)+Math.abs(zRotation)),
-                         GetPercentage(ySpeed-zRotation,Math.abs(ySpeed)+Math.abs(zRotation))};
-            case Holonomic: //For Holonomic drive the array is set up as {Front Left Power, Back Left Power, Front Right Power, Back Right Power}
+                        {GetPercentage(ySpeed+zRotation,max),
+                         GetPercentage(ySpeed-zRotation,max)};
+            case Holonomic: //For Holonomic Drive the array is set up as {Front Left Power, Back Left Power, Front Right Power, Back Right Power}
+                max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
+                      Math.abs(ySpeed*Math.sin(rotationAngle)) +
+                      Math.abs(xSpeed*Math.cos(rotationAngle)) +
+                      Math.abs(xSpeed*Math.sin(rotationAngle)) +
+                      Math.abs(zRotation);
+                if(max < 1){
+                    max = 1;
+                }
                 return new double[]
                         {GetPercentage(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
                          GetPercentage(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
@@ -73,9 +77,17 @@ public class DriveController {
             case Swerve:
 
                 break;
-            case Slide:
-
-                break;
+            case Slide: //For Slide Drive the array is set up as {Left Power, Right Power, Slide Power}
+                max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
+                      Math.abs(xSpeed*Math.sin(rotationAngle)) +
+                      Math.abs(zRotation);
+                if(max < 1){
+                    max = 1;
+                }
+                return new double[]
+                        {GetPercentage(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
+                         GetPercentage(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
+                         GetPercentage(xSpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle),Math.abs(xSpeed*Math.cos(rotationAngle))+Math.abs(ySpeed*Math.sin(rotationAngle)))};
         }
         return null;
     }
