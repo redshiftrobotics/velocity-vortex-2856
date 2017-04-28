@@ -29,6 +29,8 @@ public class TeleopTest extends OpMode {
 
     @Override
     public void init() {
+        telemetry.addData("IMU Initializing", 0);
+        telemetry.update();
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
         imuParameters = new BNO055IMU.Parameters();
         imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -36,6 +38,9 @@ public class TeleopTest extends OpMode {
 
         imu = new AdafruitBNO055IMU(imuInit);
         imu.initialize(imuParameters);
+        telemetry.addData("IMU Initialized", 1);
+        telemetry.update();
+
         motors[0] = hardwareMap.dcMotor.get("m0");
         motors[1] = hardwareMap.dcMotor.get("m1");
         motors[2] = hardwareMap.dcMotor.get("m2");
