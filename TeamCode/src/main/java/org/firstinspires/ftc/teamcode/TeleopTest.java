@@ -46,6 +46,8 @@ public class TeleopTest extends OpMode {
     @Override
     public void loop() {
         Move(gamepad1);
+        telemetry.addData("IMU", imu.getAngularOrientation().firstAngle * -1);
+        telemetry.update();
     }
 
     void Move(Gamepad pad){

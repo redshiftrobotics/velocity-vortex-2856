@@ -9,13 +9,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 import static com.qualcomm.robotcore.hardware.I2cDeviceSynch.ReadMode.ONLY_ONCE;
@@ -24,7 +17,7 @@ import static com.qualcomm.robotcore.hardware.I2cDeviceSynch.ReadMode.ONLY_ONCE;
  * Created by adam on 3/13/17.
  */
 
-class Timer {
+class DistanceTimer {
 
     private long start = 0;
 
@@ -41,7 +34,7 @@ class Timer {
 
 public class DistanceSensor {
 
-    private Timer timer;
+    private DistanceTimer distanceTimer;
     private I2cDeviceSynchImpl sensor;
     private int lastReading = 0;
 
@@ -71,21 +64,21 @@ public class DistanceSensor {
         sensor = new I2cDeviceSynchImpl(device, distanceSensorAddress, false);
         sensor.setReadWindow(readWindow);
         sensor.engage();
-        timer = new Timer();
+        distanceTimer = new DistanceTimer();
         previousReadings = new ArrayList<>();
     }
 
     public void startReading() {
-        if (timer.end() == 0 || timer.end() >= WAIT_TIME) {
+        if (distanceTimer.end() == 0 || distanceTimer.end() >= WAIT_TIME) {
             sensor.write8(RANGE_CMD, 0x0);
-            timer.start();
+            distanceTimer.start();
         }
     }
 
 
 
     public int getNextReading() {
-        if (timer.end() != 0 && timer.end() < WAIT_TIME) {
+        if (distanceTimer.end() != 0 && distanceTimer.end() < WAIT_TIME) {
             //return currentAverage;
             return currentAverage;
         }
@@ -118,18 +111,18 @@ public class DistanceSensor {
     }
 
     public int getUnsanitizedReading(Telemetry t) {
-        if (timer.end() != 0 && timer.end() < WAIT_TIME) {
+        if (distanceTimer.end() != 0 && distanceTimer.end() < WAIT_TIME) {
             return this.lastReading;
         }
 
-        t.addData("End: ", timer.end());
+        t.addData("End: ", distanceTimer.end());
         t.update();
         sensor.setReadWindow(readWindow);
         byte[] readings = sensor.read(SENSOR_REGISTER, DATA_LENGTH);
         int distance = (readings[0] << 8) | readings[1];
         lastReading = distance;
 
-        timer.start();
+        distanceTimer.start();
 
         return distance;
     }
