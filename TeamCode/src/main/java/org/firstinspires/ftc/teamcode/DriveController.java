@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * Class to hold and calculate all data related to moving the chassis.
@@ -57,6 +58,10 @@ public class DriveController {
         }
     }
 
+    public void Stop(){
+        Drive(0, 0, 0, 0);
+    }
+
     /**
      * Sets the power to the motors of the robot.
      * @param x The speed on the X axis of the robot.
@@ -67,7 +72,7 @@ public class DriveController {
     public void Drive(float x, float y, float z, float angle){
         drivePower = GetDrivePower(x, y, z, angle);
         for(int i = 0; i < driveMotors.length; i++){
-            driveMotors[i].setPower(drivePower[i]);
+            driveMotors[i].setPower(Range.clip(drivePower[i],-1, 1));
         }
     }
 

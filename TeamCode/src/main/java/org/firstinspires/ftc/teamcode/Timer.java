@@ -8,6 +8,8 @@ package org.firstinspires.ftc.teamcode;
  */
 public class Timer {
     private long startTime;
+    private long lastTime;
+    public long loopTime;
     public Timer(){
         startTime = System.currentTimeMillis();
     }
@@ -17,6 +19,7 @@ public class Timer {
      */
     public void StartTimer(){
         startTime = System.currentTimeMillis();
+        lastTime = System.currentTimeMillis();
     }
 
     /**
@@ -34,5 +37,13 @@ public class Timer {
      */
     public boolean TimePassed(long time){
         return time <= DeltaTime();
+    }
+
+    /**
+     * Function to calculate and store the loop time of a function.
+     */
+    public void SetLoopTime(){
+        loopTime = System.currentTimeMillis() - lastTime;
+        lastTime = System.currentTimeMillis();
     }
 }

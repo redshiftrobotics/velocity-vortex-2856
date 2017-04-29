@@ -4,7 +4,6 @@ import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
@@ -12,7 +11,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
  * A test Teleop program to control the robot with the DriveController.
  * @author Duncan McKee
  */
-
 @TeleOp(name="Teleop Test")
 public class TeleopTest extends OpMode {
 
