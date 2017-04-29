@@ -16,21 +16,20 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 @TeleOp(name="Teleop Test")
 public class TeleopTest extends OpMode {
 
-    DcMotor motors[] = new DcMotor[4];
-    double[] drivePower;
-    DriveController driveController = new DriveController(DriveController.DriveType.Holonomic);
-    I2cDeviceSynch imuInit;
+    private DriveController driveController;
     BNO055IMU imu;
-    BNO055IMU.Parameters imuParameters;
 
-    boolean aDebounce = false;
-    boolean globalToggle = false;
-    float savedAngle = 0;
+    private boolean aDebounce = false;
+    private boolean globalToggle = false;
+    private float savedAngle = 0;
+    private boolean initialized = false;
 
     @Override
     public void init() {
         telemetry.addData("IMU Initializing", 0);
         telemetry.update();
+        I2cDeviceSynch imuInit;
+        BNO055IMU.Parameters imuParameters;
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
         imuParameters = new BNO055IMU.Parameters();
         imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -41,15 +40,17 @@ public class TeleopTest extends OpMode {
         telemetry.addData("IMU Initialized", 1);
         telemetry.update();
 
-        motors[0] = hardwareMap.dcMotor.get("m0");
-        motors[1] = hardwareMap.dcMotor.get("m1");
-        motors[2] = hardwareMap.dcMotor.get("m2");
-        motors[3] = hardwareMap.dcMotor.get("m3");
-        drivePower = new double[4];
+        driveController = new DriveController(DriveController.DriveType.Holonomic, hardwareMap);
+        initialized = true;
+        telemetry.addData("Everything is ready to go", 2);
+        telemetry.update();
     }
 
     @Override
     public void loop() {
+        if(!initialized){
+            requestOpModeStop();
+        }
         Move(gamepad1);
         telemetry.addData("IMU", imu.getAngularOrientation().firstAngle * -1);
         telemetry.update();
@@ -66,13 +67,9 @@ public class TeleopTest extends OpMode {
             savedAngle = imu.getAngularOrientation().firstAngle * -1;
         }
         if(globalToggle) {
-            drivePower = driveController.Drive(pad.right_stick_x, pad.right_stick_y, pad.left_stick_x, imu.getAngularOrientation().firstAngle * -1);
+            driveController.Drive(pad.right_stick_x, pad.right_stick_y, pad.left_stick_x, imu.getAngularOrientation().firstAngle * -1);
         }else{
-            drivePower = driveController.Drive(pad.right_stick_x, pad.right_stick_y, pad.left_stick_x, savedAngle);
+            driveController.Drive(pad.right_stick_x, pad.right_stick_y, pad.left_stick_x, savedAngle);
         }
-        motors[0].setPower(drivePower[0]);
-        motors[1].setPower(drivePower[1]);
-        motors[2].setPower(drivePower[2]);
-        motors[3].setPower(drivePower[3]);
     }
 }

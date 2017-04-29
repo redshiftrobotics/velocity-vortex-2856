@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 /**
  * Class to hold and calculate all data related to moving the chassis.
  * This class can function with multiple drive trains.
@@ -13,6 +16,8 @@ public class DriveController {
     public enum DriveType {Tank, Holonomic, Swerve, Slide} //These are all the types of drive trains that this drive train controller can handle
     public DriveType dT; //The type of drive train that this drive controller is set to
 
+    private DcMotor[] driveMotors;
+    private double[] drivePower;
     private double xSpeed, ySpeed, zRotation; //The x (side to side) and y (forward to back) speeds and the rotation around the center of the robot turning clockwise
     private double rotationAngle = 0; //The angle at which the robot has rotated from
     private double max;
@@ -22,19 +27,59 @@ public class DriveController {
      * has two parameters to control the type of movement.
      * @param driveType The type of drive train in use, uses the DriveType enum.
      */
-    public DriveController(DriveType driveType){
+    public DriveController(DriveType driveType, HardwareMap hardwareMap){
         dT = driveType;
+        switch (dT) {
+            case Tank:
+                driveMotors = new DcMotor[2];
+                drivePower = new double[2];
+                driveMotors[0] = hardwareMap.dcMotor.get("L");
+                driveMotors[1] = hardwareMap.dcMotor.get("R");
+                break;
+            case Holonomic:
+                driveMotors = new DcMotor[4];
+                drivePower = new double[4];
+                driveMotors[0] = hardwareMap.dcMotor.get("FL");
+                driveMotors[1] = hardwareMap.dcMotor.get("BL");
+                driveMotors[2] = hardwareMap.dcMotor.get("FR");
+                driveMotors[3] = hardwareMap.dcMotor.get("BR");
+                break;
+            case Swerve:
+
+                break;
+            case Slide:
+                driveMotors = new DcMotor[3];
+                drivePower = new double[3];
+                driveMotors[0] = hardwareMap.dcMotor.get("L");
+                driveMotors[1] = hardwareMap.dcMotor.get("R");
+                driveMotors[2] = hardwareMap.dcMotor.get("S");
+                break;
+        }
     }
 
     /**
-     * Sets the power of the robot and calculates the array to control the robot with.
+     * Sets the power to the motors of the robot.
+     * @param x The speed on the X axis of the robot.
+     * @param y The speed on the Y axis of the robot.
+     * @param z The rotation around the Z axis of the robot.
+     * @param angle The angle to orient the robot around.
+     */
+    public void Drive(float x, float y, float z, float angle){
+        drivePower = GetDrivePower(x, y, z, angle);
+        for(int i = 0; i < driveMotors.length; i++){
+            driveMotors[i].setPower(drivePower[i]);
+        }
+    }
+
+    /**
+     * Calculates the array to control the robot with.
      * @param x The speed on the X axis of the robot.
      * @param y The speed on the Y axis of the robot.
      * @param z The rotation around the Z axis of the robot.
      * @param angle The angle to orient the robot around.
      * @return The array of movement speeds for each motor following: {FL, BL, FR, BR}.
      */
-    public double[] Drive(float x, float y, float z, float angle){
+    public double[] GetDrivePower(float x, float y, float z, float angle){
         SetMovements(x, y, z);
         SetRotation(angle);
         return GetValues();
