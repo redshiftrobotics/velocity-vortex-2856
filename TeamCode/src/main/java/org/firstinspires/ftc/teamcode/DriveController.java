@@ -58,6 +58,31 @@ public class DriveController {
         }
     }
 
+    public int[] GetDistance(){
+        switch (dT) {
+            case Tank:
+                return new int[]
+                        {driveMotors[0].getCurrentPosition(),
+                         driveMotors[1].getCurrentPosition()};
+            case Holonomic:
+                return new int[]
+                        {driveMotors[0].getCurrentPosition(),
+                         driveMotors[1].getCurrentPosition(),
+                         driveMotors[2].getCurrentPosition(),
+                         driveMotors[3].getCurrentPosition()};
+            case Swerve:
+                return new int[]
+                        {};
+            case Slide:
+                return new int[]
+                        {driveMotors[0].getCurrentPosition(),
+                         driveMotors[1].getCurrentPosition(),
+                         driveMotors[2].getCurrentPosition(),
+                         driveMotors[3].getCurrentPosition()};
+        }
+        return null;
+    }
+
     public void Stop(){
         Drive(0, 0, 0, 0);
     }
@@ -69,7 +94,7 @@ public class DriveController {
      * @param z The rotation around the Z axis of the robot.
      * @param angle The angle to orient the robot around.
      */
-    public void Drive(float x, float y, float z, float angle){
+    public void Drive(double x, double y, float z, float angle){
         drivePower = GetDrivePower(x, y, z, angle);
         for(int i = 0; i < driveMotors.length; i++){
             driveMotors[i].setPower(Range.clip(drivePower[i],-1, 1));
@@ -84,7 +109,7 @@ public class DriveController {
      * @param angle The angle to orient the robot around.
      * @return The array of movement speeds for each motor following: {FL, BL, FR, BR}.
      */
-    public double[] GetDrivePower(float x, float y, float z, float angle){
+    public double[] GetDrivePower(double x, double y, float z, float angle){
         SetMovements(x, y, z);
         SetRotation(angle);
         return GetValues();
@@ -94,7 +119,7 @@ public class DriveController {
         rotationAngle = angle;
     }
 
-    private void SetMovements(float x, float y, float z){
+    private void SetMovements(double x, double y, float z){
         xSpeed = x;
         ySpeed = y;
         zRotation = z;
