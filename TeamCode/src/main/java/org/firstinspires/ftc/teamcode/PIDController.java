@@ -13,25 +13,30 @@ import com.qualcomm.robotcore.util.Range;
  * @version 2.0
  */
 public class PIDController extends DriveController {
+    //region Public Variables
+    public double xyTolerance = 0.1; //The tolerance of values that the robot can have in the xy plane.
+    public double zTolerance = 0.1; //The tolerance of values that the robot can have around the z axis.
+    //endregion
+
     //region Private Variables
-    private Timer timer;
-    private BNO055IMU imu;
+    private Timer timer; //A timer used to calculate timeout and looptime.
+    private BNO055IMU imu; //The imu we use to determine position and orientation.
 
-    private double xError, xErrorLast;
-    private double yError, yErrorLast;
-    private double xTarget, xPosition;
-    private double yTarget, yPosition;
-    private float zError, zErrorLast;
-    private float zTarget, zHeading;
+    private double xError, xErrorLast; //The current and previous error in the x axis.
+    private double yError, yErrorLast; //The current and previous error in the y axis.
+    private double xTarget, xPosition; //The target and current position in the x axis.
+    private double yTarget, yPosition; //The target and current position in the y axis.
+    private float zError, zErrorLast; //The current and previous error around the z axis.
+    private float zTarget, zHeading; //The target and current orientation around the z axis.
 
-    private double xP, xI, xD;
-    private double yP, yI, yD;
-    private float zP, zI, zD;
-    private double xyTuningP, xyTuningI, xyTuningD;
-    private float zTuningP, zTuningI, zTuningD;
+    private double xP, xI, xD; //The calculated PID values for the x axis.
+    private double yP, yI, yD; //The calculated PID values for the y axis.
+    private float zP, zI, zD; //The calculated PID values for the z axis.
+    private double xyTuningP, xyTuningI, xyTuningD; //The PID tuning constants for the xy plane.
+    private float zTuningP, zTuningI, zTuningD; //The PID tuning constants for the z axis.
 
-    private double xPower, yPower;
-    private float zPower;
+    private double xPower, yPower; //The power to set the movements in the xy plane.
+    private float zPower; //The power to set the rotation around the z axis.
     //endregion
 
     /**
@@ -40,7 +45,7 @@ public class PIDController extends DriveController {
      */
     public PIDController(HardwareMap hardwareMap){
         super(DriveType.Holonomic, hardwareMap);
-        I2cDeviceSynch imuInit;
+        I2cDeviceSynch imuInit; //Set up the IMU to the parameters we use.
         BNO055IMU.Parameters imuParameters;
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
         imuParameters = new BNO055IMU.Parameters();
@@ -48,8 +53,6 @@ public class PIDController extends DriveController {
         imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu = new AdafruitBNO055IMU(imuInit);
         imu.initialize(imuParameters);
-        zHeading = imu.getAngularOrientation().firstAngle;
-        zTarget = zHeading;
         timer = new Timer();
     }
 
@@ -85,17 +88,17 @@ public class PIDController extends DriveController {
      * @param timeout The time at which this function will give up.
      */
     public void Drive(float[] targetPosition, float speed, int timeout){
-        speed = Range.clip(speed, 0, 1);
-        xTarget = targetPosition[0];
-        yTarget = targetPosition[1];
-        ClearPID();
+        speed = Range.clip(speed, 0, 1); //Clip the speed so it stays in the desired range.
+        xTarget = targetPosition[0]; //Set the target x value to move to.
+        yTarget = targetPosition[1]; //Set the target y value to move to.
+        ClearPID(); //Clear past data from PID.
         timer.StartTimer(); //Start the timer to calculate loop time and time passed.
-        while(!timer.TimePassed(timeout)/*||distance traveled is the magnitude*/){
-            timer.SetLoopTime();
-            Calculate(timer.loopTime/1000);
-            Drive(xPower * speed, yPower * speed, zPower * speed, 0);
+        while(!timer.TimePassed(timeout)||((Math.abs(xError)<xyTolerance)&&(Math.abs(yError)<xyTolerance)&&((Math.abs(xErrorLast)<xyTolerance)&&(Math.abs(yErrorLast)<xyTolerance)))){ //Until the timeout is hit or the tolerance is hit keep moving.
+            timer.SetLoopTime(); //Calculate the looptime.
+            Calculate(timer.loopTime/1000); //Calculate the PID values.
+            Drive(xPower * speed, yPower * speed, zPower * speed, 0); //Set the drive motors power to the PID values.
         }
-        Stop();
+        Stop(); //Stop moving the robot when we arrive.
     }
 
     /**
@@ -105,16 +108,16 @@ public class PIDController extends DriveController {
      * @param timeout The time at which this function will give up.
      */
     public void Drive(float angle, float speed, int timeout){
-        speed = Range.clip(speed, 0, 1);
+        speed = Range.clip(speed, 0, 1); //Clip the speed so it stays in the desired range.
         zTarget = angle; //Set the target angle to the angle we are heading to.
-        ClearPID();
+        ClearPID(); //Clear past data from PID.
         timer.StartTimer(); //Start the timer to calculate loop time and time passed.
-        while(!timer.TimePassed(timeout)/*||distance traveled is the magnitude*/){
-            timer.SetLoopTime();
-            Calculate(timer.loopTime/1000);
-            Drive(xPower * speed, yPower * speed, zPower * speed, 0);
+        while(!timer.TimePassed(timeout)||((Math.abs(zError)<zTolerance)&&(Math.abs(zErrorLast)<zTolerance))){ //Until the timeout is hit or the tolerance is hit keep moving.
+            timer.SetLoopTime(); //Calculate the looptime.
+            Calculate(timer.loopTime/1000); //Calculate the PID values.
+            Drive(xPower * speed, yPower * speed, zPower * speed, 0); //Set the drive motors power to the PID values.
         }
-        Stop();
+        Stop(); //Stop moving the robot when we arrive.
     }
     //endregion
 
@@ -124,7 +127,7 @@ public class PIDController extends DriveController {
      * @param loopTime The amount of time that the last loop run took in seconds.
      */
     private void Calculate(float loopTime){
-        xPosition = imu.getPosition().x;
+        xPosition = imu.getPosition().x; //Set the current positions and heading.
         yPosition = imu.getPosition().y;
         zHeading = imu.getAngularOrientation().firstAngle;
         CalculateError();
@@ -136,10 +139,10 @@ public class PIDController extends DriveController {
      * @param loopTime The amount of time that the last loop run took in seconds.
      */
     private void CalculatePID(float loopTime){
-        xP = xError;
-        xI += xError * loopTime;
-        xD = (xError - xErrorLast) / loopTime;
-        xPower = (xP * xyTuningP) + (xI * xyTuningI) + (xD * xyTuningD);
+        xP = xError; //P value = Error.
+        xI += xError * loopTime; //I value = Integral(Past error up to now).
+        xD = (xError - xErrorLast) / loopTime; //D value = Slope of the error.
+        xPower = (xP * xyTuningP) + (xI * xyTuningI) + (xD * xyTuningD); //Power = P * Kp + I * Ki + D * Kd.
 
         yP = yError;
         yI += yError * loopTime;
@@ -157,12 +160,12 @@ public class PIDController extends DriveController {
      * As well as storing the past error for calculation use.
      */
     private void CalculateError(){
-        xErrorLast = xError;
-        xError = xTarget - xPosition;
+        xErrorLast = xError; //Set the last error.
+        xError = xTarget - xPosition; //Calculate the new error.
         yErrorLast = yError;
         yError = yTarget - yPosition;
         zErrorLast = zError;
-        if (zHeading - zTarget + 360 <= 180) {
+        if (zHeading - zTarget + 360 <= 180) { //Calculate the angular error the best way and direction to optimize distance.
             zError = (zHeading -  zTarget + 360) * -1;
         } else if (zTarget + 360 - zHeading <= 180) {
             zError = (zTarget - zHeading + 360);
@@ -177,7 +180,7 @@ public class PIDController extends DriveController {
      * A function that resets all variables of PID to ensure that there is no bleed over between runs.
      */
     private void ClearPID(){
-        zP = 0;
+        zP = 0; //Set every value to 0.
         zI = 0;
         zD = 0;
         xP = 0;

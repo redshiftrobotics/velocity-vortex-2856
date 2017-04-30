@@ -32,8 +32,8 @@ public class DriveController {
      * @param hardwareMap The hardware map that sets up the motors.
      */
     public DriveController(DriveType driveType, HardwareMap hardwareMap){
-        dT = driveType;
-        switch (dT) {
+        dT = driveType; //Store the drive train type
+        switch (dT) { //Check which form of drive train is in use, and set up the motors from the hardwareMap.
             case Tank:
                 driveMotors = new DcMotor[2];
                 drivePower = new double[2];
@@ -77,9 +77,9 @@ public class DriveController {
      * @param angle The angle to orient the robot around.
      */
     public void Drive(double x, double y, float z, float angle){
-        drivePower = GetDrivePower(x, y, z, angle);
+        drivePower = GetDrivePower(x, y, z, angle); //Gets and stores the current motor speeds.
         for(int i = 0; i < driveMotors.length; i++){
-            driveMotors[i].setPower(Range.clip(drivePower[i],-1, 1));
+            driveMotors[i].setPower(Range.clip(drivePower[i],-1, 1)); //Sets all the motors to their respective speeds.
         }
     }
 
@@ -127,45 +127,45 @@ public class DriveController {
      * @return The values to set each motor power to.
      */
     private double[] GetValues(){
-        switch (dT) {
+        switch (dT) { //Check which type of drive train is in use, and calculate the motor powers.
             case Tank: //For Tank Drive the array is set up as {Left Power, Right Power}
-                max = Math.abs(ySpeed)+Math.abs(zRotation);
+                max = Math.abs(ySpeed)+Math.abs(zRotation); //Calculate the normalizing denominator.
                 if(max < 1){
-                    max = 1;
+                    max = 1; //If the normalizer is less that 1 set it to 1.
                 }
                 return new double[]
-                        {Normalize(ySpeed+zRotation,max),
-                         Normalize(ySpeed-zRotation,max)};
+                        {Normalize(ySpeed+zRotation,max), //Y+Z
+                         Normalize(ySpeed-zRotation,max)}; //Y-Z
             case Holonomic: //For Holonomic Drive the array is set up as {Front Left Power, Back Left Power, Front Right Power, Back Right Power}
                 max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
                       Math.abs(ySpeed*Math.sin(rotationAngle)) +
                       Math.abs(xSpeed*Math.cos(rotationAngle)) +
                       Math.abs(xSpeed*Math.sin(rotationAngle)) +
-                      Math.abs(zRotation);
+                      Math.abs(zRotation); //Calculate the normalizing denominator.
                 if(max < 1){
-                    max = 1;
+                    max = 1; //If the normalizer is less that 1 set it to 1.
                 }
                 return new double[]
-                        {Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
-                         Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max)};
+                        {Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max), //Y+X+Z
+                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max), //Y-X+Z
+                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max), //Y+X-Z
+                         Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max)}; //Y-X-Z
             case Swerve:
 
                 break;
             case Slide: //For Slide Drive the array is set up as {Left Power, Right Power, Slide Power}
                 max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
                       Math.abs(xSpeed*Math.sin(rotationAngle)) +
-                      Math.abs(zRotation);
+                      Math.abs(zRotation); //Calculate the normalizing denominator.
                 if(max < 1){
-                    max = 1;
+                    max = 1; //If the normalizer is less that 1 set it to 1.
                 }
                 return new double[]
-                        {Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
-                         Normalize(xSpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle),Math.abs(xSpeed*Math.cos(rotationAngle))+Math.abs(ySpeed*Math.sin(rotationAngle)))};
+                        {Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max), //Y+Z
+                         Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max), //Y-Z
+                         Normalize(xSpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle),Math.abs(xSpeed*Math.cos(rotationAngle))+Math.abs(ySpeed*Math.sin(rotationAngle)))}; //X
         }
-        return null;
+        return null; //If the drive type was not set correctly return nothing.
     }
 
     /**

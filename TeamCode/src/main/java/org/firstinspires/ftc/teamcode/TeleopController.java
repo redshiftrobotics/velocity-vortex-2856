@@ -25,7 +25,7 @@ public class TeleopController extends DriveController{
      */
     public TeleopController(HardwareMap hardwareMap) {
         super(DriveType.Holonomic, hardwareMap);
-        I2cDeviceSynch imuInit;
+        I2cDeviceSynch imuInit; //Set up the IMU to the parameters we use.
         BNO055IMU.Parameters imuParameters;
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
         imuParameters = new BNO055IMU.Parameters();
@@ -33,7 +33,7 @@ public class TeleopController extends DriveController{
         imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu = new AdafruitBNO055IMU(imuInit);
         imu.initialize(imuParameters);
-        savedOrientation = 0;
+        savedOrientation = 0; //Set the current orientation to 0.
     }
 
     //region Public Methods
@@ -42,28 +42,20 @@ public class TeleopController extends DriveController{
      * @param gamepad The gamepad to use to control the drive train.
      */
     public void Drive(Gamepad gamepad){
-        if(gamepad.a&&!globalDeBounce){
+        if(gamepad.a&&!globalDeBounce){ //On button press of a toggle between global and local orientation.
             globalToggle = !globalToggle;
             globalDeBounce=true;
         }else if(!gamepad.a){
             globalDeBounce=false;
         }
-        if(gamepad.b){
-            SetOrientation();
+        if(gamepad.b){ //Set the orientation to the current orientation.
+            savedOrientation = imu.getAngularOrientation().firstAngle;
         }
-        if(globalToggle) {
-
+        if(globalToggle) { //Run the robot in global orientation mode.
             Drive(gamepad.right_stick_x, gamepad.right_stick_y, gamepad.left_stick_x, imu.getAngularOrientation().firstAngle * -1);
-        }else{
+        }else{ //Run the robot in local orientation mode.
             Drive(gamepad.right_stick_x, gamepad.right_stick_y, gamepad.left_stick_x, savedOrientation);
         }
-    }
-
-    /**
-     * Saves the current orientation for use in local movements.
-     */
-    public void SetOrientation(){
-        savedOrientation = imu.getAngularOrientation().firstAngle;
     }
     //endregion
 }

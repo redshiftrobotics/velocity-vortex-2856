@@ -10,12 +10,12 @@ package org.firstinspires.ftc.teamcode;
  */
 public class Timer {
     //region Public Variables
-    public long loopTime;
+    public long loopTime; //The current time 1 loop takes.
     //endregion
 
     //region Private Variables
-    private long startTime;
-    private long lastTime;
+    private long startTime; //The start time of this timer.
+    private long lastTime; //The time the last loop started.
     //endregion
 
     /**
