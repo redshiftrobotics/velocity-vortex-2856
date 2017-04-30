@@ -25,13 +25,17 @@ public class PIDController extends DriveController {
 
     private double xP, xI, xD;
     private double yP, yI, yD;
-    private double xyTuningP, xyTuningI, xyTuningD;
     private float zP, zI, zD;
+    private double xyTuningP, xyTuningI, xyTuningD;
     private float zTuningP, zTuningI, zTuningD;
 
     private double xPower, yPower;
     private float zPower;
 
+    /**
+     * Constructor for the PIDController,
+     * @param hardwareMap The hardware map that sets up the motors and imu.
+     */
     public PIDController(HardwareMap hardwareMap){
         super(DriveType.Holonomic, hardwareMap);
         I2cDeviceSynch imuInit;
@@ -47,11 +51,24 @@ public class PIDController extends DriveController {
         timer = new Timer();
     }
 
+    /**
+     * Sets the zTuning constants to new values.
+     * @param p The value for the zTuningP constant.
+     * @param i The value for the zTuningI constant.
+     * @param d The value for the zTuningD constant.
+     */
     public void SetTuningZ(float p, float i, float d){
         zTuningP = p;
         zTuningI = i;
         zTuningD = d;
     }
+
+    /**
+     * Sets the xyTuning constants to new values.
+     * @param p The value for the xyTuningP constant.
+     * @param i The value for the xyTuningI constant.
+     * @param d The value for the xyTuningD constant.
+     */
     public void SetTuningXY(float p, float i, float d){
         xyTuningP = p;
         xyTuningI = i;
@@ -82,6 +99,7 @@ public class PIDController extends DriveController {
      * Move the robot to a specific angle with a specified movement vector and speed.
      * @param angle The global angle at which the robot will end facing.
      * @param speed The speed at which the robot will move. A float from 0 to 1.
+     * @param timeout The time at which this function will give up.
      */
     public void Drive(float angle, float speed, int timeout){
         speed = Range.clip(speed, 0, 1);
@@ -96,14 +114,22 @@ public class PIDController extends DriveController {
         Stop();
     }
 
-    private void Calculate(float looptime){
+    /**
+     * A function to execute all function necessary to run a PID loop.
+     * @param loopTime The amount of time that the last loop run took in seconds.
+     */
+    private void Calculate(float loopTime){
         xPosition = imu.getPosition().x;
         yPosition = imu.getPosition().y;
         zHeading = imu.getAngularOrientation().firstAngle;
         CalculateError();
-        CalculatePID(looptime);
+        CalculatePID(loopTime);
     }
 
+    /**
+     * A function to calculate the specific values for x, y, and z PID.
+     * @param loopTime The amount of time that the last loop run took in seconds.
+     */
     private void CalculatePID(float loopTime){
         xP = xError;
         xI += xError * loopTime;
@@ -121,6 +147,10 @@ public class PIDController extends DriveController {
         zPower = (zP * zTuningP) + (zI * zTuningI) + (zD * zTuningD);
     }
 
+    /**
+     * A function that calculates the error for each of the 3 dimensions.
+     * As well as storing the past error for calculation use.
+     */
     private void CalculateError(){
         xErrorLast = xError;
         xError = xTarget - xPosition;
@@ -138,6 +168,9 @@ public class PIDController extends DriveController {
         }
     }
 
+    /**
+     * A function that resets all variables of PID to ensure that there is no bleed over between runs.
+     */
     private void ClearPID(){
         zP = 0;
         zI = 0;

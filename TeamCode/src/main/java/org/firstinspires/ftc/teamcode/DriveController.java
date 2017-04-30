@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.util.Range;
  * @version 2.0
  */
 public class DriveController {
-    public enum DriveType {Tank, Holonomic, Swerve, Slide} //These are all the types of drive trains that this drive train controller can handle
+    public enum DriveType {Tank, Holonomic, Swerve, Slide} //These are all the types of drive trains that this drive train controller can handle (Swerve is not implemented yet).
     public DriveType dT; //The type of drive train that this drive controller is set to
 
     private DcMotor[] driveMotors;
@@ -24,9 +24,9 @@ public class DriveController {
     private double max;
 
     /**
-     * Constructor for the DriveController,
-     * has two parameters to control the type of movement.
+     * Constructor for the DriveController.
      * @param driveType The type of drive train in use, uses the DriveType enum.
+     * @param hardwareMap The hardware map that sets up the motors.
      */
     public DriveController(DriveType driveType, HardwareMap hardwareMap){
         dT = driveType;
@@ -58,31 +58,9 @@ public class DriveController {
         }
     }
 
-    public int[] GetDistance(){
-        switch (dT) {
-            case Tank:
-                return new int[]
-                        {driveMotors[0].getCurrentPosition(),
-                         driveMotors[1].getCurrentPosition()};
-            case Holonomic:
-                return new int[]
-                        {driveMotors[0].getCurrentPosition(),
-                         driveMotors[1].getCurrentPosition(),
-                         driveMotors[2].getCurrentPosition(),
-                         driveMotors[3].getCurrentPosition()};
-            case Swerve:
-                return new int[]
-                        {};
-            case Slide:
-                return new int[]
-                        {driveMotors[0].getCurrentPosition(),
-                         driveMotors[1].getCurrentPosition(),
-                         driveMotors[2].getCurrentPosition(),
-                         driveMotors[3].getCurrentPosition()};
-        }
-        return null;
-    }
-
+    /**
+     * Sets the power of all the motors to 0.
+     */
     public void Stop(){
         Drive(0, 0, 0, 0);
     }
@@ -115,16 +93,33 @@ public class DriveController {
         return GetValues();
     }
 
+    /**
+     * Sets the current angle of the robot.
+     * @param angle The angle to set the current angle of the robot to.
+     */
     private void SetRotation(float angle){
         rotationAngle = angle;
     }
 
+    /**
+     * Sets the powers of the robot in each axis.
+     * @param x The power in the x axis.
+     * @param y The power in the y axis.
+     * @param z The power around the z axis.
+     */
     private void SetMovements(double x, double y, float z){
         xSpeed = x;
         ySpeed = y;
         zRotation = z;
     }
 
+    /**
+     * Gets the values to set each motor power to.
+     * For Tank Drive the array is set up as {Left Power, Right Power}
+     * For Holonomic Drive the array is set up as {Front Left Power, Back Left Power, Front Right Power, Back Right Power}
+     * For Slide Drive the array is set up as {Left Power, Right Power, Slide Power}
+     * @return The values to set each motor power to.
+     */
     private double[] GetValues(){
         switch (dT) {
             case Tank: //For Tank Drive the array is set up as {Left Power, Right Power}
@@ -133,8 +128,8 @@ public class DriveController {
                     max = 1;
                 }
                 return new double[]
-                        {GetPercentage(ySpeed+zRotation,max),
-                         GetPercentage(ySpeed-zRotation,max)};
+                        {Normalize(ySpeed+zRotation,max),
+                         Normalize(ySpeed-zRotation,max)};
             case Holonomic: //For Holonomic Drive the array is set up as {Front Left Power, Back Left Power, Front Right Power, Back Right Power}
                 max = Math.abs(ySpeed*Math.cos(rotationAngle)) +
                       Math.abs(ySpeed*Math.sin(rotationAngle)) +
@@ -145,10 +140,10 @@ public class DriveController {
                     max = 1;
                 }
                 return new double[]
-                        {GetPercentage(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         GetPercentage(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         GetPercentage(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
-                         GetPercentage(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max)};
+                        {Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
+                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
+                         Normalize(ySpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle)+xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
+                         Normalize(ySpeed*Math.cos(rotationAngle)-ySpeed*Math.sin(rotationAngle)-xSpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max)};
             case Swerve:
 
                 break;
@@ -160,14 +155,20 @@ public class DriveController {
                     max = 1;
                 }
                 return new double[]
-                        {GetPercentage(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
-                         GetPercentage(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
-                         GetPercentage(xSpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle),Math.abs(xSpeed*Math.cos(rotationAngle))+Math.abs(ySpeed*Math.sin(rotationAngle)))};
+                        {Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)+zRotation,max),
+                         Normalize(ySpeed*Math.cos(rotationAngle)+xSpeed*Math.sin(rotationAngle)-zRotation,max),
+                         Normalize(xSpeed*Math.cos(rotationAngle)+ySpeed*Math.sin(rotationAngle),Math.abs(xSpeed*Math.cos(rotationAngle))+Math.abs(ySpeed*Math.sin(rotationAngle)))};
         }
         return null;
     }
 
-    private double GetPercentage(double inTop, double inBottom){
+    /**
+     * Normalizes all motor powers to a value between -1 and 1.
+     * @param inTop The un-normalized value calculated.
+     * @param inBottom The maximum value that is being set to one of the motors to scale around.
+     * @return The normalized value of the power.
+     */
+    private double Normalize(double inTop, double inBottom){
         return inTop == 0 ? 0 : inTop/inBottom;
     }
 }

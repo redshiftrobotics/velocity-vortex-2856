@@ -20,8 +20,7 @@ public class TeleopController extends DriveController{
 
     /**
      * Constructor for the TeleopController,
-     * Has a parameter of the hardwareMap.
-     * @param hardwareMap
+     * @param hardwareMap The hardware map that sets up the motors and imu.
      */
     public TeleopController(HardwareMap hardwareMap) {
         super(DriveType.Holonomic, hardwareMap);
@@ -36,6 +35,10 @@ public class TeleopController extends DriveController{
         savedOrientation = 0;
     }
 
+    /**
+     * Runs the drive train under the control of the gamepad.
+     * @param gamepad The gamepad to use to control the drive train.
+     */
     public void Drive(Gamepad gamepad){
         if(gamepad.a&&!globalDeBounce){
             globalToggle = !globalToggle;
@@ -54,6 +57,9 @@ public class TeleopController extends DriveController{
         }
     }
 
+    /**
+     * Saves the current orientation for use in local movements.
+     */
     public void SetOrientation(){
         savedOrientation = imu.getAngularOrientation().firstAngle;
     }

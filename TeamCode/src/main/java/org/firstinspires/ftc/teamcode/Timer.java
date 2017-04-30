@@ -3,13 +3,20 @@ package org.firstinspires.ftc.teamcode;
 /**
  * Class to time events in order to have delay between events.
  * This class can calculate the change in time or check if a specific amount of time has passed.
+ * This class also can calculate the loopTime for use in PID.
+ * This class works in a millisecond based system.
  * @author Duncan McKee
- * @version 1.0
+ * @version 1.1
  */
 public class Timer {
     private long startTime;
     private long lastTime;
     public long loopTime;
+
+    /**
+     * Constructor for the Timer.
+     * Sets the start time to the current time.
+     */
     public Timer(){
         startTime = System.currentTimeMillis();
     }
