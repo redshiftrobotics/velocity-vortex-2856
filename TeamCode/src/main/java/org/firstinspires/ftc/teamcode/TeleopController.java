@@ -12,11 +12,12 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
  * @version 1.0
  */
 public class TeleopController extends DriveController{
-
-    BNO055IMU imu; //A BNO055IMU used to determine the angle of the robot to use global movements.
+    //region Private Variables
+    private BNO055IMU imu; //A BNO055IMU used to determine the angle of the robot to use global movements.
     private float savedOrientation; //The last orientation saved by the imu.
     private boolean globalDeBounce = false; //A boolean used to update the robot from global to local movements.
     private boolean globalToggle = false; //A boolean used to store which mode the robot's movements are in.
+    //endregion
 
     /**
      * Constructor for the TeleopController,
@@ -35,6 +36,7 @@ public class TeleopController extends DriveController{
         savedOrientation = 0;
     }
 
+    //region Public Methods
     /**
      * Runs the drive train under the control of the gamepad.
      * @param gamepad The gamepad to use to control the drive train.
@@ -63,4 +65,5 @@ public class TeleopController extends DriveController{
     public void SetOrientation(){
         savedOrientation = imu.getAngularOrientation().firstAngle;
     }
+    //endregion
 }

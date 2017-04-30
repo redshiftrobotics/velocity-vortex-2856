@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
@@ -14,14 +13,18 @@ import com.qualcomm.robotcore.util.Range;
  * @version 2.0
  */
 public class DriveController {
+    //region Public Variables
     public enum DriveType {Tank, Holonomic, Swerve, Slide} //These are all the types of drive trains that this drive train controller can handle (Swerve is not implemented yet).
-    public DriveType dT; //The type of drive train that this drive controller is set to
+    public DriveType dT; //The type of drive train that this drive controller is set to.
+    //endregion
 
-    private DcMotor[] driveMotors;
-    private double[] drivePower;
-    private double xSpeed, ySpeed, zRotation; //The x (side to side) and y (forward to back) speeds and the rotation around the center of the robot turning clockwise
+    //region Private Variables
+    private DcMotor[] driveMotors; //The set of motors that are used in the drive train.
+    private double[] drivePower; //The specific powers to set the the robots motors to.
+    private double xSpeed, ySpeed, zRotation; //The x (side to side) and y (forward to back) speeds and the rotation around the center of the robot turning clockwise.
     private double rotationAngle = 0; //The angle at which the robot has rotated from
     private double max;
+    //endregion
 
     /**
      * Constructor for the DriveController.
@@ -58,6 +61,7 @@ public class DriveController {
         }
     }
 
+    //region Public Methods
     /**
      * Sets the power of all the motors to 0.
      */
@@ -92,7 +96,9 @@ public class DriveController {
         SetRotation(angle);
         return GetValues();
     }
+    //endregion
 
+    //region Private Methods
     /**
      * Sets the current angle of the robot.
      * @param angle The angle to set the current angle of the robot to.
@@ -171,4 +177,5 @@ public class DriveController {
     private double Normalize(double inTop, double inBottom){
         return inTop == 0 ? 0 : inTop/inBottom;
     }
+    //endregion
 }

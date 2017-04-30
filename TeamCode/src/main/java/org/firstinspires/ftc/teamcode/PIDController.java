@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.Range;
  * @version 2.0
  */
 public class PIDController extends DriveController {
+    //region Private Variables
     private Timer timer;
     private BNO055IMU imu;
 
@@ -31,6 +32,7 @@ public class PIDController extends DriveController {
 
     private double xPower, yPower;
     private float zPower;
+    //endregion
 
     /**
      * Constructor for the PIDController,
@@ -51,6 +53,7 @@ public class PIDController extends DriveController {
         timer = new Timer();
     }
 
+    //region Public Methods
     /**
      * Sets the zTuning constants to new values.
      * @param p The value for the zTuningP constant.
@@ -113,7 +116,9 @@ public class PIDController extends DriveController {
         }
         Stop();
     }
+    //endregion
 
+    //region Private Methods
     /**
      * A function to execute all function necessary to run a PID loop.
      * @param loopTime The amount of time that the last loop run took in seconds.
@@ -186,4 +191,5 @@ public class PIDController extends DriveController {
         yError = 0; //Clear out error.
         CalculateError(); //Calculate the current error and clear out the last error.
     }
+    //endregion
 }

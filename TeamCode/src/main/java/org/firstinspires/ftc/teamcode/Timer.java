@@ -9,9 +9,14 @@ package org.firstinspires.ftc.teamcode;
  * @version 1.1
  */
 public class Timer {
+    //region Public Variables
+    public long loopTime;
+    //endregion
+
+    //region Private Variables
     private long startTime;
     private long lastTime;
-    public long loopTime;
+    //endregion
 
     /**
      * Constructor for the Timer.
@@ -21,6 +26,7 @@ public class Timer {
         startTime = System.currentTimeMillis();
     }
 
+    //region Public Methods
     /**
      * Starts or restarts the timer at the current time.
      */
@@ -53,4 +59,5 @@ public class Timer {
         loopTime = System.currentTimeMillis() - lastTime;
         lastTime = System.currentTimeMillis();
     }
+    //endregion
 }
