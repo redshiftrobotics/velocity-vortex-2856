@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
-import com.qualcomm.hardware.adafruit.BNO055IMU;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.util.Range;
@@ -20,7 +19,7 @@ public class PIDController extends DriveController {
 
     //region Private Variables
     private Timer timer; //A timer used to calculate timeout and looptime.
-    private BNO055IMU imu; //The imu we use to determine position and orientation.
+    private AdafruitBNO055IMU imu; //The imu we use to determine position and orientation.
 
     private double xError, xErrorLast; //The current and previous error in the x axis.
     private double yError, yErrorLast; //The current and previous error in the y axis.
@@ -46,11 +45,11 @@ public class PIDController extends DriveController {
     public PIDController(HardwareMap hardwareMap){
         super(DriveType.Holonomic, hardwareMap);
         I2cDeviceSynch imuInit; //Set up the IMU to the parameters we use.
-        BNO055IMU.Parameters imuParameters;
+        AdafruitBNO055IMU.Parameters imuParameters;
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
-        imuParameters = new BNO055IMU.Parameters();
-        imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        imuParameters = new AdafruitBNO055IMU.Parameters();
+        imuParameters.angleUnit = AdafruitBNO055IMU.AngleUnit.DEGREES;
+        imuParameters.accelUnit = AdafruitBNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu = new AdafruitBNO055IMU(imuInit);
         imu.initialize(imuParameters);
         timer = new Timer();

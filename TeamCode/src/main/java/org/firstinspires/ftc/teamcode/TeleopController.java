@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
-import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
  */
 public class TeleopController extends DriveController{
     //region Private Variables
-    private BNO055IMU imu; //A BNO055IMU used to determine the angle of the robot to use global movements.
+    private AdafruitBNO055IMU imu; //A BNO055IMU used to determine the angle of the robot to use global movements.
     private float savedOrientation; //The last orientation saved by the imu.
     private boolean globalDeBounce = false; //A boolean used to update the robot from global to local movements.
     private boolean globalToggle = false; //A boolean used to store which mode the robot's movements are in.
@@ -26,11 +26,11 @@ public class TeleopController extends DriveController{
     public TeleopController(HardwareMap hardwareMap) {
         super(DriveType.Holonomic, hardwareMap);
         I2cDeviceSynch imuInit; //Set up the IMU to the parameters we use.
-        BNO055IMU.Parameters imuParameters;
+        AdafruitBNO055IMU.Parameters imuParameters;
         imuInit = hardwareMap.i2cDeviceSynch.get("imu");
-        imuParameters = new BNO055IMU.Parameters();
-        imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        imuParameters = new AdafruitBNO055IMU.Parameters();
+        imuParameters.angleUnit = AdafruitBNO055IMU.AngleUnit.DEGREES;
+        imuParameters.accelUnit = AdafruitBNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         imu = new AdafruitBNO055IMU(imuInit);
         imu.initialize(imuParameters);
         savedOrientation = 0; //Set the current orientation to 0.

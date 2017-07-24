@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
 
-import com.qualcomm.hardware.adafruit.BNO055IMU;
+import com.qualcomm.hardware.adafruit.AdafruitBNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -63,9 +63,9 @@ public class Robot {
         tm.update();
         // Initialize the IMU & its parameters. We will always be using Degrees for angle
         // measurement and Meters per sec per sec for acceleration.
-        Data.imuParameters = new BNO055IMU.Parameters();
-        Data.imuParameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        Data.imuParameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        Data.imuParameters = new AdafruitBNO055IMU.Parameters();
+        Data.imuParameters.angleUnit = AdafruitBNO055IMU.AngleUnit.DEGREES;
+        Data.imuParameters.accelUnit = AdafruitBNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
 
         Data.imu = new AdafruitBNO055IMU(imu);
         Data.imu.initialize(Data.imuParameters);
@@ -632,8 +632,8 @@ public class Robot {
 // The PID, RobotTime, and Drive Classes act as child data containers for neater organization.
 
 class RobotData {
-    BNO055IMU imu;
-    BNO055IMU.Parameters imuParameters;
+    AdafruitBNO055IMU imu;
+    AdafruitBNO055IMU.Parameters imuParameters;
     PID PID;
     RobotTime Time;
     Drive Drive;
