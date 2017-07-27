@@ -8,11 +8,6 @@ import com.qualcomm.robotcore.hardware.I2cDeviceReader;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
-import java.util.ArrayList;
-
-/**
- * Created by Michael on 6/6/2017.
- */
 @Autonomous(name = "Pixy", group = "Sensor")
 public class PixyCam extends LinearOpMode {
     I2cDevice pixy;
@@ -84,8 +79,8 @@ class pixyObject{
 
     void UpdateObject(byte[] cache){
         signature = cache[7] * 256 + ((cache[6] < 0) ? cache[6] + 256 : cache[6]);
-        xCenter = cache[9] * 256 + ((cache[8] < 0) ? cache[8] + 256 : cache[8]);
-        yCenter = cache[11] * 256 + ((cache[10] < 0) ? cache[10] + 256 : cache[10]);
+        xCenter = 160 - (cache[9] * 256 + ((cache[8] < 0) ? cache[8] + 256 : cache[8]));
+        yCenter = 100 - (cache[11] * 256 + ((cache[10] < 0) ? cache[10] + 256 : cache[10]));
         width = cache[13] * 256 + ((cache[12] < 0) ? cache[12] + 256 : cache[12]);
         height = cache[15] * 256 + ((cache[14] < 0) ? cache[14] + 256 : cache[14]);
     }
