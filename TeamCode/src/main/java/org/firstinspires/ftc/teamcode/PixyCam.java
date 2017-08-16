@@ -4,11 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.I2cAddr;
 import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceReader;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
-@Autonomous(name = "Pixy", group = "Sensor")
+@Autonomous(name = "Sensor: Pixy", group = "Sensor")
 public class PixyCam extends LinearOpMode {
     I2cDevice pixy;
     I2cDeviceSynch pixyReader;

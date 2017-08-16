@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.util.Log;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.io.BufferedReader;

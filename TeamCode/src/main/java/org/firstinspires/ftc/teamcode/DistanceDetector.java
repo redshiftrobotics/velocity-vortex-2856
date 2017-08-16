@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.util.Log;
-
-import com.qualcomm.robotcore.util.Range;
-
 /**
  * Created by adam on 3/13/17.
  */

@@ -3,13 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.I2cAddr;
-import com.qualcomm.robotcore.hardware.I2cDevice;
-import com.qualcomm.robotcore.hardware.I2cDeviceReader;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchImpl;
 
-@Autonomous(name = "PixySynch", group = "Sensor")
+@Autonomous(name = "Sensor: PixySynch", group = "Sensor")
 public class PixyCamSynch extends LinearOpMode {
     I2cDeviceSynch pixy;
     byte[] readCache;
@@ -39,7 +35,6 @@ public class PixyCamSynch extends LinearOpMode {
                 PixyObject.UpdateObject(readCache);
                 telemetry.addData("Tracking", "True");
                 telemetry.addData("Sig", PixyObject.signature + ", x: " + PixyObject.xCenter + ", y: " + PixyObject.yCenter + ", w: " + PixyObject.width + ", h: " + PixyObject.height);
-
                 trackingMotor.setPower(((float)PixyObject.xCenter)/1000f);
             }else if(zeroCheck==0){
                 telemetry.addData("Sig", PixyObject.signature + ", x: " + PixyObject.xCenter + ", y: " + PixyObject.yCenter + ", w: " + PixyObject.width + ", h: " + PixyObject.height);
