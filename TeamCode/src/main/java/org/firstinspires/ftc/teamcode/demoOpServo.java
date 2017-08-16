@@ -2,25 +2,24 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 
 /**
  * Created by Duncan on 8/15/2017.
  */
 
-@TeleOp(name="Demo Op")
-public class demoOpMode extends OpMode{
+@TeleOp(name="Demo Op Servo",group="Demo")
+public class demoOpServo extends OpMode{
 
-    DcMotor motor;
+    Servo servo;
 
     @Override
     public void init() {
-        motor = hardwareMap.dcMotor.get("motor");
+        servo = hardwareMap.servo.get("servo");
     }
 
     @Override
     public void loop() {
-        motor.setPower(gamepad1.right_stick_y);
+        servo.setPosition((gamepad1.right_stick_y+1f)/2f);
     }
 }
