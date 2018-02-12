@@ -1,3 +1,7 @@
+# THIS REPOSITORY HAS BEEN ARCHIVED
+## As 2856 Tesseract's 2016-2017 (Velocity Vortex) season has ended, this repository has been archived.
+### Additionally, this repository also contains the code for 2856 Tesseract's 2014-2015 (Cascade Effect) and 2015-2016 (Res Q) seasons in its Git history. 2856 Tesseract appologizes for this horrible misuse of version control.
+
 # ftc_app
 FTC Android Studio project to create FTC Robot Controller app.
 
